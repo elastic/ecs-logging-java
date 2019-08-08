@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>co.elastic.logging</groupId>
+    <artifactId>java-ecs-logging-parent</artifactId>
+    <version>0.1.0-SNAPSHOT</version>
+    <modules>
+        <module>ecs-logging-core</module>
+        <module>log4j-ecs-layout</module>
+        <module>log4j2-ecs-layout</module>
+        <module>logback-ecs-encoder</module>
+    </modules>
+    <packaging>pom</packaging>
+
+
+    <properties>
+        <version.junit-jupiter>5.5.1</version.junit-jupiter>
+        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.testTarget>9</maven.compiler.testTarget>
+    </properties>
+    <build>
+        <plugins>
+            <plugin>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.19.1</version>
+                <configuration>
+                    <enableAssertions>true</enableAssertions>
+                    <trimStackTrace>false</trimStackTrace>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.junit.platform</groupId>
+                        <artifactId>junit-platform-surefire-provider</artifactId>
+                        <version>1.1.1</version>
+                    </dependency>
+                    <dependency>
+                        <groupId>org.junit.jupiter</groupId>
+                        <artifactId>junit-jupiter-engine</artifactId>
+                        <version>${version.junit-jupiter}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>${maven.compiler.target}</source>
+                    <target>${maven.compiler.target}</target>
+                    <testSource>${maven.compiler.testTarget}</testSource>
+                    <testTarget>${maven.compiler.testTarget}</testTarget>
+                    <encoding>UTF-8</encoding>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+    <dependencies>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>${version.junit-jupiter}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.assertj</groupId>
+            <artifactId>assertj-core</artifactId>
+            <version>3.12.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.9.9</version>
+            <scope>test</scope>
+        </dependency>
+
+    </dependencies>
+
+</project>
