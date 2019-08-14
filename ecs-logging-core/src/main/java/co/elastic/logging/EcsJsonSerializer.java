@@ -12,6 +12,7 @@ import java.util.Set;
 public class EcsJsonSerializer {
 
     public static final List<String> DEFAULT_TOP_LEVEL_LABELS = Arrays.asList("trace.id", "transaction.id", "span.id");
+    private static final TimestampSerializer TIMESTAMP_SERIALIZER = new TimestampSerializer();
 
     public static CharSequence toNullSafeString(final CharSequence s) {
         return s == null ? "" : s;
@@ -19,7 +20,9 @@ public class EcsJsonSerializer {
 
     public static void serializeObjectStart(StringBuilder builder, long timeMillis) {
         builder.append('{');
-        builder.append("\"@timestamp\":").append(timeMillis).append(",");
+        builder.append("\"@timestamp\":\"");
+        TIMESTAMP_SERIALIZER.serializeEpochTimestampAsIsoDateTime(builder, timeMillis);
+        builder.append("\", ");
     }
 
     public static void serializeObjectEnd(StringBuilder builder) {
@@ -50,7 +53,7 @@ public class EcsJsonSerializer {
             builder.append("\\n");
             JsonUtils.quoteAsString(formatThrowable(t), builder);
         }
-        builder.append("\",");
+        builder.append("\", ");
     }
 
     public static void serializeServiceName(StringBuilder builder, String serviceName) {
@@ -59,8 +62,17 @@ public class EcsJsonSerializer {
         }
     }
 
-    public static void serializeLogLevel(StringBuilder builder, Object level) {
-        builder.append("\"log.level\":\"").append(level).append("\",");
+    public static void serializeLogLevel(StringBuilder builder, String level) {
+        builder.append("\"log.level\":");
+        // add padding so that all levels line up
+        //  WARN
+        // ERROR
+        for (int i = 5 - level.length(); i > 0; i--) {
+            builder.append(' ');
+        }
+        builder.append('\"');
+        builder.append(level);
+        builder.append("\", ");
     }
 
     public static void serializeTag(StringBuilder builder, String tag) {
