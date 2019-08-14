@@ -15,9 +15,9 @@ This library helps to log ECS-compatible JSON into a file
 
 Example:
 ```
-{"@timestamp":1565093352375,"service.name":"spring-petclinic","process.thread.name":"restartedMain","log.level":"INFO","event.dataset":"org.springframework.boot.web.embedded.tomcat.TomcatWebServer","message":"Tomcat started on port(s): 8080 (http) with context path ''"}
-{"@timestamp":1565093352379,"service.name":"spring-petclinic","process.thread.name":"restartedMain","log.level":"INFO","event.dataset":"org.springframework.samples.petclinic.PetClinicApplication","message":"Started PetClinicApplication in 7.095 seconds (JVM running for 9.082)"}
-{"@timestamp":1565100520199,"service.name":"spring-petclinic","process.thread.name":"http-nio-8080-exec-8","log.level":"INFO","event.dataset":"org.springframework.samples.petclinic.owner.OwnerController","transaction.id":"28b7fb8d5aba51f1","trace.id":"2869b25b5469590610fea49ac04af7da","message":"init find form"}
+{"@timestamp":"2019-08-06T12:09:12.375Z", "log.level": "INFO", "message":"Tomcat started on port(s): 8080 (http) with context path ''", "service.name":"spring-petclinic","process.thread.name":"restartedMain","event.dataset":"org.springframework.boot.web.embedded.tomcat.TomcatWebServer"}
+{"@timestamp":"2019-08-06T12:09:12.379Z", "log.level": "INFO", "message":"Started PetClinicApplication in 7.095 seconds (JVM running for 9.082)", "service.name":"spring-petclinic","process.thread.name":"restartedMain","event.dataset":"org.springframework.samples.petclinic.PetClinicApplication"}
+{"@timestamp":"2019-08-06T14:08:40.199Z", "log.level":"DEBUG", "message":"init find form", "service.name":"spring-petclinic","process.thread.name":"http-nio-8080-exec-8","event.dataset":"org.springframework.samples.petclinic.owner.OwnerController","transaction.id":"28b7fb8d5aba51f1","trace.id":"2869b25b5469590610fea49ac04af7da"}
 ```
 
 ## Why ECS logging?

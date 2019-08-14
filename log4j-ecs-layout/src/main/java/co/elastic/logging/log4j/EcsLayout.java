@@ -16,14 +16,14 @@ public class EcsLayout extends Layout {
     public String format(LoggingEvent event) {
         StringBuilder builder = new StringBuilder();
         EcsJsonSerializer.serializeObjectStart(builder, event.getTimeStamp());
+        EcsJsonSerializer.serializeLogLevel(builder, event.getLevel().toString());
+        Throwable thrown = event.getThrowableInformation() != null ? event.getThrowableInformation().getThrowable() : null;
+        EcsJsonSerializer.serializeFormattedMessage(builder, event.getRenderedMessage(), thrown);
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
-        EcsJsonSerializer.serializeLogLevel(builder, event.getLevel());
         EcsJsonSerializer.serializeLoggerName(builder, event.getLoggerName());
         EcsJsonSerializer.serializeLabels(builder, event.getProperties(), topLevelLabels);
         EcsJsonSerializer.serializeTag(builder, event.getNDC());
-        Throwable thrown = event.getThrowableInformation() != null ? event.getThrowableInformation().getThrowable() : null;
-        EcsJsonSerializer.serializeFormattedMessage(builder, event.getRenderedMessage(), thrown);
         EcsJsonSerializer.serializeObjectEnd(builder);
         return builder.toString();
     }

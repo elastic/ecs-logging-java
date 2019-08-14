@@ -3,14 +3,19 @@ package co.elastic.logging;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.assertj.core.data.TemporalOffset;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.within;
 
 public abstract class AbstractEcsLoggingTest {
 
@@ -21,7 +26,7 @@ public abstract class AbstractEcsLoggingTest {
         debug("test");
         assertThat(getLastLogLine().get("process.thread.name").textValue()).isEqualTo(Thread.currentThread().getName());
         assertThat(getLastLogLine().get("service.name").textValue()).isEqualTo("test");
-        assertThat(getLastLogLine().get("@timestamp").longValue()).isGreaterThan(0);
+        assertThat(Instant.parse(getLastLogLine().get("@timestamp").textValue())).isCloseTo(Instant.now(), within(1, ChronoUnit.MINUTES));
         assertThat(getLastLogLine().get("log.level").textValue()).isEqualTo("DEBUG");
     }
 
