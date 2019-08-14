@@ -23,6 +23,7 @@ public abstract class AbstractEcsLoggingTest {
         assertThat(getLastLogLine().get("service.name").textValue()).isEqualTo("test");
         assertThat(getLastLogLine().get("@timestamp").longValue()).isGreaterThan(0);
         assertThat(getLastLogLine().get("log.level").textValue()).isEqualTo("DEBUG");
+        assertThat(getLastLogLine().get("log.logger")).isNotNull();
     }
 
     @Test
