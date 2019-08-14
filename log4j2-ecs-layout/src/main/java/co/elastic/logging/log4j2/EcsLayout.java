@@ -105,13 +105,13 @@ public class EcsLayout extends AbstractStringLayout {
 
     private StringBuilder toText(LogEvent event, StringBuilder builder, boolean gcFree) {
         EcsJsonSerializer.serializeObjectStart(builder, event.getTimeMillis());
+        EcsJsonSerializer.serializeLogLevel(builder, event.getLevel().toString());
+        serializeMessage(builder, gcFree, event.getMessage(), event.getThrown());
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
-        EcsJsonSerializer.serializeLogLevel(builder, event.getLevel());
         EcsJsonSerializer.serializeLoggerName(builder, event.getLoggerName());
         serializeLabels(event, builder);
         serializeTags(event, builder);
-        serializeMessage(builder, gcFree, event.getMessage(), event.getThrown());
         EcsJsonSerializer.serializeObjectEnd(builder);
         return builder;
     }
@@ -172,8 +172,7 @@ public class EcsLayout extends AbstractStringLayout {
             builder.append("\\n");
             JsonUtils.quoteAsString(formatThrowable(thrown), builder);
         }
-        builder.append('\"');
-        builder.append(',');
+        builder.append("\", ");
 
     }
 

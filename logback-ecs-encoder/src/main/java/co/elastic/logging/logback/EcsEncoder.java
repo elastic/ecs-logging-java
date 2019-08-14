@@ -32,13 +32,13 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
     public byte[] encode(ILoggingEvent event) {
         StringBuilder builder = new StringBuilder();
         EcsJsonSerializer.serializeObjectStart(builder, event.getTimeStamp());
-        EcsJsonSerializer.serializeServiceName(builder, serviceName);
-        EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
-        EcsJsonSerializer.serializeLogLevel(builder, event.getLevel());
-        EcsJsonSerializer.serializeLoggerName(builder, event.getLoggerName());
-        EcsJsonSerializer.serializeLabels(builder, event.getMDCPropertyMap(), topLevelLabels);
+        EcsJsonSerializer.serializeLogLevel(builder, event.getLevel().toString());
         EcsJsonSerializer.serializeFormattedMessage(builder, event.getFormattedMessage(), null);
         serializeException(event, builder);
+        EcsJsonSerializer.serializeServiceName(builder, serviceName);
+        EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
+        EcsJsonSerializer.serializeLoggerName(builder, event.getLoggerName());
+        EcsJsonSerializer.serializeLabels(builder, event.getMDCPropertyMap(), topLevelLabels);
         EcsJsonSerializer.serializeObjectEnd(builder);
         // all these allocations kinda hurt
         return builder.toString().getBytes(StandardCharsets.UTF_8);
@@ -46,8 +46,8 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
 
     private void serializeException(ILoggingEvent event, StringBuilder builder) {
         if (event.getThrowableProxy() != null) {
-            // remove ",
-            builder.setLength(builder.length() - 2);
+            // remove `", `
+            builder.setLength(builder.length() - 3);
             builder.append("\\n");
             JsonUtils.quoteAsString(throwableProxyConverter.convert(event), builder);
             builder.append("\",");
