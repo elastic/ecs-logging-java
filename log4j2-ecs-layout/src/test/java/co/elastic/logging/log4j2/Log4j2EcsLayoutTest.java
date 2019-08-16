@@ -74,8 +74,9 @@ class Log4j2EcsLayoutTest extends AbstractEcsLoggingTest {
         EcsLayout ecsLayout = EcsLayout.newBuilder()
                 .setConfiguration(ctx.getConfiguration())
                 .setServiceName("test")
-                .setGlobalLabels(new KeyValuePair[]{
-                        new KeyValuePair("global_foo", "bar")
+                .setAdditionalFields(new KeyValuePair[]{
+                        new KeyValuePair("cluster.uuid", "9fe9134b-20b0-465e-acf9-8cc09ac9053b"),
+                        new KeyValuePair("node.id", "${node.id}"),
                 })
                 .build();
 
@@ -83,6 +84,7 @@ class Log4j2EcsLayoutTest extends AbstractEcsLoggingTest {
         listAppender.start();
         root.addAppender(listAppender);
         root.setLevel(Level.DEBUG);
+        ctx.getConfiguration().getProperties().put("node.id", "foo");
     }
 
     @AfterEach
@@ -92,8 +94,11 @@ class Log4j2EcsLayoutTest extends AbstractEcsLoggingTest {
 
     @Test
     void globalLabels() throws Exception {
+        putMdc("trace.id", "foo");
         debug("test");
-        assertThat(getLastLogLine().get("labels.global_foo").textValue()).isEqualTo("bar");
+        assertThat(getLastLogLine().get("cluster.uuid").textValue()).isEqualTo("9fe9134b-20b0-465e-acf9-8cc09ac9053b");
+        assertThat(getLastLogLine().get("node.id").textValue()).isEqualTo("foo");
+        assertThat(getLastLogLine().get("404")).isNull();
     }
 
     @Override

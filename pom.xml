@@ -49,7 +49,7 @@
     <properties>
         <version.junit-jupiter>5.5.1</version.junit-jupiter>
         <maven.compiler.target>6</maven.compiler.target>
-        <maven.compiler.testTarget>9</maven.compiler.testTarget>
+        <maven.compiler.testTarget>10</maven.compiler.testTarget>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <parent.base.dir>${project.basedir}</parent.base.dir>
@@ -67,6 +67,19 @@
     </distributionManagement>
 
     <profiles>
+        <!--
+        This profile is needed to be active in IntelliJ
+        as it does not understand that the tests have a different target version
+        -->
+        <profile>
+            <id>IntelliJ</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <properties>
+                <maven.compiler.target>10</maven.compiler.target>
+            </properties>
+        </profile>
         <profile>
             <id>gpg</id>
             <activation>

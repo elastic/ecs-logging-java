@@ -47,7 +47,6 @@ import org.apache.logging.log4j.util.TriConsumer;
 
 import java.io.PrintWriter;
 import java.nio.charset.Charset;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -74,25 +73,17 @@ public class EcsLayout extends AbstractStringLayout {
         }
     };
 
-    private final List<KeyValuePair> globalLabels = new ArrayList<KeyValuePair>();
+    private final KeyValuePair[] additionalFields;
     private final Set<String> topLevelLabels;
     private String serviceName;
 
-    private EcsLayout(Configuration config, String serviceName, KeyValuePair[] globalLabels, Collection<String> topLevelLabels) {
+    private EcsLayout(Configuration config, String serviceName, KeyValuePair[] additionalFields, Collection<String> topLevelLabels) {
         super(config, Charset.forName("UTF-8"), null, null);
         this.serviceName = serviceName;
         this.topLevelLabels = new HashSet<String>(topLevelLabels);
         this.topLevelLabels.add("trace.id");
         this.topLevelLabels.add("transaction.id");
-
-        for (KeyValuePair globalLabel : globalLabels != null ? globalLabels : new KeyValuePair[0]) {
-            String key = globalLabel.getKey();
-            if (!topLevelLabels.contains(key)) {
-                this.globalLabels.add(new KeyValuePair("labels." + key, globalLabel.getValue()));
-            } else {
-                this.globalLabels.add(globalLabel);
-            }
-        }
+        this.additionalFields = additionalFields;
     }
 
     @PluginBuilderFactory
@@ -140,14 +131,11 @@ public class EcsLayout extends AbstractStringLayout {
         return builder;
     }
 
-    // foreach allocates an Iterator
-    @SuppressWarnings("ForLoopReplaceableByForEach")
     private void serializeLabels(LogEvent event, StringBuilder builder) {
-        if (!event.getContextData().isEmpty() || !globalLabels.isEmpty()) {
-            if (!globalLabels.isEmpty()) {
+        if (!event.getContextData().isEmpty() || additionalFields.length > 0) {
+            if (additionalFields.length > 0) {
                 final StrSubstitutor strSubstitutor = getConfiguration().getStrSubstitutor();
-                for (int i = 0; i < globalLabels.size(); i++) {
-                    KeyValuePair additionalField = globalLabels.get(i);
+                for (KeyValuePair additionalField : additionalFields) {
                     builder.append('\"');
                     JsonUtils.quoteAsString(additionalField.getKey(), builder);
                     builder.append("\":\"");
@@ -213,9 +201,8 @@ public class EcsLayout extends AbstractStringLayout {
 
         @PluginBuilderAttribute("serviceName")
         private String serviceName;
-
-        @PluginElement("GlobalLabel")
-        private KeyValuePair[] globalLabels;
+        @PluginElement("AdditionalField")
+        private KeyValuePair[] additionalFields;
         @PluginElement("TopLevelLabels")
         private String[] topLevelLabels;
 
@@ -224,8 +211,8 @@ public class EcsLayout extends AbstractStringLayout {
             setCharset(Charset.forName("UTF-8"));
         }
 
-        public KeyValuePair[] getGlobalLabels() {
-            return globalLabels;
+        public KeyValuePair[] getAdditionalFields() {
+            return additionalFields;
         }
 
         public String getServiceName() {
@@ -246,8 +233,8 @@ public class EcsLayout extends AbstractStringLayout {
          *
          * @return this builder
          */
-        public EcsLayout.Builder setGlobalLabels(final KeyValuePair[] globalLabels) {
-            this.globalLabels = globalLabels;
+        public EcsLayout.Builder setAdditionalFields(final KeyValuePair[] additionalFields) {
+            this.additionalFields = additionalFields;
             return asBuilder();
         }
 
@@ -258,7 +245,7 @@ public class EcsLayout extends AbstractStringLayout {
 
         @Override
         public EcsLayout build() {
-            return new EcsLayout(getConfiguration(), serviceName, globalLabels, topLevelLabels == null ? Collections.<String>emptyList() : Arrays.<String>asList(topLevelLabels));
+            return new EcsLayout(getConfiguration(), serviceName, additionalFields, topLevelLabels == null ? Collections.<String>emptyList() : Arrays.<String>asList(topLevelLabels));
         }
     }
 }
