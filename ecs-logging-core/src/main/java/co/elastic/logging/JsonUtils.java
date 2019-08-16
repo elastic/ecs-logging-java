@@ -1,29 +1,51 @@
+/*-
+ * #%L
+ * Java ECS logging
+ * %%
+ * Copyright (C) 2019 Elastic and contributors
+ * %%
+ * Licensed to Elasticsearch B.V. under one or more contributor
+ * license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright
+ * ownership. Elasticsearch B.V. licenses this file to you under
+ * the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * #L%
+ */
 package co.elastic.logging;
 
 /**
- * This class is borrowed from <a href="https://github.com/FasterXML/jackson-core">Jackson</a>.
+ * This class is based on com.fasterxml.jackson.core.io.CharTypes,
+ * under Apache License 2.0
  */
 public final class JsonUtils {
 
-    private static final char[] HC = "0123456789ABCDEF".toCharArray();
+    private final static char[] HC = "0123456789ABCDEF".toCharArray();
 
     /**
-     * Read-only encoding table for first 128 Unicode code points (single-byte UTF-8 characters).
-     * Value of 0 means "no escaping"; other positive values that value is character
-     * to use after backslash; and negative values that generic (backslash - u)
-     * escaping is to be used.
+     * Lookup table used for determining which output characters in
+     * 7-bit ASCII range need to be quoted.
      */
-    private static final int[] ESC_CODES;
+    private final static int[] sOutputEscapes128;
+
     static {
-        final int[] table = new int[128];
+        int[] table = new int[128];
         // Control chars need generic escape sequence
         for (int i = 0; i < 32; ++i) {
             // 04-Mar-2011, tatu: Used to use "-(i + 1)", replaced with constant
             table[i] = -1;
         }
-        /* Others (and some within that range too) have explicit shorter
-         * sequences
-         */
+        // Others (and some within that range too) have explicit shorter sequences
         table['"'] = '"';
         table['\\'] = '\\';
         // Escaping of slash is optional, so let's not add it
@@ -32,71 +54,39 @@ public final class JsonUtils {
         table[0x0C] = 'f';
         table[0x0A] = 'n';
         table[0x0D] = 'r';
-        ESC_CODES = table;
+        sOutputEscapes128 = table;
     }
 
-    /**
-     * Temporary buffer used for composing quote/escape sequences
-     */
-    private final static ThreadLocal<char[]> _qbufLocal = new ThreadLocal<>();
-
-    private static char[] getQBuf() {
-        char[] _qbuf = _qbufLocal.get();
-        if (_qbuf == null) {
-            _qbuf = new char[6];
-            _qbuf[0] = '\\';
-            _qbuf[2] = '0';
-            _qbuf[3] = '0';
-
-            _qbufLocal.set(_qbuf);
-        }
-        return _qbuf;
-    }
-
-    /**
-     * Quote text contents using JSON standard quoting, and append results to a supplied {@link StringBuilder}.
-     */
-    public static void quoteAsString(final CharSequence input, final StringBuilder output) {
-        final char[] qbuf = getQBuf();
-        final int escCodeCount = ESC_CODES.length;
-        int inPtr = 0;
-        final int inputLen = input.length();
-
-        outer:
-        while (inPtr < inputLen) {
-            tight_loop:
-            while (true) {
-                final char c = input.charAt(inPtr);
-                if (c < escCodeCount && ESC_CODES[c] != 0) {
-                    break tight_loop;
-                }
-                output.append(c);
-                if (++inPtr >= inputLen) {
-                    break outer;
-                }
+    public static void quoteAsString(CharSequence content, StringBuilder sb) {
+        final int[] escCodes = sOutputEscapes128;
+        final int escLen = escCodes.length;
+        for (int i = 0, len = content.length(); i < len; ++i) {
+            char c = content.charAt(i);
+            if (c >= escLen || escCodes[c] == 0) {
+                sb.append(c);
+                continue;
             }
-            // something to escape; 2 or 6-char variant?
-            final char d = input.charAt(inPtr++);
-            final int escCode = ESC_CODES[d];
-            final int length = (escCode < 0)
-                    ? _appendNumeric(d, qbuf)
-                    : _appendNamed(escCode, qbuf);
+            sb.append('\\');
+            int escCode = escCodes[c];
+            if (escCode < 0) { // generic quoting (hex value)
+                // The only negative value sOutputEscapes128 returns
+                // is CharacterEscapes.ESCAPE_STANDARD, which mean
+                // appendQuotes should encode using the Unicode encoding;
+                // not sure if this is the right way to encode for
+                // CharacterEscapes.ESCAPE_CUSTOM or other (future)
+                // CharacterEscapes.ESCAPE_XXX values.
 
-            output.append(qbuf, 0, length);
+                // We know that it has to fit in just 2 hex chars
+                sb.append('u');
+                sb.append('0');
+                sb.append('0');
+                int value = c;  // widening
+                sb.append(HC[value >> 4]);
+                sb.append(HC[value & 0xF]);
+            } else { // "named", i.e. prepend with slash
+                sb.append((char) escCode);
+            }
         }
-    }
-
-    private static int _appendNumeric(final int value, final char[] qbuf) {
-        qbuf[1] = 'u';
-        // We know it's a control char, so only the last 2 chars are non-0
-        qbuf[4] = HC[value >> 4];
-        qbuf[5] = HC[value & 0xF];
-        return 6;
-    }
-
-    private static int _appendNamed(final int esc, final char[] qbuf) {
-        qbuf[1] = (char) esc;
-        return 2;
     }
 
 }

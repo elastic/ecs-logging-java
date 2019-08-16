@@ -1,3 +1,27 @@
+/*-
+ * #%L
+ * Java ECS logging
+ * %%
+ * Copyright (C) 2019 Elastic and contributors
+ * %%
+ * Licensed to Elasticsearch B.V. under one or more contributor
+ * license agreements. See the NOTICE file distributed with
+ * this work for additional information regarding copyright
+ * ownership. Elasticsearch B.V. licenses this file to you under
+ * the Apache License, Version 2.0 (the "License"); you may
+ * not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ * #L%
+ */
 package co.elastic.logging.log4j2;
 
 
@@ -22,7 +46,7 @@ import org.apache.logging.log4j.util.StringBuilderFormattable;
 import org.apache.logging.log4j.util.TriConsumer;
 
 import java.io.PrintWriter;
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -34,7 +58,7 @@ import java.util.Set;
 @Plugin(name = "EcsLayout", category = Node.CATEGORY, elementType = Layout.ELEMENT_TYPE)
 public class EcsLayout extends AbstractStringLayout {
 
-    private static final ThreadLocal<StringBuilder> messageStringBuilder = new ThreadLocal<>();
+    private static final ThreadLocal<StringBuilder> messageStringBuilder = new ThreadLocal<StringBuilder>();
 
     private final TriConsumer<String, Object, StringBuilder> WRITE_KEY_VALUES_INTO = new TriConsumer<String, Object, StringBuilder>() {
         @Override
@@ -50,14 +74,14 @@ public class EcsLayout extends AbstractStringLayout {
         }
     };
 
-    private final List<KeyValuePair> globalLabels = new ArrayList<>();
+    private final List<KeyValuePair> globalLabels = new ArrayList<KeyValuePair>();
     private final Set<String> topLevelLabels;
     private String serviceName;
 
     private EcsLayout(Configuration config, String serviceName, KeyValuePair[] globalLabels, Collection<String> topLevelLabels) {
-        super(config, StandardCharsets.UTF_8, null, null);
+        super(config, Charset.forName("UTF-8"), null, null);
         this.serviceName = serviceName;
-        this.topLevelLabels = new HashSet<>(topLevelLabels);
+        this.topLevelLabels = new HashSet<String>(topLevelLabels);
         this.topLevelLabels.add("trace.id");
         this.topLevelLabels.add("transaction.id");
 
@@ -197,7 +221,7 @@ public class EcsLayout extends AbstractStringLayout {
 
         Builder() {
             super();
-            setCharset(StandardCharsets.UTF_8);
+            setCharset(Charset.forName("UTF-8"));
         }
 
         public KeyValuePair[] getGlobalLabels() {
@@ -234,7 +258,7 @@ public class EcsLayout extends AbstractStringLayout {
 
         @Override
         public EcsLayout build() {
-            return new EcsLayout(getConfiguration(), serviceName, globalLabels, topLevelLabels == null ? Collections.emptyList() : Arrays.asList(topLevelLabels));
+            return new EcsLayout(getConfiguration(), serviceName, globalLabels, topLevelLabels == null ? Collections.<String>emptyList() : Arrays.<String>asList(topLevelLabels));
         }
     }
 }

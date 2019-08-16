@@ -10,6 +10,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ecs-logging-core</artifactId>
+    <properties>
+        <parent.base.dir>${project.basedir}/..</parent.base.dir>
+    </properties>
 
     <build>
         <plugins>
