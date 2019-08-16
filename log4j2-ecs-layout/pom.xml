@@ -9,6 +9,10 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
+    <properties>
+        <parent.base.dir>${project.basedir}/..</parent.base.dir>
+    </properties>
+
     <artifactId>log4j2-ecs-layout</artifactId>
     <dependencies>
         <dependency>
@@ -36,6 +40,5 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
 
 </project>

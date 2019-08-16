@@ -10,6 +10,11 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>logback-ecs-encoder</artifactId>
+
+    <properties>
+        <parent.base.dir>${project.basedir}/..</parent.base.dir>
+    </properties>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>

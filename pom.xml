@@ -14,12 +14,27 @@
         <module>logback-ecs-encoder</module>
     </modules>
     <packaging>pom</packaging>
+    <inceptionYear>2019</inceptionYear>
+    <organization>
+        <name>Elastic NV</name>
+        <url>https://www.elastic.co</url>
+    </organization>
 
+    <description>Centralized logging for Java applications with the Elastic stack made easy</description>
+    <url>https://github.com/elastic/java-ecs-logging</url>
+
+    <licenses>
+        <license>
+            <name>The Apache Software License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+        </license>
+    </licenses>
 
     <properties>
         <version.junit-jupiter>5.5.1</version.junit-jupiter>
-        <maven.compiler.target>8</maven.compiler.target>
+        <maven.compiler.target>6</maven.compiler.target>
         <maven.compiler.testTarget>9</maven.compiler.testTarget>
+        <parent.base.dir>${project.basedir}</parent.base.dir>
     </properties>
     <build>
         <plugins>
@@ -54,6 +69,63 @@
                     <testTarget>${maven.compiler.testTarget}</testTarget>
                     <encoding>UTF-8</encoding>
                 </configuration>
+            </plugin>
+            <plugin>
+                <groupId>com.coderplus.maven.plugins</groupId>
+                <artifactId>copy-rename-maven-plugin</artifactId>
+                <version>1.0</version>
+                <executions>
+                    <execution>
+                        <id>copy-file</id>
+                        <phase>process-resources</phase>
+                        <goals>
+                            <goal>copy</goal>
+                        </goals>
+                        <configuration>
+                            <fileSets>
+                                <fileSet>
+                                    <sourceFile>../LICENSE</sourceFile>
+                                    <destinationFile>target/classes/META-INF/LICENSE</destinationFile>
+                                </fileSet>
+                            </fileSets>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>1.19</version>
+                <configuration>
+                    <verbose>false</verbose>
+                    <licenseName>apache2_license</licenseName>
+                    <licenseResolver>file:///${parent.base.dir}/licenses</licenseResolver>
+                    <addJavaLicenseAfterPackage>false</addJavaLicenseAfterPackage>
+                    <failOnMissingHeader>true</failOnMissingHeader>
+                    <failOnNotUptodateHeader>true</failOnNotUptodateHeader>
+                    <projectName>Java ECS logging</projectName>
+                    <organizationName>Elastic and contributors</organizationName>
+                    <roots>
+                        <root>src/main/java</root>
+                        <root>src/test/java</root>
+                    </roots>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>first</id>
+                        <goals>
+                            <goal>update-file-header</goal>
+                        </goals>
+                        <phase>process-sources</phase>
+                    </execution>
+                    <execution>
+                        <id>license-header-check</id>
+                        <goals>
+                            <goal>check-file-header</goal>
+                        </goals>
+                        <phase>verify</phase>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
