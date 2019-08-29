@@ -55,7 +55,7 @@ public class EcsJsonSerializer {
     }
 
     public static void serializeLoggerName(StringBuilder builder, String loggerName) {
-        builder.append("\"event.dataset\":\"");
+        builder.append("\"log.logger\":\"");
         JsonUtils.quoteAsString(loggerName, builder);
         builder.append("\",");
     }
