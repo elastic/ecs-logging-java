@@ -37,6 +37,35 @@ This lets you jump from the [Span timeline in the APM UI](https://www.elastic.co
 showing only the logs which belong to the corresponding request.
 Vice versa, you can also jump from a log line in the Logs UI to the Span Timeline of the APM UI.
 
+## Advantages
+
+* No external dependencies
+* Highly efficient by manually serializing JSON
+* Low/Zero allocations (reduces GC pauses) \
+  The log4j2 `EcsLayout` does not allocate any memory (unless the log event contains an `Exception`)
+* No parsing of the log file required
+* Decently human-readable JSON structure \
+  The first three fields are always `@timestamp`, `log.level` and `message`.
+* Use the Kibana [Logs UI](https://www.elastic.co/guide/en/kibana/7.3/xpack-logs.html) without additional configuration \
+  As this library adheres to [ECS](https://www.elastic.co/guide/en/ecs/current/ecs-reference.html), the Logs UI knows which fields to show
+  
+### Additional advantages when using in combination with Filebeat
+
+We recommend using this library to log into a JSON log file and let Filebeat send the logs to Elasticsearch
+* Resilient in case of outages \
+  [Guaranteed at-least-once delivery](https://www.elastic.co/guide/en/beats/filebeat/current/how-filebeat-works.html#at-least-once-delivery)
+  without buffering within the application, thus no risk of `OutOfMemoryError`s or lost events.
+  There's also the option to use either the JSON logs or plain-text logs as a fallback.
+* Loose coupling \
+  The application does not need to know the details of the logging backend (URI, credentials, etc.).
+  You can also leverage alternative [Filebeat outputs](https://www.elastic.co/guide/en/beats/filebeat/current/configuring-output.html),
+  like Logstash, Kafka or Redis.
+* Index Lifecycle management \
+  Leverage Filebeat's default [index lifemanagement settings](https://www.elastic.co/guide/en/beats/filebeat/master/ilm.html).
+  This is much more efficient than using daily indices.
+* Efficient Elasticsearch mappings \
+  Leverage Filebeat's default ECS-compatible [index template](https://www.elastic.co/guide/en/beats/filebeat/master/configuration-template.html)
+
 ## Getting Started
 
 ### Logging configuration
