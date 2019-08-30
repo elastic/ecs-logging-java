@@ -48,6 +48,7 @@ Vice versa, you can also jump from a log line in the Logs UI to the Span Timelin
   The first three fields are always `@timestamp`, `log.level` and `message`.
 * Use the Kibana [Logs UI](https://www.elastic.co/guide/en/kibana/7.3/xpack-logs.html) without additional configuration \
   As this library adheres to [ECS](https://www.elastic.co/guide/en/ecs/current/ecs-reference.html), the Logs UI knows which fields to show
+* Out-of-the-box correlation of logs and traces via the Logs UI and APM UI when using the [Elastic APM Java agent](https://www.elastic.co/guide/en/apm/agent/java/current/index.html)
   
 ### Additional advantages when using in combination with Filebeat
 
