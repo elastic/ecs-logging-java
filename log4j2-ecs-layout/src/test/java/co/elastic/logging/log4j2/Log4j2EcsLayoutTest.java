@@ -33,6 +33,7 @@ import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.BasicConfigurationFactory;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.appender.ConsoleAppender;
 import org.apache.logging.log4j.core.config.ConfigurationFactory;
 import org.apache.logging.log4j.core.util.KeyValuePair;
 import org.apache.logging.log4j.test.appender.ListAppender;
@@ -82,6 +83,9 @@ class Log4j2EcsLayoutTest extends AbstractEcsLoggingTest {
 
         listAppender = new ListAppender("ecs", null, ecsLayout, false, false);
         listAppender.start();
+        ConsoleAppender consoleAppender = ConsoleAppender.createDefaultAppenderForLayout(ecsLayout);
+        consoleAppender.start();
+        root.addAppender(consoleAppender);
         root.addAppender(listAppender);
         root.setLevel(Level.DEBUG);
         ctx.getConfiguration().getProperties().put("node.id", "foo");
@@ -90,6 +94,17 @@ class Log4j2EcsLayoutTest extends AbstractEcsLoggingTest {
     @AfterEach
     public void tearDown() throws Exception {
         ThreadContext.clearAll();
+    }
+
+    @Test
+    void patternConverters(){
+        ctx.getConfiguration().getProperties().put("node.id", "%d");
+        root.debug("test ");
+    }
+
+    @Test
+    void markerLogger(){
+
     }
 
     @Test
