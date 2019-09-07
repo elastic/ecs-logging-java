@@ -26,8 +26,8 @@ package co.elastic.logging.logback;
 
 import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.read.ListAppender;
+import ch.qos.logback.classic.util.ContextInitializer;
+import ch.qos.logback.core.joran.spi.JoranException;
 import co.elastic.logging.AbstractEcsLoggingTest;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
@@ -41,24 +41,17 @@ import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-class EcsEncoderTest extends AbstractEcsLoggingTest {
-
-    private ListAppender<ILoggingEvent> appender;
+class EcsEncoderIntegrationTest extends AbstractEcsLoggingTest {
+    private OutputStreamAppender appender;
     private Logger logger;
-    private EcsEncoder ecsEncoder;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws JoranException {
         LoggerContext context = new LoggerContext();
-        logger = context.getLogger(getClass());
-        appender = new ListAppender<>();
-        appender.setContext(context);
-        appender.start();
-        logger.addAppender(appender);
-        ecsEncoder = new EcsEncoder();
-        ecsEncoder.setServiceName("test");
-        ecsEncoder.setIncludeMarkers(true);
-        ecsEncoder.start();
+        ContextInitializer contextInitializer = new ContextInitializer(context);
+        contextInitializer.configureByResource(this.getClass().getResource("/logback-config.xml"));
+        logger = context.getLogger("root");
+        appender = (OutputStreamAppender) logger.getAppender("out");
     }
 
     @Override
@@ -93,6 +86,6 @@ class EcsEncoderTest extends AbstractEcsLoggingTest {
 
     @Override
     public JsonNode getLastLogLine() throws IOException {
-        return objectMapper.readTree(ecsEncoder.encode(appender.list.get(0)));
+        return objectMapper.readTree(appender.getBytes());
     }
 }

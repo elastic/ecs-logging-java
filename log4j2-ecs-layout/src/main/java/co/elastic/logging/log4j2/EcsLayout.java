@@ -26,6 +26,7 @@ package co.elastic.logging.log4j2;
 
 
 import co.elastic.logging.EcsJsonSerializer;
+import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.config.Configuration;
@@ -58,6 +59,7 @@ import java.util.Set;
 public class EcsLayout extends AbstractStringLayout {
 
     private static final ThreadLocal<StringBuilder> messageStringBuilder = new ThreadLocal<StringBuilder>();
+    public static final Charset UTF_8 = Charset.forName("UTF-8");
 
     private final TriConsumer<String, Object, StringBuilder> WRITE_KEY_VALUES_INTO = new TriConsumer<String, Object, StringBuilder>() {
         @Override
@@ -76,10 +78,12 @@ public class EcsLayout extends AbstractStringLayout {
     private final KeyValuePair[] additionalFields;
     private final Set<String> topLevelLabels;
     private String serviceName;
+    private boolean includeMarkers;
 
-    private EcsLayout(Configuration config, String serviceName, KeyValuePair[] additionalFields, Collection<String> topLevelLabels) {
-        super(config, Charset.forName("UTF-8"), null, null);
+    private EcsLayout(Configuration config, String serviceName, boolean includeMarkers, KeyValuePair[] additionalFields, Collection<String> topLevelLabels) {
+        super(config, UTF_8, null, null);
         this.serviceName = serviceName;
+        this.includeMarkers = includeMarkers;
         this.topLevelLabels = new HashSet<String>(topLevelLabels);
         this.topLevelLabels.add("trace.id");
         this.topLevelLabels.add("transaction.id");
@@ -152,16 +156,35 @@ public class EcsLayout extends AbstractStringLayout {
 
     private void serializeTags(LogEvent event, StringBuilder builder) {
         List<String> contextStack = event.getContextStack().asList();
+        Marker marker = event.getMarker();
+        if (!contextStack.isEmpty() || (includeMarkers && marker != null)) {
+            EcsJsonSerializer.serializeTagStart(builder);
+        }
+
         if (!contextStack.isEmpty()) {
-            builder.append("\"tags\":[");
             for (int i = 0; i < contextStack.size(); i++) {
                 builder.append('\"');
                 JsonUtils.quoteAsString(contextStack.get(i), builder);
                 builder.append("\",");
             }
-            // removes last comma
-            builder.setLength(builder.length() - 1);
-            builder.append("],");
+        }
+
+        if (includeMarkers && marker != null) {
+            serializeMarker(builder, marker);
+        }
+
+        if (!contextStack.isEmpty() || (includeMarkers && marker != null)) {
+            EcsJsonSerializer.serializeTagEnd(builder);
+        }
+    }
+
+    private void serializeMarker(StringBuilder builder, Marker marker) {
+        EcsJsonSerializer.serializeSingleTag(builder, marker.getName());
+        if (marker.hasParents()) {
+            Marker[] parents = marker.getParents();
+            for (int i = 0; i < parents.length; i++) {
+                serializeMarker(builder, parents[i]);
+            }
         }
     }
 
@@ -201,6 +224,8 @@ public class EcsLayout extends AbstractStringLayout {
 
         @PluginBuilderAttribute("serviceName")
         private String serviceName;
+        @PluginBuilderAttribute("includeMarkers")
+        private boolean includeMarkers = false;
         @PluginElement("AdditionalField")
         private KeyValuePair[] additionalFields;
         @PluginElement("TopLevelLabels")
@@ -208,7 +233,7 @@ public class EcsLayout extends AbstractStringLayout {
 
         Builder() {
             super();
-            setCharset(Charset.forName("UTF-8"));
+            setCharset(UTF_8);
         }
 
         public KeyValuePair[] getAdditionalFields() {
@@ -217,6 +242,10 @@ public class EcsLayout extends AbstractStringLayout {
 
         public String getServiceName() {
             return serviceName;
+        }
+
+        public boolean isIncludeMarkers() {
+            return includeMarkers;
         }
 
         public String[] getTopLevelLabels() {
@@ -243,9 +272,14 @@ public class EcsLayout extends AbstractStringLayout {
             return asBuilder();
         }
 
+        public EcsLayout.Builder setIncludeMarkers(final boolean includeMarkers) {
+            this.includeMarkers = includeMarkers;
+            return asBuilder();
+        }
+
         @Override
         public EcsLayout build() {
-            return new EcsLayout(getConfiguration(), serviceName, additionalFields, topLevelLabels == null ? Collections.<String>emptyList() : Arrays.<String>asList(topLevelLabels));
+            return new EcsLayout(getConfiguration(), serviceName, includeMarkers, additionalFields, topLevelLabels == null ? Collections.<String>emptyList() : Arrays.<String>asList(topLevelLabels));
         }
     }
 }

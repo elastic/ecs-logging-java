@@ -103,6 +103,21 @@ public class EcsJsonSerializer {
         }
     }
 
+    public static void serializeTagStart(StringBuilder builder) {
+        builder.append("\"tags\":[");
+    }
+
+    public static void serializeSingleTag(StringBuilder builder, String tag) {
+        if (tag != null) {
+            builder.append("\"").append(tag).append("\",");
+        }
+    }
+
+    public static void serializeTagEnd(StringBuilder builder) {
+        builder.setLength(builder.length() - 1);
+        builder.append("],");
+    }
+
     public static void serializeLabels(StringBuilder builder, Map<String, ?> labels, Set<String> topLevelLabels) {
         if (!labels.isEmpty()) {
             for (Map.Entry<String, ?> entry : labels.entrySet()) {

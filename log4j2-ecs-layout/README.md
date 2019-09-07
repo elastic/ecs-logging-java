@@ -17,7 +17,14 @@ Add a dependency to your application
 
 ## Step 2: use the `EcsLayout`
 
-Instead of the usual `<PatternLayout/>`, use `<EcsLayout serviceName="my-app"/>`
+Instead of the usual `<PatternLayout/>`, use `<EcsLayout serviceName="my-app"/>`.
+
+If you want to include [Markers](https://logging.apache.org/log4j/2.0/manual/markers.html) as tags,
+set the `includeMarkers` attribute to `true` (default: `false`).
+
+```
+<EcsLayout serviceName="my-app" includeMarkers="true"/>
+```
 
 ## Example
 ```xml

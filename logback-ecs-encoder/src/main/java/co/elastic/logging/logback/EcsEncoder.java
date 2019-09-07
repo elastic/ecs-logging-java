@@ -29,15 +29,18 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.encoder.EncoderBase;
 import co.elastic.logging.EcsJsonSerializer;
 import co.elastic.logging.JsonUtils;
+import org.slf4j.Marker;
 
 import java.nio.charset.Charset;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
 public class EcsEncoder extends EncoderBase<ILoggingEvent> {
 
     private static final Charset UTF_8 = Charset.forName("UTF-8");
     private String serviceName;
+    private boolean includeMarkers = false;
     private ThrowableProxyConverter throwableProxyConverter;
     private Set<String> topLevelLabels = new HashSet<String>(EcsJsonSerializer.DEFAULT_TOP_LEVEL_LABELS);
 
@@ -60,6 +63,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         EcsJsonSerializer.serializeLogLevel(builder, event.getLevel().toString());
         EcsJsonSerializer.serializeFormattedMessage(builder, event.getFormattedMessage(), null);
         serializeException(event, builder);
+        serializeMarkers(event, builder);
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
         EcsJsonSerializer.serializeLoggerName(builder, event.getLoggerName());
@@ -67,6 +71,25 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         EcsJsonSerializer.serializeObjectEnd(builder);
         // all these allocations kinda hurt
         return builder.toString().getBytes(UTF_8);
+    }
+
+    private void serializeMarkers(ILoggingEvent event, StringBuilder builder) {
+        Marker marker = event.getMarker();
+        if (includeMarkers && marker != null) {
+            EcsJsonSerializer.serializeTagStart(builder);
+            serializeMarker(builder, marker);
+            EcsJsonSerializer.serializeTagEnd(builder);
+        }
+    }
+
+    private void serializeMarker(StringBuilder builder, Marker marker) {
+        if (marker != null) {
+            EcsJsonSerializer.serializeSingleTag(builder, marker.getName());
+            Iterator<Marker> it = marker.iterator();
+            while (it.hasNext()) {
+                serializeMarker(builder, it.next());
+            }
+        }
     }
 
     private void serializeException(ILoggingEvent event, StringBuilder builder) {
@@ -86,5 +109,9 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
 
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
+    }
+
+    public void setIncludeMarkers(boolean includeMarkers) {
+        this.includeMarkers = includeMarkers;
     }
 }

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="out" class="co.elastic.logging.logback.OutputStreamAppender">
+        <encoder class="co.elastic.logging.logback.EcsEncoder">
+            <serviceName>test</serviceName>
+            <includeMarkers>true</includeMarkers>
+        </encoder>
+    </appender>
+    <root level="DEBUG">
+        <appender-ref ref="out"/>
+    </root>
+</configuration>
