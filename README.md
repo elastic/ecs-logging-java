@@ -49,7 +49,7 @@ Vice versa, you can also jump from a log line in the Logs UI to the Span Timelin
 * Use the Kibana [Logs UI](https://www.elastic.co/guide/en/kibana/7.3/xpack-logs.html) without additional configuration \
   As this library adheres to [ECS](https://www.elastic.co/guide/en/ecs/current/ecs-reference.html), the Logs UI knows which fields to show
 * Out-of-the-box correlation of logs and traces via the Logs UI and APM UI when using the [Elastic APM Java agent](https://www.elastic.co/guide/en/apm/agent/java/current/index.html)
-  
+
 ### Additional advantages when using in combination with Filebeat
 
 We recommend using this library to log into a JSON log file and let Filebeat send the logs to Elasticsearch
@@ -66,6 +66,19 @@ We recommend using this library to log into a JSON log file and let Filebeat sen
   This is much more efficient than using daily indices.
 * Efficient Elasticsearch mappings \
   Leverage Filebeat's default ECS-compatible [index template](https://www.elastic.co/guide/en/beats/filebeat/master/configuration-template.html)
+
+## Mapping
+
+|ECS field | Log4j2 API  |
+|----------|-------------|
+|[`@timestamp`](https://www.elastic.co/guide/en/ecs/current/ecs-base.html) | [`LogEvent#getTimeMillis()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getTimeMillis()) |
+| [`log.level`](https://www.elastic.co/guide/en/ecs/current/ecs-log.html) | [`LogEvent#getLevel()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getLevel()) |
+|[`log.logger`](https://www.elastic.co/guide/en/ecs/current/ecs-log.html)|[`LogEvent#getLoggerName(`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getLoggerName())|
+|[`message`](https://www.elastic.co/guide/en/ecs/current/ecs-base.html)|[`LogEvent#getMessage()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getMessage())|
+|[`message`](https://www.elastic.co/guide/en/ecs/current/ecs-base.html)|[`LogEvent#getThrown()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getThrown())|
+|[`process.thread.name`](https://www.elastic.co/guide/en/ecs/current/ecs-process.html)|[`LogEvent#getThreadName()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getThreadName()) |
+|[`labels`](https://www.elastic.co/guide/en/ecs/current/ecs-base.html)|[`LogEvent#getContextMap()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getContextMap())|
+|[`tags`](https://www.elastic.co/guide/en/ecs/current/ecs-base.html)|[`LogEvent#getContextStack()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getContextStack())|
 
 ## Getting Started
 
