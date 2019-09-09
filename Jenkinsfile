@@ -11,7 +11,7 @@ pipeline {
     JOB_GCS_BUCKET = credentials('gcs-bucket')
     DOCKERHUB_SECRET = 'secret/apm-team/ci/elastic-observability-dockerhub'
     MAVEN_CONFIG = '-Dmaven.repo.local=.m2'
-    JAVA_HOME = "${env.HUDSON_HOME}/.java/java10"
+    JAVA_HOME = "${env.HUDSON_HOME}/.java/java9"
   }
   options {
     timeout(time: 1, unit: 'HOURS')
