@@ -157,7 +157,8 @@ public class EcsLayout extends AbstractStringLayout {
     private void serializeTags(LogEvent event, StringBuilder builder) {
         List<String> contextStack = event.getContextStack().asList();
         Marker marker = event.getMarker();
-        if (!contextStack.isEmpty() || (includeMarkers && marker != null)) {
+        boolean hasTags = !contextStack.isEmpty() || (includeMarkers && marker != null);
+        if (hasTags) {
             EcsJsonSerializer.serializeTagStart(builder);
         }
 
@@ -173,7 +174,7 @@ public class EcsLayout extends AbstractStringLayout {
             serializeMarker(builder, marker);
         }
 
-        if (!contextStack.isEmpty() || (includeMarkers && marker != null)) {
+        if (hasTags) {
             EcsJsonSerializer.serializeTagEnd(builder);
         }
     }
