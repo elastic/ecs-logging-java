@@ -2,4 +2,4 @@
 - job:
     name: apm-agent-java/java-ecs-logging-mbp
     display-name: java-ecs-logging
-    description: Centralized logging for Java applications with the Elastic stack made easy
+    description: Centralized logging for Java applications with the Elastic stack
