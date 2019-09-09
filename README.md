@@ -1,3 +1,5 @@
+[![Build Status](https://apm-ci.elastic.co/buildStatus/icon?job=apm-agent-java%2Fjava-ecs-logging-mbp%2Fmaster)](https://apm-ci.elastic.co/job/apm-agent-java/job/java-ecs-logging-mbp/job/master/)
+
 # ECS-based logging for Java applications
 
 Centralized logging for Java applications with the Elastic stack made easy
@@ -32,7 +34,7 @@ which means that getting started with it is straightforward.
 If you are using the [Elastic APM Java agent](https://www.elastic.co/guide/en/apm/agent/java/current/index.html),
 you can leverage the [log correlation feature](https://www.elastic.co/guide/en/apm/agent/java/current/config-logging.html#config-enable-log-correlation) without any additional configuration.
 
-This lets you jump from the [Span timeline in the APM UI](https://www.elastic.co/guide/en/kibana/master/spans.html) to the 
+This lets you jump from the [Span timeline in the APM UI](https://www.elastic.co/guide/en/kibana/master/spans.html) to the
 [Logs UI](https://www.elastic.co/guide/en/kibana/7.3/xpack-logs.html),
 showing only the logs which belong to the corresponding request.
 Vice versa, you can also jump from a log line in the Logs UI to the Span Timeline of the APM UI.
@@ -101,7 +103,7 @@ filebeat.inputs:
 # no further processing required, logs can directly be sent to Elasticsearch  
 output.elasticsearch:
   hosts: ["https://localhost:9200"]
-  
+
 # Or to Elastic cloud
 # Example:
 #cloud.id: "staging:dXMtZWFzdC0xLmF3cy5mb3VuZC5pbyRjZWM2ZjI2MWE3NGJmMjRjZTMzYmI4ODExYjg0Mjk0ZiRjNmMyY2E2ZDA0MjI0OWFmMGNjN2Q3YTllOTYyNTc0Mw=="
@@ -121,9 +123,8 @@ For more information, check the [Filebeat documentation](https://www.elastic.co/
     ```yaml
     type: log
     json.keys_under_root: true
-    ``` 
+    ```
 - Add an `Output` configuration block
   - Set `Output type` to `Elasticsearch`
   - Configure the `hosts`
   - For secured Elasticsearch deployments (like Elastic cloud) set `Username` and `Password`
-
