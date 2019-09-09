@@ -35,6 +35,7 @@ import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.ConfigurationFactory;
 import org.apache.logging.log4j.core.util.KeyValuePair;
+import org.apache.logging.log4j.message.StringMapMessage;
 import org.apache.logging.log4j.test.appender.ListAppender;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
@@ -43,6 +44,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -101,6 +103,12 @@ class Log4j2EcsLayoutTest extends AbstractEcsLoggingTest {
         assertThat(getLastLogLine().get("404")).isNull();
     }
 
+    @Test
+    void testMapMessage() throws Exception {
+        root.info(new StringMapMessage(Map.of("foo", "bar")));
+        assertThat(getLastLogLine().get("labels.foo").textValue()).isEqualTo("bar");
+    }
+
     @Override
     public void putMdc(String key, String value) {
         ThreadContext.put(key, value);
@@ -124,6 +132,8 @@ class Log4j2EcsLayoutTest extends AbstractEcsLoggingTest {
 
     @Override
     public JsonNode getLastLogLine() throws IOException {
-        return objectMapper.readTree(listAppender.getMessages().get(0));
+        String content = listAppender.getMessages().get(0);
+        System.out.println(content);
+        return objectMapper.readTree(content);
     }
 }

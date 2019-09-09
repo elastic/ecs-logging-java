@@ -41,6 +41,7 @@ import org.apache.logging.log4j.core.lookup.StrSubstitutor;
 import org.apache.logging.log4j.core.util.JsonUtils;
 import org.apache.logging.log4j.core.util.KeyValuePair;
 import org.apache.logging.log4j.core.util.StringBuilderWriter;
+import org.apache.logging.log4j.message.MapMessage;
 import org.apache.logging.log4j.message.Message;
 import org.apache.logging.log4j.util.StringBuilderFormattable;
 import org.apache.logging.log4j.util.TriConsumer;
@@ -185,7 +186,10 @@ public class EcsLayout extends AbstractStringLayout {
             JsonUtils.quoteAsString(formatThrowable(thrown), builder);
         }
         builder.append("\", ");
-
+        if (message instanceof MapMessage) {
+            MapMessage mapMessage = (MapMessage) message;
+            mapMessage.forEach(WRITE_KEY_VALUES_INTO, builder);
+        }
     }
 
     private static CharSequence formatThrowable(final Throwable throwable) {
