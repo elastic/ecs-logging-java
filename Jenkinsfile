@@ -79,9 +79,8 @@ pipeline {
     }
     stage('Tests') {
       environment {
-        PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
+        MAVEN_CONFIG = "${params.MAVEN_CONFIG} ${env.MAVEN_CONFIG}"
       }
-      failFast true
       parallel {
         /**
           Run only unit test.
