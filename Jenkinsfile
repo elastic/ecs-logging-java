@@ -12,6 +12,8 @@ pipeline {
     DOCKERHUB_SECRET = 'secret/apm-team/ci/elastic-observability-dockerhub'
     MAVEN_CONFIG = '-Dmaven.repo.local=.m2'
     JAVA_HOME = "${env.HUDSON_HOME}/.java/java11"
+    HOME = "${env.WORKSPACE}"
+    PATH = "${env.HOME}/bin:${env.JAVA_HOME}/bin:${env.PATH}"
   }
   options {
     timeout(time: 1, unit: 'HOURS')
@@ -38,8 +40,6 @@ pipeline {
       agent { label 'linux && immutable' }
       options { skipDefaultCheckout() }
       environment {
-        HOME = "${env.WORKSPACE}"
-        PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
         MAVEN_CONFIG = "${params.MAVEN_CONFIG} ${env.MAVEN_CONFIG}"
       }
       stages {
@@ -49,7 +49,7 @@ pipeline {
         stage('Checkout') {
           steps {
             deleteDir()
-            gitCheckout(basedir: "${BASE_DIR}", githubNotifyFirstTimeContributor: true)
+            gitCheckout(basedir: env.BASE_DIR, githubNotifyFirstTimeContributor: true)
             stash allowEmpty: true, name: 'source', useDefaultExcludes: false
           }
         }
@@ -80,10 +80,7 @@ pipeline {
     stage('Tests') {
       environment {
         MAVEN_CONFIG = "${params.MAVEN_CONFIG} ${env.MAVEN_CONFIG}"
-        HOME = "${env.WORKSPACE}"
-        PATH = "${env.JAVA_HOME}/bin:${env.PATH}"
       }
-      failFast true
       parallel {
         /**
           Run only unit test.
