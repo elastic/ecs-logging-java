@@ -80,6 +80,8 @@ class Log4j2EcsLayoutTest extends AbstractEcsLoggingTest {
                         new KeyValuePair("cluster.uuid", "9fe9134b-20b0-465e-acf9-8cc09ac9053b"),
                         new KeyValuePair("node.id", "${node.id}"),
                         new KeyValuePair("empty", "${empty}"),
+                        new KeyValuePair("clazz", "%C"),
+                        new KeyValuePair("emptyPattern", "%notEmpty{%invalidPattern}"),
                 })
                 .build();
 
@@ -102,6 +104,8 @@ class Log4j2EcsLayoutTest extends AbstractEcsLoggingTest {
         assertThat(getLastLogLine().get("cluster.uuid").textValue()).isEqualTo("9fe9134b-20b0-465e-acf9-8cc09ac9053b");
         assertThat(getLastLogLine().get("node.id").textValue()).isEqualTo("foo");
         assertThat(getLastLogLine().get("empty")).isNull();
+        assertThat(getLastLogLine().get("emptyPattern")).isNull();
+        assertThat(getLastLogLine().get("clazz").textValue()).isEqualTo(getClass().getName());
         assertThat(getLastLogLine().get("404")).isNull();
     }
 
