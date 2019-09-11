@@ -137,6 +137,7 @@
                 <version>3.1.1</version>
                 <configuration>
                     <additionalOptions>-html5</additionalOptions>
+                    <source>${maven.compiler.target}</source>
                 </configuration>
                 <executions>
                     <execution>

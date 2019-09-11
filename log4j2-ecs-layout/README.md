@@ -29,7 +29,7 @@ set the `includeMarkers` attribute to `true` (default: `false`).
 ## Example
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration status="DEBUG" packages="co.elastic.logging.log4j2">
+<Configuration status="DEBUG">
     <Appenders>
         <Console name="LogToConsole" target="SYSTEM_OUT">
             <EcsLayout serviceName="my-app"/>

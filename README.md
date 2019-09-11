@@ -1,3 +1,5 @@
+[![Build Status](https://apm-ci.elastic.co/buildStatus/icon?job=apm-agent-java%2Fjava-ecs-logging-mbp%2Fmaster)](https://apm-ci.elastic.co/job/apm-agent-java/job/java-ecs-logging-mbp/job/master/)
+
 # ECS-based logging for Java applications
 
 Centralized logging for Java applications with the Elastic stack made easy
@@ -32,7 +34,7 @@ which means that getting started with it is straightforward.
 If you are using the [Elastic APM Java agent](https://www.elastic.co/guide/en/apm/agent/java/current/index.html),
 you can leverage the [log correlation feature](https://www.elastic.co/guide/en/apm/agent/java/current/config-logging.html#config-enable-log-correlation) without any additional configuration.
 
-This lets you jump from the [Span timeline in the APM UI](https://www.elastic.co/guide/en/kibana/master/spans.html) to the 
+This lets you jump from the [Span timeline in the APM UI](https://www.elastic.co/guide/en/kibana/master/spans.html) to the
 [Logs UI](https://www.elastic.co/guide/en/kibana/7.3/xpack-logs.html),
 showing only the logs which belong to the corresponding request.
 Vice versa, you can also jump from a log line in the Logs UI to the Span Timeline of the APM UI.
@@ -49,7 +51,7 @@ Vice versa, you can also jump from a log line in the Logs UI to the Span Timelin
 * Use the Kibana [Logs UI](https://www.elastic.co/guide/en/kibana/7.3/xpack-logs.html) without additional configuration \
   As this library adheres to [ECS](https://www.elastic.co/guide/en/ecs/current/ecs-reference.html), the Logs UI knows which fields to show
 * Out-of-the-box correlation of logs and traces via the Logs UI and APM UI when using the [Elastic APM Java agent](https://www.elastic.co/guide/en/apm/agent/java/current/index.html)
-  
+
 ### Additional advantages when using in combination with Filebeat
 
 We recommend using this library to log into a JSON log file and let Filebeat send the logs to Elasticsearch
@@ -66,6 +68,19 @@ We recommend using this library to log into a JSON log file and let Filebeat sen
   This is much more efficient than using daily indices.
 * Efficient Elasticsearch mappings \
   Leverage Filebeat's default ECS-compatible [index template](https://www.elastic.co/guide/en/beats/filebeat/master/configuration-template.html)
+
+## Mapping
+
+|ECS field | Log4j2 API  |
+|----------|-------------|
+|[`@timestamp`](https://www.elastic.co/guide/en/ecs/current/ecs-base.html) | [`LogEvent#getTimeMillis()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getTimeMillis()) |
+| [`log.level`](https://www.elastic.co/guide/en/ecs/current/ecs-log.html) | [`LogEvent#getLevel()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getLevel()) |
+|[`log.logger`](https://www.elastic.co/guide/en/ecs/current/ecs-log.html)|[`LogEvent#getLoggerName(`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getLoggerName())|
+|[`message`](https://www.elastic.co/guide/en/ecs/current/ecs-base.html)|[`LogEvent#getMessage()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getMessage())|
+|[`message`](https://www.elastic.co/guide/en/ecs/current/ecs-base.html)|[`LogEvent#getThrown()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getThrown())|
+|[`process.thread.name`](https://www.elastic.co/guide/en/ecs/current/ecs-process.html)|[`LogEvent#getThreadName()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getThreadName()) |
+|[`labels`](https://www.elastic.co/guide/en/ecs/current/ecs-base.html)|[`LogEvent#getContextMap()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getContextMap())|
+|[`tags`](https://www.elastic.co/guide/en/ecs/current/ecs-base.html)|[`LogEvent#getContextStack()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getContextStack())|
 
 ## Getting Started
 
@@ -88,7 +103,7 @@ filebeat.inputs:
 # no further processing required, logs can directly be sent to Elasticsearch  
 output.elasticsearch:
   hosts: ["https://localhost:9200"]
-  
+
 # Or to Elastic cloud
 # Example:
 #cloud.id: "staging:dXMtZWFzdC0xLmF3cy5mb3VuZC5pbyRjZWM2ZjI2MWE3NGJmMjRjZTMzYmI4ODExYjg0Mjk0ZiRjNmMyY2E2ZDA0MjI0OWFmMGNjN2Q3YTllOTYyNTc0Mw=="
@@ -108,9 +123,8 @@ For more information, check the [Filebeat documentation](https://www.elastic.co/
     ```yaml
     type: log
     json.keys_under_root: true
-    ``` 
+    ```
 - Add an `Output` configuration block
   - Set `Output type` to `Elasticsearch`
   - Configure the `hosts`
   - For secured Elasticsearch deployments (like Elastic cloud) set `Username` and `Password`
-
