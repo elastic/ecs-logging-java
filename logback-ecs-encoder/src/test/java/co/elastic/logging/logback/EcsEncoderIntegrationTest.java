@@ -24,26 +24,16 @@
  */
 package co.elastic.logging.logback;
 
-import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.util.ContextInitializer;
 import ch.qos.logback.core.joran.spi.JoranException;
-import co.elastic.logging.AbstractEcsLoggingTest;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.slf4j.MDC;
-import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
 
 import java.io.IOException;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-class EcsEncoderIntegrationTest extends AbstractEcsLoggingTest {
+class EcsEncoderIntegrationTest extends AbstractEcsEncoderTest {
     private OutputStreamAppender appender;
-    private Logger logger;
 
     @BeforeEach
     void setUp() throws JoranException {
@@ -52,36 +42,6 @@ class EcsEncoderIntegrationTest extends AbstractEcsLoggingTest {
         contextInitializer.configureByResource(this.getClass().getResource("/logback-config.xml"));
         logger = context.getLogger("root");
         appender = (OutputStreamAppender) logger.getAppender("out");
-    }
-
-    @Override
-    public void putMdc(String key, String value) {
-        MDC.put(key, value);
-    }
-
-    @Override
-    public void debug(String message) {
-        logger.debug(message);
-    }
-
-    @Test
-    void testMarker() throws Exception {
-        Marker parent = MarkerFactory.getMarker("parent");
-        Marker child = MarkerFactory.getMarker("child");
-        Marker grandchild = MarkerFactory.getMarker("grandchild");
-        child.add(grandchild);
-        parent.add(child);
-        logger.debug(parent, "test");
-
-        assertThat(getLastLogLine().get("tags")).contains(
-                TextNode.valueOf("parent"),
-                TextNode.valueOf("child"),
-                TextNode.valueOf("grandchild"));
-    }
-
-    @Override
-    public void error(String message, Throwable t) {
-        logger.error(message, t);
     }
 
     @Override

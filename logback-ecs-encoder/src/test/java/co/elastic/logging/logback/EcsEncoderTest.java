@@ -24,27 +24,17 @@
  */
 package co.elastic.logging.logback;
 
-import ch.qos.logback.classic.Logger;
 import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.core.read.ListAppender;
-import co.elastic.logging.AbstractEcsLoggingTest;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.TextNode;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.slf4j.MDC;
-import org.slf4j.Marker;
-import org.slf4j.MarkerFactory;
 
 import java.io.IOException;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-class EcsEncoderTest extends AbstractEcsLoggingTest {
+class EcsEncoderTest extends AbstractEcsEncoderTest {
 
     private ListAppender<ILoggingEvent> appender;
-    private Logger logger;
     private EcsEncoder ecsEncoder;
 
     @BeforeEach
@@ -59,36 +49,6 @@ class EcsEncoderTest extends AbstractEcsLoggingTest {
         ecsEncoder.setServiceName("test");
         ecsEncoder.setIncludeMarkers(true);
         ecsEncoder.start();
-    }
-
-    @Override
-    public void putMdc(String key, String value) {
-        MDC.put(key, value);
-    }
-
-    @Override
-    public void debug(String message) {
-        logger.debug(message);
-    }
-
-    @Test
-    void testMarker() throws Exception {
-        Marker parent = MarkerFactory.getMarker("parent");
-        Marker child = MarkerFactory.getMarker("child");
-        Marker grandchild = MarkerFactory.getMarker("grandchild");
-        child.add(grandchild);
-        parent.add(child);
-        logger.debug(parent, "test");
-
-        assertThat(getLastLogLine().get("tags")).contains(
-                TextNode.valueOf("parent"),
-                TextNode.valueOf("child"),
-                TextNode.valueOf("grandchild"));
-    }
-
-    @Override
-    public void error(String message, Throwable t) {
-        logger.error(message, t);
     }
 
     @Override

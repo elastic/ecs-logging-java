@@ -24,12 +24,7 @@
  */
 package co.elastic.logging.log4j2;
 
-import co.elastic.logging.AbstractEcsLoggingTest;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.node.TextNode;
-import org.apache.logging.log4j.Marker;
-import org.apache.logging.log4j.MarkerManager;
-import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.ConfigurationFactory;
@@ -39,14 +34,11 @@ import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-class Log4j2EcsLayoutIntegrationTest extends AbstractEcsLoggingTest {
+class Log4j2EcsLayoutIntegrationTest extends AbstractLog4j2EcsLayoutTest {
 
     private static ConfigurationFactory configFactory = new XmlConfigurationFactory();
     private LoggerContext ctx = LoggerContext.getContext();
@@ -69,58 +61,15 @@ class Log4j2EcsLayoutIntegrationTest extends AbstractEcsLoggingTest {
     }
 
     @BeforeEach
-    void setUp() throws Exception {
+    void setUp() {
         listAppender = (ListAppender) root.getAppenders().get("TestAppender");
         ctx.getConfiguration().getProperties().put("node.id", "foo");
     }
 
     @AfterEach
     void tearDown() throws Exception {
+        super.tearDown();
         listAppender.clear();
-        ThreadContext.clearAll();
-    }
-
-    @Test
-    void globalLabels() throws Exception {
-        putMdc("trace.id", "foo");
-        debug("test");
-        assertThat(getLastLogLine().get("cluster.uuid").textValue()).isEqualTo("9fe9134b-20b0-465e-acf9-8cc09ac9053b");
-        assertThat(getLastLogLine().get("node.id").textValue()).isEqualTo("foo");
-        assertThat(getLastLogLine().get("404")).isNull();
-    }
-
-    @Test
-    void testMarker() throws Exception {
-        Marker parent = MarkerManager.getMarker("parent");
-        Marker child = MarkerManager.getMarker("child").setParents(parent);
-        Marker grandchild = MarkerManager.getMarker("grandchild").setParents(child);
-        root.debug(grandchild, "test");
-
-        assertThat(getLastLogLine().get("tags")).contains(
-                TextNode.valueOf("parent"),
-                TextNode.valueOf("child"),
-                TextNode.valueOf("grandchild"));
-    }
-
-    @Override
-    public void putMdc(String key, String value) {
-        ThreadContext.put(key, value);
-    }
-
-    @Override
-    public boolean putNdc(String message) {
-        ThreadContext.push(message);
-        return true;
-    }
-
-    @Override
-    public void debug(String message) {
-        root.debug(message);
-    }
-
-    @Override
-    public void error(String message, Throwable t) {
-        root.error(message, t);
     }
 
     @Override
