@@ -26,6 +26,7 @@ package co.elastic.logging.log4j2;
 
 
 import co.elastic.logging.EcsJsonSerializer;
+import co.elastic.logging.JsonUtils;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LogEvent;
@@ -39,7 +40,6 @@ import org.apache.logging.log4j.core.layout.AbstractStringLayout;
 import org.apache.logging.log4j.core.layout.ByteBufferDestination;
 import org.apache.logging.log4j.core.layout.Encoder;
 import org.apache.logging.log4j.core.lookup.StrSubstitutor;
-import org.apache.logging.log4j.core.util.JsonUtils;
 import org.apache.logging.log4j.core.util.KeyValuePair;
 import org.apache.logging.log4j.core.util.StringBuilderWriter;
 import org.apache.logging.log4j.message.MapMessage;
@@ -69,9 +69,9 @@ public class EcsLayout extends AbstractStringLayout {
             if (!topLevelLabels.contains(key)) {
                 stringBuilder.append("labels.");
             }
-            co.elastic.logging.JsonUtils.quoteAsString(key, stringBuilder);
+            JsonUtils.quoteAsString(key, stringBuilder);
             stringBuilder.append("\":\"");
-            co.elastic.logging.JsonUtils.quoteAsString(EcsJsonSerializer.toNullSafeString(String.valueOf(value)), stringBuilder);
+            JsonUtils.quoteAsString(EcsJsonSerializer.toNullSafeString(String.valueOf(value)), stringBuilder);
             stringBuilder.append("\",");
         }
     };
@@ -141,14 +141,24 @@ public class EcsLayout extends AbstractStringLayout {
             if (additionalFields.length > 0) {
                 final StrSubstitutor strSubstitutor = getConfiguration().getStrSubstitutor();
                 for (KeyValuePair additionalField : additionalFields) {
-                    builder.append('\"');
-                    JsonUtils.quoteAsString(additionalField.getKey(), builder);
-                    builder.append("\":\"");
-                    final String value = valueNeedsLookup(additionalField.getValue())
-                            ? strSubstitutor.replace(event, additionalField.getValue())
-                            : additionalField.getValue();
-                    JsonUtils.quoteAsString(EcsJsonSerializer.toNullSafeString(value), builder);
-                    builder.append("\",");
+                    CharSequence value = null;
+                    if (valueNeedsLookup(additionalField.getValue())) {
+                        StringBuilder lookupValue = getMessageStringBuilder();
+                        lookupValue.append(additionalField.getValue());
+                        if (strSubstitutor.replaceIn(event, lookupValue)) {
+                            value = lookupValue;
+                        }
+                    } else {
+                        value = additionalField.getValue();
+                    }
+
+                    if (value != null) {
+                        builder.append('\"');
+                        JsonUtils.quoteAsString(additionalField.getKey(), builder);
+                        builder.append("\":\"");
+                        JsonUtils.quoteAsString(EcsJsonSerializer.toNullSafeString(value), builder);
+                        builder.append("\",");
+                    }
                 }
             }
             event.getContextData().forEach(WRITE_KEY_VALUES_INTO, builder);
