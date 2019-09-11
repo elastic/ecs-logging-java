@@ -11,9 +11,9 @@
  * the Apache License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -28,23 +28,20 @@ import com.fasterxml.jackson.databind.JsonNode;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.BasicConfigurationFactory;
-import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.core.config.ConfigurationFactory;
 import org.apache.logging.log4j.core.util.KeyValuePair;
 import org.apache.logging.log4j.test.appender.ListAppender;
 import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
 
 class Log4j2EcsLayoutTest extends AbstractLog4j2EcsLayoutTest {
-
     private static ConfigurationFactory configFactory = new BasicConfigurationFactory();
-    private LoggerContext ctx = LoggerContext.getContext();
-    private Logger root = ctx.getRootLogger();
-    private ListAppender listAppender;
+    private LoggerContext ctx;
 
     @AfterAll
     static void cleanupClass() {
@@ -54,12 +51,16 @@ class Log4j2EcsLayoutTest extends AbstractLog4j2EcsLayoutTest {
     @BeforeAll
     static void setupClass() {
         ConfigurationFactory.setConfigurationFactory(configFactory);
-        final LoggerContext ctx = LoggerContext.getContext();
-        ctx.reconfigure();
     }
 
     @BeforeEach
     void setUp() {
+        ctx = new LoggerContext("Test");
+        ctx.reconfigure();
+        ctx.getConfiguration().getProperties().put("node.id", "foo");
+
+        root = ctx.getRootLogger();
+
         for (final Appender appender : root.getAppenders().values()) {
             root.removeAppender(appender);
         }
@@ -78,13 +79,17 @@ class Log4j2EcsLayoutTest extends AbstractLog4j2EcsLayoutTest {
         listAppender.start();
         root.addAppender(listAppender);
         root.setLevel(Level.DEBUG);
-        ctx.getConfiguration().getProperties().put("node.id", "foo");
+    }
+
+    @AfterEach
+    @Override
+    void tearDown() throws Exception {
+        super.tearDown();
+        ctx.close();
     }
 
     @Override
     public JsonNode getLastLogLine() throws IOException {
-        String content = listAppender.getMessages().get(0);
-        System.out.println(content);
-        return objectMapper.readTree(content);
+        return objectMapper.readTree(listAppender.getMessages().get(0));
     }
 }

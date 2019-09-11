@@ -25,45 +25,18 @@
 package co.elastic.logging.log4j2;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.ConfigurationFactory;
-import org.apache.logging.log4j.core.config.xml.XmlConfigurationFactory;
 import org.apache.logging.log4j.test.appender.ListAppender;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
-import java.net.URISyntaxException;
 
 class Log4j2EcsLayoutIntegrationTest extends AbstractLog4j2EcsLayoutTest {
-
-    private static ConfigurationFactory configFactory = new XmlConfigurationFactory();
-    private LoggerContext ctx = LoggerContext.getContext();
-    private Logger root = ctx.getRootLogger();
-    private ListAppender listAppender;
-
-    @AfterAll
-    static void cleanupClass() {
-        ConfigurationFactory.removeConfigurationFactory(configFactory);
-    }
-
-    @BeforeAll
-    static void setupClass() throws URISyntaxException {
-        ConfigurationFactory.setConfigurationFactory(configFactory);
-        final ClassLoader classLoader = Log4j2EcsLayoutIntegrationTest.class.getClassLoader();
-        final LoggerContext ctx = LoggerContext.getContext(classLoader,
-                true,
-                classLoader.getResource("log4j2-config.xml").toURI());
-        ctx.reconfigure();
-    }
-
     @BeforeEach
     void setUp() {
+        root = LoggerContext.getContext().getRootLogger();
         listAppender = (ListAppender) root.getAppenders().get("TestAppender");
-        ctx.getConfiguration().getProperties().put("node.id", "foo");
     }
 
     @AfterEach
