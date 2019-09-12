@@ -21,6 +21,8 @@ All you have to do is to use the `co.elastic.logging.logback.EcsEncoder` instead
 ```xml
 <encoder class="co.elastic.logging.logback.EcsEncoder">
     <serviceName>my-application</serviceName>
+    <!-- Log markers as tags, default: false. See also https://www.slf4j.org/api/org/slf4j/Marker.html -->
+    <includeMarkers>true</includeMarkers>
 </encoder>
 ```
 
@@ -56,5 +58,4 @@ All you have to do is to use the `co.elastic.logging.logback.EcsEncoder` instead
         -->
     </root>
 </configuration>
-
 ```
