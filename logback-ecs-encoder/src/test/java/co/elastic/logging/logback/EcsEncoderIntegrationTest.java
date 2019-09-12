@@ -25,34 +25,27 @@
 package co.elastic.logging.logback;
 
 import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.read.ListAppender;
+import ch.qos.logback.classic.util.ContextInitializer;
+import ch.qos.logback.core.joran.spi.JoranException;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
 
-class EcsEncoderTest extends AbstractEcsEncoderTest {
-
-    private ListAppender<ILoggingEvent> appender;
-    private EcsEncoder ecsEncoder;
+class EcsEncoderIntegrationTest extends AbstractEcsEncoderTest {
+    private OutputStreamAppender appender;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws JoranException {
         LoggerContext context = new LoggerContext();
-        logger = context.getLogger(getClass());
-        appender = new ListAppender<>();
-        appender.setContext(context);
-        appender.start();
-        logger.addAppender(appender);
-        ecsEncoder = new EcsEncoder();
-        ecsEncoder.setServiceName("test");
-        ecsEncoder.setIncludeMarkers(true);
-        ecsEncoder.start();
+        ContextInitializer contextInitializer = new ContextInitializer(context);
+        contextInitializer.configureByResource(this.getClass().getResource("/logback-config.xml"));
+        logger = context.getLogger("root");
+        appender = (OutputStreamAppender) logger.getAppender("out");
     }
 
     @Override
     public JsonNode getLastLogLine() throws IOException {
-        return objectMapper.readTree(ecsEncoder.encode(appender.list.get(0)));
+        return objectMapper.readTree(appender.getBytes());
     }
 }

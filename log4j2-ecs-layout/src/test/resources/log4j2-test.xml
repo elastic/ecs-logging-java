@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration packages="co.elastic.logging.log4j2">
+    <Properties>
+        <Property name="node.id">foo</Property>
+    </Properties>
+    <Appenders>
+        <List name="TestAppender">
+            <EcsLayout serviceName="test" includeMarkers="true">
+                <KeyValuePair key="cluster.uuid" value="9fe9134b-20b0-465e-acf9-8cc09ac9053b"/>
+                <KeyValuePair key="node.id" value="${node.id}"/>
+                <KeyValuePair key="empty" value="${empty}"/>
+            </EcsLayout>
+        </List>
+    </Appenders>
+    <Loggers>
+        <Root level="debug">
+            <AppenderRef ref="TestAppender"/>
+        </Root>
+    </Loggers>
+</Configuration>

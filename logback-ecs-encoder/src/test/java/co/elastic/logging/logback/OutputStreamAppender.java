@@ -11,9 +11,9 @@
  * the Apache License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -24,35 +24,18 @@
  */
 package co.elastic.logging.logback;
 
-import ch.qos.logback.classic.LoggerContext;
 import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.read.ListAppender;
-import com.fasterxml.jackson.databind.JsonNode;
-import org.junit.jupiter.api.BeforeEach;
 
-import java.io.IOException;
+import java.io.ByteArrayOutputStream;
 
-class EcsEncoderTest extends AbstractEcsEncoderTest {
-
-    private ListAppender<ILoggingEvent> appender;
-    private EcsEncoder ecsEncoder;
-
-    @BeforeEach
-    void setUp() {
-        LoggerContext context = new LoggerContext();
-        logger = context.getLogger(getClass());
-        appender = new ListAppender<>();
-        appender.setContext(context);
-        appender.start();
-        logger.addAppender(appender);
-        ecsEncoder = new EcsEncoder();
-        ecsEncoder.setServiceName("test");
-        ecsEncoder.setIncludeMarkers(true);
-        ecsEncoder.start();
+public class OutputStreamAppender extends ch.qos.logback.core.OutputStreamAppender<ILoggingEvent> {
+    @Override
+    public void start() {
+        setOutputStream(new ByteArrayOutputStream());
+        super.start();
     }
 
-    @Override
-    public JsonNode getLastLogLine() throws IOException {
-        return objectMapper.readTree(ecsEncoder.encode(appender.list.get(0)));
+    byte[] getBytes() {
+        return ((ByteArrayOutputStream) getOutputStream()).toByteArray();
     }
 }

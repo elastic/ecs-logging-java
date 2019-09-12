@@ -22,37 +22,31 @@
  * under the License.
  * #L%
  */
-package co.elastic.logging.logback;
+package co.elastic.logging.log4j2;
 
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.read.ListAppender;
 import com.fasterxml.jackson.databind.JsonNode;
+import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.test.appender.ListAppender;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
 
-class EcsEncoderTest extends AbstractEcsEncoderTest {
-
-    private ListAppender<ILoggingEvent> appender;
-    private EcsEncoder ecsEncoder;
-
+class Log4j2EcsLayoutIntegrationTest extends AbstractLog4j2EcsLayoutTest {
     @BeforeEach
     void setUp() {
-        LoggerContext context = new LoggerContext();
-        logger = context.getLogger(getClass());
-        appender = new ListAppender<>();
-        appender.setContext(context);
-        appender.start();
-        logger.addAppender(appender);
-        ecsEncoder = new EcsEncoder();
-        ecsEncoder.setServiceName("test");
-        ecsEncoder.setIncludeMarkers(true);
-        ecsEncoder.start();
+        root = LoggerContext.getContext().getRootLogger();
+        listAppender = (ListAppender) root.getAppenders().get("TestAppender");
+    }
+
+    @AfterEach
+    void tearDown() throws Exception {
+        super.tearDown();
+        listAppender.clear();
     }
 
     @Override
     public JsonNode getLastLogLine() throws IOException {
-        return objectMapper.readTree(ecsEncoder.encode(appender.list.get(0)));
+        return objectMapper.readTree(listAppender.getMessages().get(0));
     }
 }
