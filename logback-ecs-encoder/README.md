@@ -21,8 +21,6 @@ All you have to do is to use the `co.elastic.logging.logback.EcsEncoder` instead
 ```xml
 <encoder class="co.elastic.logging.logback.EcsEncoder">
     <serviceName>my-application</serviceName>
-    <!-- Log markers as tags, default: false. See also https://www.slf4j.org/api/org/slf4j/Marker.html -->
-    <includeMarkers>true</includeMarkers>
 </encoder>
 ```
 
@@ -59,3 +57,11 @@ All you have to do is to use the `co.elastic.logging.logback.EcsEncoder` instead
     </root>
 </configuration>
 ```
+
+## Encoder Parameters
+
+|Parameter name   |Type   |Default|Description|
+|-----------------|-------|-------|-----------|
+|serviceName      |String |       |Sets the `service.name` field so you can filter your logs by a particular service |
+|includeMarkers   |boolean|`false`|Log [Markers](https://www.slf4j.org/api/org/slf4j/Marker.html) as `tags` |
+|stackTraceAsArray|boolean|`false`|Serializes the `error.stack_trace` as a JSON array where each element is in a new line to improve readability. Note that this requires a slightly more complex Filebeat setup. See also https://github.com/elastic/java-ecs-logging/blob/master/README.md#TODO|

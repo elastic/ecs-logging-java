@@ -69,10 +69,12 @@ We recommend using this library to log into a JSON log file and let Filebeat sen
 |ECS field | Log4j2 API  |
 |----------|-------------|
 |[`@timestamp`](https://www.elastic.co/guide/en/ecs/current/ecs-base.html) | [`LogEvent#getTimeMillis()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getTimeMillis()) |
-| [`log.level`](https://www.elastic.co/guide/en/ecs/current/ecs-log.html) | [`LogEvent#getLevel()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getLevel()) |
-|[`log.logger`](https://www.elastic.co/guide/en/ecs/current/ecs-log.html)|[`LogEvent#getLoggerName(`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getLoggerName())|
+|[`log.level`](https://www.elastic.co/guide/en/ecs/current/ecs-log.html) | [`LogEvent#getLevel()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getLevel()) |
+|[`log.logger`](https://www.elastic.co/guide/en/ecs/current/ecs-log.html)|[`LogEvent#getLoggerName()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getLoggerName())|
 |[`message`](https://www.elastic.co/guide/en/ecs/current/ecs-base.html)|[`LogEvent#getMessage()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getMessage())|
-|[`message`](https://www.elastic.co/guide/en/ecs/current/ecs-base.html)|[`LogEvent#getThrown()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getThrown())|
+|[`error.code`](https://www.elastic.co/guide/en/ecs/current/ecs-error.html)|[`Throwable#getClass()`](https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html#getClass())|
+|[`error.message`](https://www.elastic.co/guide/en/ecs/current/ecs-error.html)|[`Throwable#getStackTrace()`](https://docs.oracle.com/javase/7/docs/api/java/lang/Throwable.html#getMessage())|
+|[`error.stack_trace`](https://www.elastic.co/guide/en/ecs/current/ecs-error.html)|[`Throwable#getStackTrace()`](https://docs.oracle.com/javase/7/docs/api/java/lang/Throwable.html#getStackTrace())|
 |[`process.thread.name`](https://www.elastic.co/guide/en/ecs/current/ecs-process.html)|[`LogEvent#getThreadName()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getThreadName()) |
 |[`labels`](https://www.elastic.co/guide/en/ecs/current/ecs-base.html)|[`LogEvent#getContextMap()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getContextMap())|
 |[`tags`](https://www.elastic.co/guide/en/ecs/current/ecs-base.html)|[`LogEvent#getContextStack()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getContextStack())|
