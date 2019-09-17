@@ -20,6 +20,15 @@ Example:
 {"@timestamp":"2019-08-06T12:09:12.375Z", "log.level": "INFO", "message":"Tomcat started on port(s): 8080 (http) with context path ''", "service.name":"spring-petclinic","process.thread.name":"restartedMain","log.logger":"org.springframework.boot.web.embedded.tomcat.TomcatWebServer"}
 {"@timestamp":"2019-08-06T12:09:12.379Z", "log.level": "INFO", "message":"Started PetClinicApplication in 7.095 seconds (JVM running for 9.082)", "service.name":"spring-petclinic","process.thread.name":"restartedMain","log.logger":"org.springframework.samples.petclinic.PetClinicApplication"}
 {"@timestamp":"2019-08-06T14:08:40.199Z", "log.level":"DEBUG", "message":"init find form", "service.name":"spring-petclinic","process.thread.name":"http-nio-8080-exec-8","log.logger":"org.springframework.samples.petclinic.owner.OwnerController","transaction.id":"28b7fb8d5aba51f1","trace.id":"2869b25b5469590610fea49ac04af7da"}
+{"@timestamp":"2019-09-17T13:16:48.038Z", "log.level":"ERROR", "message":"Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed; nested exception is java.lang.RuntimeException: Expected: controller used to showcase what happens when an exception is thrown] with root cause", "process.thread.name":"http-nio-8080-exec-1","log.logger":"org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/].[dispatcherServlet]","log.origin":{"file":"DirectJDKLog.java","function":"log","line":175},"error.code":"java.lang.RuntimeException","error.message":"Expected: controller used to showcase what happens when an exception is thrown","error.stack_trace":[
+	"java.lang.RuntimeException: Expected: controller used to showcase what happens when an exception is thrown",
+	"\tat org.springframework.samples.petclinic.system.CrashController.triggerException(CrashController.java:33)",
+	"\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)",
+	"\tat sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)",
+	"\tat sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)",
+	"\tat java.lang.reflect.Method.invoke(Method.java:498)",
+	"\tat org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)",
+	"\tat java.lang.Thread.run(Thread.java:748)"]}
 ```
 
 ## Why ECS logging?
@@ -32,6 +41,7 @@ Example:
   The log4j2 `EcsLayout` does not allocate any memory (unless the log event contains an `Exception`)
 * Decently human-readable JSON structure \
   The first three fields are always `@timestamp`, `log.level` and `message`.
+  It's also possible to format stack traces so that each element is rendered in a new line.
 * Use the Kibana [Logs UI](https://www.elastic.co/guide/en/kibana/7.3/xpack-logs.html) without additional configuration \
   As this library adheres to [ECS](https://www.elastic.co/guide/en/ecs/current/ecs-reference.html), the Logs UI knows which fields to show
 * Out-of-the-box correlation of logs and traces via the Logs UI and APM UI when using the [Elastic APM Java agent](https://www.elastic.co/guide/en/apm/agent/java/current/index.html)

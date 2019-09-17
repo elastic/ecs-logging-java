@@ -64,4 +64,4 @@ All you have to do is to use the `co.elastic.logging.logback.EcsEncoder` instead
 |-----------------|-------|-------|-----------|
 |serviceName      |String |       |Sets the `service.name` field so you can filter your logs by a particular service |
 |includeMarkers   |boolean|`false`|Log [Markers](https://www.slf4j.org/api/org/slf4j/Marker.html) as `tags` |
-|stackTraceAsArray|boolean|`false`|Serializes the `error.stack_trace` as a JSON array where each element is in a new line to improve readability. Note that this requires a slightly more complex Filebeat setup. See also https://github.com/elastic/java-ecs-logging/blob/master/README.md#TODO|
+|stackTraceAsArray|boolean|`false`|Serializes the `error.stack_trace` as a JSON array where each element is in a new line to improve readability. Note that this requires a slightly more complex [Filebeat configuration](../README.md#when-stacktraceasarray-is-enabled).|

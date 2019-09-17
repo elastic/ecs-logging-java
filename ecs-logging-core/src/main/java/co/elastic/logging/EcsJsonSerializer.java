@@ -146,7 +146,7 @@ public class EcsJsonSerializer {
             if (stackTraceAsArray) {
                 builder.append("\"error.stack_trace\":[").append(NEW_LINE);
                 formatThrowableAsArray(builder, thrown);
-                builder.append(NEW_LINE).append("]");
+                builder.append("]");
             } else {
                 builder.append("\"error.stack_trace\":\"");
                 JsonUtils.quoteAsString(formatThrowable(thrown), builder);
@@ -167,7 +167,7 @@ public class EcsJsonSerializer {
             for (String line : stackTrace.split("\\n")) {
                 appendQuoted(builder, line);
             }
-            builder.append(NEW_LINE).append("]");
+            builder.append("]");
         } else {
             builder.append("\"error.stack_trace\":\"");
             JsonUtils.quoteAsString(stackTrace, builder);
