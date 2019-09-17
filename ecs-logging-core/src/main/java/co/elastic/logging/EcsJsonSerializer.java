@@ -33,7 +33,7 @@ import java.util.Set;
 
 public class EcsJsonSerializer {
 
-    public static final List<String> DEFAULT_TOP_LEVEL_LABELS = Arrays.asList("trace.id", "transaction.id", "span.id");
+    public static final List<String> DEFAULT_TOP_LEVEL_LABELS = Arrays.asList("trace.id", "transaction.id", "span.id", "error.id", "service.name");
     private static final TimestampSerializer TIMESTAMP_SERIALIZER = new TimestampSerializer();
 
     public static CharSequence toNullSafeString(final CharSequence s) {
