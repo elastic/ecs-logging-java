@@ -125,3 +125,33 @@ For more information, check the [Filebeat documentation](https://www.elastic.co/
   - Set `Output type` to `Elasticsearch`
   - Configure the `hosts`
   - For secured Elasticsearch deployments (like Elastic cloud) set `Username` and `Password`
+
+#### When `stackTraceAsArray` is enabled
+
+Filebeat can normally only decoding JSON if there is one JSON object per line.
+When `stackTraceAsArray` is enabled, there will be a new line for each stack trace element which improves readability.
+But when combining the multiline settings with a `decode_json_fields` we can also handle multi-line JSON.
+
+```yaml
+filebeat.inputs:
+  - type: log
+    paths: /path/to/logs.json
+    multiline.pattern: '^{'
+    multiline.negate: true
+    multiline.match: after
+processors:
+  - decode_json_fields:
+      fields: message
+      target: ""
+      overwrite_keys: true
+  # flattens the array to a single string
+  - script:
+      when:
+        has_fields: ['error.stack_trace']
+      lang: javascript
+      id: my_filter
+      source: >
+        function process(event) {
+            event.Put("error.stack_trace", event.Get("error.stack_trace").join("\n"));
+        }
+```
