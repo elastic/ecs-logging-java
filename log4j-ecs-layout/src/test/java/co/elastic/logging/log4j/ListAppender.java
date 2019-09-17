@@ -31,11 +31,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 class ListAppender extends AppenderSkeleton {
-    private List<LoggingEvent> logEvents = new ArrayList<>();
+    private List<String> logEvents = new ArrayList<>();
 
     @Override
     protected void append(LoggingEvent event) {
-        logEvents.add(event);
+        logEvents.add(layout.format(event));
     }
 
     @Override
@@ -45,10 +45,10 @@ class ListAppender extends AppenderSkeleton {
 
     @Override
     public boolean requiresLayout() {
-        return false;
+        return true;
     }
 
-    public List<LoggingEvent> getLogEvents() {
+    public List<String> getLogEvents() {
         return logEvents;
     }
 }

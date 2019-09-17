@@ -93,6 +93,14 @@ public abstract class AbstractEcsLoggingTest {
         assertThat(stackTrace).contains("at co.elastic.logging.AbstractEcsLoggingTest.testLogException");
     }
 
+    @Test
+    void testLogOrigin() throws Exception {
+        debug("test");
+        assertThat(getLastLogLine().get("log.origin").get("file.name").textValue()).endsWith(".java");
+        assertThat(getLastLogLine().get("log.origin").get("function").textValue()).isEqualTo("debug");
+        assertThat(getLastLogLine().get("log.origin").get("file.line").intValue()).isPositive();
+    }
+
     public abstract void putMdc(String key, String value);
 
     public boolean putNdc(String message) {

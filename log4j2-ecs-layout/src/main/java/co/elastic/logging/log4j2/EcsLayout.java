@@ -83,15 +83,17 @@ public class EcsLayout extends AbstractStringLayout {
     private final PatternFormatter[][] fieldValuePatternFormatter;
     private final Set<String> topLevelLabels;
     private final boolean stackTraceAsArray;
-    private String serviceName;
-    private boolean includeMarkers;
+    private final String serviceName;
+    private final boolean includeMarkers;
+    private final boolean includeOrigin;
     private final ConcurrentMap<Class<? extends MultiformatMessage>, Boolean> supportsJson = new ConcurrentHashMap<Class<? extends MultiformatMessage>, Boolean>();
 
-    private EcsLayout(Configuration config, String serviceName, boolean includeMarkers, KeyValuePair[] additionalFields, Collection<String> topLevelLabels, boolean stackTraceAsArray) {
+    private EcsLayout(Configuration config, String serviceName, boolean includeMarkers, KeyValuePair[] additionalFields, Collection<String> topLevelLabels, boolean includeOrigin, boolean stackTraceAsArray) {
         super(config, UTF_8, null, null);
         this.serviceName = serviceName;
         this.includeMarkers = includeMarkers;
         this.topLevelLabels = new HashSet<String>(topLevelLabels);
+        this.includeOrigin = includeOrigin;
         this.stackTraceAsArray = stackTraceAsArray;
         this.topLevelLabels.add("trace.id");
         this.topLevelLabels.add("transaction.id");
@@ -138,6 +140,9 @@ public class EcsLayout extends AbstractStringLayout {
         EcsJsonSerializer.serializeLoggerName(builder, event.getLoggerName());
         serializeLabels(event, builder);
         serializeTags(event, builder);
+        if (includeOrigin) {
+            EcsJsonSerializer.serializeOrigin(builder, event.getSource());
+        }
         EcsJsonSerializer.serializeException(builder, event.getThrown(), stackTraceAsArray);
         EcsJsonSerializer.serializeObjectEnd(builder);
         return builder;
@@ -310,6 +315,8 @@ public class EcsLayout extends AbstractStringLayout {
         private KeyValuePair[] additionalFields;
         @PluginElement("TopLevelLabels")
         private String[] topLevelLabels;
+        @PluginBuilderAttribute("includeOrigin")
+        private boolean includeOrigin;
 
         Builder() {
             super();
@@ -326,6 +333,10 @@ public class EcsLayout extends AbstractStringLayout {
 
         public boolean isIncludeMarkers() {
             return includeMarkers;
+        }
+
+        public boolean isIncludeOrigin() {
+            return includeOrigin;
         }
 
         public String[] getTopLevelLabels() {
@@ -357,6 +368,11 @@ public class EcsLayout extends AbstractStringLayout {
             return asBuilder();
         }
 
+        public EcsLayout.Builder setIncludeOrigin(final boolean includeOrigin) {
+            this.includeOrigin = includeOrigin;
+            return asBuilder();
+        }
+
         public EcsLayout.Builder setStackTraceAsArray(boolean stackTraceAsArray) {
             this.stackTraceAsArray = stackTraceAsArray;
             return asBuilder();
@@ -364,7 +380,7 @@ public class EcsLayout extends AbstractStringLayout {
 
         @Override
         public EcsLayout build() {
-            return new EcsLayout(getConfiguration(), serviceName, includeMarkers, additionalFields, topLevelLabels == null ? Collections.<String>emptyList() : Arrays.<String>asList(topLevelLabels), stackTraceAsArray);
+            return new EcsLayout(getConfiguration(), serviceName, includeMarkers, additionalFields, topLevelLabels == null ? Collections.<String>emptyList() : Arrays.<String>asList(topLevelLabels), includeOrigin, stackTraceAsArray);
         }
 
         public boolean isStackTraceAsArray() {
