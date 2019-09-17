@@ -93,13 +93,15 @@ public class EcsJsonSerializer {
             builder.append(' ');
         }
         builder.append('\"');
-        builder.append(level);
+        JsonUtils.quoteAsString(level, builder);
         builder.append("\", ");
     }
 
     public static void serializeTag(StringBuilder builder, String tag) {
         if (tag != null) {
-            builder.append("\"tags\":[\"").append(tag).append("\"],");
+            builder.append("\"tags\":[\"");
+            JsonUtils.quoteAsString(tag, builder);
+            builder.append("\"],");
         }
     }
 
@@ -109,7 +111,9 @@ public class EcsJsonSerializer {
 
     public static void serializeSingleTag(StringBuilder builder, String tag) {
         if (tag != null) {
-            builder.append("\"").append(tag).append("\",");
+            builder.append("\"");
+            JsonUtils.quoteAsString(tag, builder);
+            builder.append("\",");
         }
     }
 
