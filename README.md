@@ -24,12 +24,20 @@ Example:
 
 ## Why ECS logging?
 
-Logging in ECS-compatible JSON has the advantage that you don't need to set up a logstash/ingest node pipeline to parse logs using grok.
-Another benefit is that you are automatically using the field names the
-[Logs UI](https://www.elastic.co/guide/en/kibana/7.3/xpack-logs.html) expects,
-which means that getting started with it is straightforward.
+* No parsing of the log file required \
+  Logging in ECS-compatible JSON has the advantage that you don't need to set up a logstash/ingest node pipeline to parse logs using grok.
+* No external dependencies
+* Highly efficient by manually serializing JSON
+* Low/Zero allocations (reduces GC pauses) \
+  The log4j2 `EcsLayout` does not allocate any memory (unless the log event contains an `Exception`)
+* Decently human-readable JSON structure \
+  The first three fields are always `@timestamp`, `log.level` and `message`.
+* Use the Kibana [Logs UI](https://www.elastic.co/guide/en/kibana/7.3/xpack-logs.html) without additional configuration \
+  As this library adheres to [ECS](https://www.elastic.co/guide/en/ecs/current/ecs-reference.html), the Logs UI knows which fields to show
+* Out-of-the-box correlation of logs and traces via the Logs UI and APM UI when using the [Elastic APM Java agent](https://www.elastic.co/guide/en/apm/agent/java/current/index.html)
+* Using a common schema across different services and teams makes it possible create reusable dashboards and avoids [mapping explosions](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html#mapping-limit-settings).
 
-## APM Log correlation
+### APM Log correlation
 
 If you are using the [Elastic APM Java agent](https://www.elastic.co/guide/en/apm/agent/java/current/index.html),
 you can leverage the [log correlation feature](https://www.elastic.co/guide/en/apm/agent/java/current/config-logging.html#config-enable-log-correlation) without any additional configuration.
@@ -38,19 +46,6 @@ This lets you jump from the [Span timeline in the APM UI](https://www.elastic.co
 [Logs UI](https://www.elastic.co/guide/en/kibana/7.3/xpack-logs.html),
 showing only the logs which belong to the corresponding request.
 Vice versa, you can also jump from a log line in the Logs UI to the Span Timeline of the APM UI.
-
-## Advantages
-
-* No external dependencies
-* Highly efficient by manually serializing JSON
-* Low/Zero allocations (reduces GC pauses) \
-  The log4j2 `EcsLayout` does not allocate any memory (unless the log event contains an `Exception`)
-* No parsing of the log file required
-* Decently human-readable JSON structure \
-  The first three fields are always `@timestamp`, `log.level` and `message`.
-* Use the Kibana [Logs UI](https://www.elastic.co/guide/en/kibana/7.3/xpack-logs.html) without additional configuration \
-  As this library adheres to [ECS](https://www.elastic.co/guide/en/ecs/current/ecs-reference.html), the Logs UI knows which fields to show
-* Out-of-the-box correlation of logs and traces via the Logs UI and APM UI when using the [Elastic APM Java agent](https://www.elastic.co/guide/en/apm/agent/java/current/index.html)
 
 ### Additional advantages when using in combination with Filebeat
 
