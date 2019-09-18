@@ -26,9 +26,10 @@ package co.elastic.logging.logback;
 
 import ch.qos.logback.classic.pattern.ThrowableProxyConverter;
 import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.classic.spi.IThrowableProxy;
+import ch.qos.logback.classic.spi.ThrowableProxy;
 import ch.qos.logback.core.encoder.EncoderBase;
 import co.elastic.logging.EcsJsonSerializer;
-import co.elastic.logging.JsonUtils;
 import org.slf4j.Marker;
 
 import java.nio.charset.Charset;
@@ -39,6 +40,7 @@ import java.util.Set;
 public class EcsEncoder extends EncoderBase<ILoggingEvent> {
 
     private static final Charset UTF_8 = Charset.forName("UTF-8");
+    private boolean stackTraceAsArray = false;
     private String serviceName;
     private boolean includeMarkers = false;
     private ThrowableProxyConverter throwableProxyConverter;
@@ -61,13 +63,18 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         StringBuilder builder = new StringBuilder();
         EcsJsonSerializer.serializeObjectStart(builder, event.getTimeStamp());
         EcsJsonSerializer.serializeLogLevel(builder, event.getLevel().toString());
-        EcsJsonSerializer.serializeFormattedMessage(builder, event.getFormattedMessage(), null);
-        serializeException(event, builder);
+        EcsJsonSerializer.serializeFormattedMessage(builder, event.getFormattedMessage());
         serializeMarkers(event, builder);
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
         EcsJsonSerializer.serializeLoggerName(builder, event.getLoggerName());
         EcsJsonSerializer.serializeLabels(builder, event.getMDCPropertyMap(), topLevelLabels);
+        IThrowableProxy throwableProxy = event.getThrowableProxy();
+        if (throwableProxy instanceof ThrowableProxy) {
+            EcsJsonSerializer.serializeException(builder, ((ThrowableProxy) throwableProxy).getThrowable(), stackTraceAsArray);
+        } else if (throwableProxy != null) {
+            EcsJsonSerializer.serializeException(builder, throwableProxy.getClassName(), throwableProxy.getMessage(), throwableProxyConverter.convert(event), stackTraceAsArray);
+        }
         EcsJsonSerializer.serializeObjectEnd(builder);
         // all these allocations kinda hurt
         return builder.toString().getBytes(UTF_8);
@@ -92,16 +99,6 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         }
     }
 
-    private void serializeException(ILoggingEvent event, StringBuilder builder) {
-        if (event.getThrowableProxy() != null) {
-            // remove `", `
-            builder.setLength(builder.length() - 3);
-            builder.append("\\n");
-            JsonUtils.quoteAsString(throwableProxyConverter.convert(event), builder);
-            builder.append("\",");
-        }
-    }
-
     @Override
     public byte[] footerBytes() {
         return null;
@@ -113,5 +110,9 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
 
     public void setIncludeMarkers(boolean includeMarkers) {
         this.includeMarkers = includeMarkers;
+    }
+
+    public void setStackTraceAsArray(boolean stackTraceAsArray) {
+        this.stackTraceAsArray = stackTraceAsArray;
     }
 }

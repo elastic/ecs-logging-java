@@ -27,16 +27,13 @@ package co.elastic.logging;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import org.assertj.core.data.TemporalOffset;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.StringWriter;
-import java.time.Duration;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.within;
@@ -88,7 +85,12 @@ public abstract class AbstractEcsLoggingTest {
     void testLogException() throws Exception {
         error("test", new RuntimeException("test"));
         assertThat(getLastLogLine().get("log.level").textValue()).isEqualTo("ERROR");
-        assertThat(getLastLogLine().get("message").textValue()).contains("at co.elastic.logging.AbstractEcsLoggingTest.testLogException");
+        assertThat(getLastLogLine().get("error.message").textValue()).isEqualTo("test");
+        assertThat(getLastLogLine().get("error.code").textValue()).isEqualTo(RuntimeException.class.getName());
+        String stackTrace = StreamSupport.stream(getLastLogLine().get("error.stack_trace").spliterator(), false)
+                .map(JsonNode::textValue)
+                .collect(Collectors.joining("\n", "", "\n"));
+        assertThat(stackTrace).contains("at co.elastic.logging.AbstractEcsLoggingTest.testLogException");
     }
 
     public abstract void putMdc(String key, String value);
