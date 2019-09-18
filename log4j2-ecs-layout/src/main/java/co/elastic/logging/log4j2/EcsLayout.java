@@ -39,7 +39,9 @@ import org.apache.logging.log4j.core.config.plugins.PluginElement;
 import org.apache.logging.log4j.core.layout.AbstractStringLayout;
 import org.apache.logging.log4j.core.layout.ByteBufferDestination;
 import org.apache.logging.log4j.core.layout.Encoder;
+import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.apache.logging.log4j.core.lookup.StrSubstitutor;
+import org.apache.logging.log4j.core.pattern.PatternFormatter;
 import org.apache.logging.log4j.core.util.KeyValuePair;
 import org.apache.logging.log4j.message.Message;
 import org.apache.logging.log4j.message.MultiformatMessage;
@@ -78,6 +80,7 @@ public class EcsLayout extends AbstractStringLayout {
     };
 
     private final KeyValuePair[] additionalFields;
+    private final PatternFormatter[][] fieldValuePatternFormatter;
     private final Set<String> topLevelLabels;
     private final boolean stackTraceAsArray;
     private String serviceName;
@@ -93,6 +96,15 @@ public class EcsLayout extends AbstractStringLayout {
         this.topLevelLabels.add("trace.id");
         this.topLevelLabels.add("transaction.id");
         this.additionalFields = additionalFields;
+        fieldValuePatternFormatter = new PatternFormatter[additionalFields.length][];
+        for (int i = 0; i < additionalFields.length; i++) {
+            KeyValuePair additionalField = additionalFields[i];
+            if (additionalField.getValue().contains("%")) {
+                fieldValuePatternFormatter[i] = PatternLayout.createPatternParser(config)
+                        .parse(additionalField.getValue())
+                        .toArray(new PatternFormatter[0]);
+            }
+        }
     }
 
     @PluginBuilderFactory
@@ -132,12 +144,21 @@ public class EcsLayout extends AbstractStringLayout {
     }
 
     private void serializeLabels(LogEvent event, StringBuilder builder) {
-        if (!event.getContextData().isEmpty() || additionalFields.length > 0) {
-            if (additionalFields.length > 0) {
+        final int length = additionalFields.length;
+        if (!event.getContextData().isEmpty() || length > 0) {
+            if (length > 0) {
                 final StrSubstitutor strSubstitutor = getConfiguration().getStrSubstitutor();
-                for (KeyValuePair additionalField : additionalFields) {
+                for (int i = 0; i < length; i++) {
+                    KeyValuePair additionalField = additionalFields[i];
+                    PatternFormatter[] formatters = fieldValuePatternFormatter[i];
                     CharSequence value = null;
-                    if (valueNeedsLookup(additionalField.getValue())) {
+                    if (formatters != null) {
+                        StringBuilder buffer = EcsJsonSerializer.getMessageStringBuilder();
+                        formatPattern(event, formatters, buffer);
+                        if (buffer.length() > 0) {
+                            value = buffer;
+                        }
+                    } else if (valueNeedsLookup(additionalField.getValue())) {
                         StringBuilder lookupValue = EcsJsonSerializer.getMessageStringBuilder();
                         lookupValue.append(additionalField.getValue());
                         if (strSubstitutor.replaceIn(event, lookupValue)) {
@@ -160,6 +181,13 @@ public class EcsLayout extends AbstractStringLayout {
         }
     }
 
+    private static void formatPattern(LogEvent event, PatternFormatter[] formatters, StringBuilder buffer) {
+        final int len = formatters.length;
+        for (int i = 0; i < len; i++) {
+            formatters[i].format(event, buffer);
+        }
+    }
+
     private void serializeTags(LogEvent event, StringBuilder builder) {
         List<String> contextStack = event.getContextStack().asList();
         Marker marker = event.getMarker();
@@ -169,7 +197,8 @@ public class EcsLayout extends AbstractStringLayout {
         }
 
         if (!contextStack.isEmpty()) {
-            for (int i = 0; i < contextStack.size(); i++) {
+            final int len = contextStack.size();
+            for (int i = 0; i < len; i++) {
                 builder.append('\"');
                 JsonUtils.quoteAsString(contextStack.get(i), builder);
                 builder.append("\",");

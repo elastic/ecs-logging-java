@@ -53,6 +53,9 @@ abstract class AbstractLog4j2EcsLayoutTest extends AbstractEcsLoggingTest {
         debug("test");
         assertThat(getLastLogLine().get("cluster.uuid").textValue()).isEqualTo("9fe9134b-20b0-465e-acf9-8cc09ac9053b");
         assertThat(getLastLogLine().get("node.id").textValue()).isEqualTo("foo");
+        assertThat(getLastLogLine().get("empty")).isNull();
+        assertThat(getLastLogLine().get("emptyPattern")).isNull();
+        assertThat(getLastLogLine().get("clazz").textValue()).startsWith(getClass().getPackageName());
         assertThat(getLastLogLine().get("404")).isNull();
     }
 
