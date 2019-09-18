@@ -42,8 +42,9 @@ import org.apache.logging.log4j.core.layout.Encoder;
 import org.apache.logging.log4j.core.lookup.StrSubstitutor;
 import org.apache.logging.log4j.core.util.KeyValuePair;
 import org.apache.logging.log4j.core.util.StringBuilderWriter;
-import org.apache.logging.log4j.message.MapMessage;
 import org.apache.logging.log4j.message.Message;
+import org.apache.logging.log4j.message.MultiformatMessage;
+import org.apache.logging.log4j.util.MultiFormatStringBuilderFormattable;
 import org.apache.logging.log4j.util.StringBuilderFormattable;
 import org.apache.logging.log4j.util.TriConsumer;
 
@@ -55,12 +56,15 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @Plugin(name = "EcsLayout", category = Node.CATEGORY, elementType = Layout.ELEMENT_TYPE)
 public class EcsLayout extends AbstractStringLayout {
 
     private static final ThreadLocal<StringBuilder> messageStringBuilder = new ThreadLocal<StringBuilder>();
     public static final Charset UTF_8 = Charset.forName("UTF-8");
+    public static final String[] JSON_FORMAT = {"JSON"};
 
     private final TriConsumer<String, Object, StringBuilder> WRITE_KEY_VALUES_INTO = new TriConsumer<String, Object, StringBuilder>() {
         @Override
@@ -80,6 +84,7 @@ public class EcsLayout extends AbstractStringLayout {
     private final Set<String> topLevelLabels;
     private String serviceName;
     private boolean includeMarkers;
+    private final ConcurrentMap<Class<? extends MultiformatMessage>, Boolean> supportsJson = new ConcurrentHashMap<Class<? extends MultiformatMessage>, Boolean>();
 
     private EcsLayout(Configuration config, String serviceName, boolean includeMarkers, KeyValuePair[] additionalFields, Collection<String> topLevelLabels) {
         super(config, UTF_8, null, null);
@@ -201,6 +206,37 @@ public class EcsLayout extends AbstractStringLayout {
     }
 
     private void serializeMessage(StringBuilder builder, boolean gcFree, Message message, Throwable thrown) {
+        if (message instanceof MultiformatMessage) {
+            MultiformatMessage multiformatMessage = (MultiformatMessage) message;
+            if (supportsJson(multiformatMessage)) {
+                serializeJsonMessage(builder, multiformatMessage);
+            } else {
+                serializeSimpleMessage(builder, gcFree, message, thrown);
+            }
+        } else {
+            serializeSimpleMessage(builder, gcFree, message, thrown);
+        }
+    }
+
+    private void serializeJsonMessage(StringBuilder builder, MultiformatMessage message) {
+        final StringBuilder messageBuffer = getMessageStringBuilder();
+        if (message instanceof MultiFormatStringBuilderFormattable) {
+            ((MultiFormatStringBuilderFormattable) message).formatTo(JSON_FORMAT, messageBuffer);
+        } else {
+            messageBuffer.append(message.getFormattedMessage(JSON_FORMAT));
+        }
+        if (isObject(messageBuffer)) {
+            moveToRoot(messageBuffer);
+            builder.append(messageBuffer);
+            builder.append(", ");
+        } else {
+            builder.append("\"message\":");
+            builder.append(messageBuffer);
+            builder.append(", ");
+        }
+    }
+
+    private void serializeSimpleMessage(StringBuilder builder, boolean gcFree, Message message, Throwable thrown) {
         builder.append("\"message\":\"");
         if (message instanceof CharSequence) {
             JsonUtils.quoteAsString(((CharSequence) message), builder);
@@ -220,10 +256,30 @@ public class EcsLayout extends AbstractStringLayout {
             JsonUtils.quoteAsString(formatThrowable(thrown), builder);
         }
         builder.append("\", ");
-        if (message instanceof MapMessage) {
-            MapMessage mapMessage = (MapMessage) message;
-            mapMessage.forEach(WRITE_KEY_VALUES_INTO, builder);
+    }
+
+    private boolean isObject(StringBuilder messageBuffer) {
+        return messageBuffer.length() > 1 && messageBuffer.charAt(0) == '{' && messageBuffer.charAt(messageBuffer.length() -1) == '}';
+    }
+
+    private void moveToRoot(StringBuilder messageBuffer) {
+        messageBuffer.setCharAt(0, ' ');
+        messageBuffer.setCharAt(messageBuffer.length() -1, ' ');
+    }
+
+    private boolean supportsJson(MultiformatMessage message) {
+        Boolean supportsJson = this.supportsJson.get(message.getClass());
+        if (supportsJson == null) {
+            supportsJson = false;
+            for (String format : message.getFormats()) {
+                if (format.equalsIgnoreCase("JSON")) {
+                    supportsJson = true;
+                    break;
+                }
+            }
+            this.supportsJson.put(message.getClass(), supportsJson);
         }
+        return supportsJson;
     }
 
     private static CharSequence formatThrowable(final Throwable throwable) {

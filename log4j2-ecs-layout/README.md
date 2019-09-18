@@ -46,3 +46,46 @@ set the `includeMarkers` attribute to `true` (default: `false`).
     </Loggers>
 </Configuration>
 ```
+
+## Structured logging
+
+By leveraging log4j2's `MapMessage` or even by implementing your own `MultiformatMessage` with JSON support,
+you can add additional fields to the resulting JSON.
+
+Example:
+
+```java
+logger.info(new StringMapMessage().with("message", "foo").with("foo", "bar"));
+``` 
+
+### Gotchas
+
+A common pitfall is how dots in field names are handled in Elasticsearch and how they affect the mapping.
+In recent Elasticsearch versions, the following JSON structures would result in the same index mapping:
+
+```json
+{
+  "foo.bar": "baz"
+}
+```
+
+```json
+{
+  "foo": {
+    "bar": "baz"
+  }
+}
+```
+The property `foo` would be mapped to the [Object datatype](https://www.elastic.co/guide/en/elasticsearch/reference/current/object.html).
+
+This means that you can't index a document where `foo` would be a different datatype, as in shown in the following example:
+
+```json
+{
+  "foo": "bar"
+}
+```
+
+In that example, `foo` is a string.
+Trying to index that document results in an error because the data type of `foo` can't be object and string at the same time.
+ 
