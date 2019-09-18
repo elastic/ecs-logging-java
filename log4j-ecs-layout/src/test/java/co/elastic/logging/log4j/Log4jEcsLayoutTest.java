@@ -53,6 +53,7 @@ class Log4jEcsLayoutTest extends AbstractEcsLoggingTest {
         logger.addAppender(appender);
         ecsLayout = new EcsLayout();
         ecsLayout.setServiceName("test");
+        ecsLayout.setStackTraceAsArray(true);
     }
 
     @BeforeEach

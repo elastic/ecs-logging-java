@@ -4,6 +4,7 @@
         <encoder class="co.elastic.logging.logback.EcsEncoder">
             <serviceName>test</serviceName>
             <includeMarkers>true</includeMarkers>
+            <stackTraceAsArray>true</stackTraceAsArray>
         </encoder>
     </appender>
     <root level="DEBUG">

@@ -48,6 +48,7 @@ class EcsEncoderTest extends AbstractEcsEncoderTest {
         ecsEncoder = new EcsEncoder();
         ecsEncoder.setServiceName("test");
         ecsEncoder.setIncludeMarkers(true);
+        ecsEncoder.setStackTraceAsArray(true);
         ecsEncoder.start();
     }
 

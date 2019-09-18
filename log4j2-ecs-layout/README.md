@@ -19,13 +19,6 @@ Add a dependency to your application
 
 Instead of the usual `<PatternLayout/>`, use `<EcsLayout serviceName="my-app"/>`.
 
-If you want to include [Markers](https://logging.apache.org/log4j/2.0/manual/markers.html) as tags,
-set the `includeMarkers` attribute to `true` (default: `false`).
-
-```
-<EcsLayout serviceName="my-app" includeMarkers="true"/>
-```
-
 ## Example
 ```xml
 <?xml version="1.0" encoding="UTF-8"?>
@@ -46,3 +39,64 @@ set the `includeMarkers` attribute to `true` (default: `false`).
     </Loggers>
 </Configuration>
 ```
+
+## Layout Parameters
+
+|Parameter name   |Type   |Default|Description|
+|-----------------|-------|-------|-----------|
+|serviceName      |String |       |Sets the `service.name` field so you can filter your logs by a particular service |
+|includeMarkers   |boolean|`false`|Log [Markers](https://logging.apache.org/log4j/2.0/manual/markers.html) as `tags` |
+|stackTraceAsArray|boolean|`false`|Serializes the `error.stack_trace` as a JSON array where each element is in a new line to improve readability. Note that this requires a slightly more complex [Filebeat configuration](../README.md#when-stacktraceasarray-is-enabled).|
+
+To include any custom field in the output, use following syntax:
+
+```xml
+  <EcsLayout>
+    <KeyValuePair key="additionalField1" value="constant value"/>
+    <KeyValuePair key="additionalField2" value="$${ctx:key}"/>
+  </EcsLayout>
+```
+
+Custom fields are included in the order they are declared. The values support [lookups](https://logging.apache.org/log4j/2.x/manual/lookups.html).
+## Structured logging
+
+By leveraging log4j2's `MapMessage` or even by implementing your own `MultiformatMessage` with JSON support,
+you can add additional fields to the resulting JSON.
+
+Example:
+
+```java
+logger.info(new StringMapMessage().with("message", "foo").with("foo", "bar"));
+``` 
+
+### Gotchas
+
+A common pitfall is how dots in field names are handled in Elasticsearch and how they affect the mapping.
+In recent Elasticsearch versions, the following JSON structures would result in the same index mapping:
+
+```json
+{
+  "foo.bar": "baz"
+}
+```
+
+```json
+{
+  "foo": {
+    "bar": "baz"
+  }
+}
+```
+The property `foo` would be mapped to the [Object datatype](https://www.elastic.co/guide/en/elasticsearch/reference/current/object.html).
+
+This means that you can't index a document where `foo` would be a different datatype, as in shown in the following example:
+
+```json
+{
+  "foo": "bar"
+}
+```
+
+In that example, `foo` is a string.
+Trying to index that document results in an error because the data type of `foo` can't be object and string at the same time.
+ 

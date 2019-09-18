@@ -25,6 +25,7 @@
 package co.elastic.logging.log4j2;
 
 import co.elastic.logging.AbstractEcsLoggingTest;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
@@ -34,8 +35,6 @@ import org.apache.logging.log4j.message.StringMapMessage;
 import org.apache.logging.log4j.test.appender.ListAppender;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
-
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -75,8 +74,10 @@ abstract class AbstractLog4j2EcsLayoutTest extends AbstractEcsLoggingTest {
 
     @Test
     void testMapMessage() throws Exception {
-        root.info(new StringMapMessage(Map.of("foo", "bar")));
-        assertThat(getLastLogLine().get("labels.foo").textValue()).isEqualTo("bar");
+        root.info(new StringMapMessage().with("message", "foo").with("foo", "bar"));
+        JsonNode log = getLastLogLine();
+        assertThat(log.get("message").textValue()).isEqualTo("foo");
+        assertThat(log.get("foo").textValue()).isEqualTo("bar");
     }
 
     @Override

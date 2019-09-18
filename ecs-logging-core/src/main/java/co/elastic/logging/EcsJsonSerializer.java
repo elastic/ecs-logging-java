@@ -25,7 +25,7 @@
 package co.elastic.logging;
 
 import java.io.PrintWriter;
-import java.io.StringWriter;
+import java.io.Writer;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -33,8 +33,10 @@ import java.util.Set;
 
 public class EcsJsonSerializer {
 
-    public static final List<String> DEFAULT_TOP_LEVEL_LABELS = Arrays.asList("trace.id", "transaction.id", "span.id");
+    public static final List<String> DEFAULT_TOP_LEVEL_LABELS = Arrays.asList("trace.id", "transaction.id", "span.id", "error.id", "service.name");
     private static final TimestampSerializer TIMESTAMP_SERIALIZER = new TimestampSerializer();
+    private static final ThreadLocal<StringBuilder> messageStringBuilder = new ThreadLocal<StringBuilder>();
+    private static final  String NEW_LINE = System.getProperty("line.separator");
 
     public static CharSequence toNullSafeString(final CharSequence s) {
         return s == null ? "" : s;
@@ -48,8 +50,7 @@ public class EcsJsonSerializer {
     }
 
     public static void serializeObjectEnd(StringBuilder builder) {
-        // last char is always a comma (,)
-        builder.setLength(builder.length() - 1);
+        removeIfEndsWith(builder, ",");
         builder.append('}');
         builder.append('\n');
     }
@@ -68,13 +69,9 @@ public class EcsJsonSerializer {
         }
     }
 
-    public static void serializeFormattedMessage(StringBuilder builder, String message, Throwable t) {
+    public static void serializeFormattedMessage(StringBuilder builder, String message) {
         builder.append("\"message\":\"");
         JsonUtils.quoteAsString(message, builder);
-        if (t != null) {
-            builder.append("\\n");
-            JsonUtils.quoteAsString(formatThrowable(t), builder);
-        }
         builder.append("\", ");
     }
 
@@ -93,13 +90,15 @@ public class EcsJsonSerializer {
             builder.append(' ');
         }
         builder.append('\"');
-        builder.append(level);
+        JsonUtils.quoteAsString(level, builder);
         builder.append("\", ");
     }
 
     public static void serializeTag(StringBuilder builder, String tag) {
         if (tag != null) {
-            builder.append("\"tags\":[\"").append(tag).append("\"],");
+            builder.append("\"tags\":[\"");
+            JsonUtils.quoteAsString(tag, builder);
+            builder.append("\"],");
         }
     }
 
@@ -109,7 +108,9 @@ public class EcsJsonSerializer {
 
     public static void serializeSingleTag(StringBuilder builder, String tag) {
         if (tag != null) {
-            builder.append("\"").append(tag).append("\",");
+            builder.append("\"");
+            JsonUtils.quoteAsString(tag, builder);
+            builder.append("\",");
         }
     }
 
@@ -134,22 +135,162 @@ public class EcsJsonSerializer {
         }
     }
 
-    public static void serializeException(StringBuilder builder, Throwable thrown) {
+    public static void serializeException(StringBuilder builder, Throwable thrown, boolean stackTraceAsArray) {
         if (thrown != null) {
             builder.append("\"error.code\":\"");
             JsonUtils.quoteAsString(thrown.getClass().getName(), builder);
             builder.append("\",");
             builder.append("\"error.message\":\"");
-            JsonUtils.quoteAsString(formatThrowable(thrown), builder);
+            JsonUtils.quoteAsString(thrown.getMessage(), builder);
             builder.append("\",");
+            if (stackTraceAsArray) {
+                builder.append("\"error.stack_trace\":[").append(NEW_LINE);
+                formatThrowableAsArray(builder, thrown);
+                builder.append("]");
+            } else {
+                builder.append("\"error.stack_trace\":\"");
+                JsonUtils.quoteAsString(formatThrowable(thrown), builder);
+                builder.append("\"");
+            }
         }
     }
 
+    public static void serializeException(StringBuilder builder, String exceptionClassName, String exceptionMessage, String stackTrace, boolean stackTraceAsArray) {
+        builder.append("\"error.code\":\"");
+        JsonUtils.quoteAsString(exceptionClassName, builder);
+        builder.append("\",");
+        builder.append("\"error.message\":\"");
+        JsonUtils.quoteAsString(exceptionMessage, builder);
+        builder.append("\",");
+        if (stackTraceAsArray) {
+            builder.append("\"error.stack_trace\":[").append(NEW_LINE);
+            for (String line : stackTrace.split("\\n")) {
+                appendQuoted(builder, line);
+            }
+            builder.append("]");
+        } else {
+            builder.append("\"error.stack_trace\":\"");
+            JsonUtils.quoteAsString(stackTrace, builder);
+            builder.append("\"");
+        }
+    }
+
+    private static void appendQuoted(StringBuilder builder, CharSequence content) {
+        builder.append('"');
+        JsonUtils.quoteAsString(content, builder);
+        builder.append('"');
+    }
+
     private static CharSequence formatThrowable(final Throwable throwable) {
-        StringWriter sw = new StringWriter(2048);
-        final PrintWriter pw = new PrintWriter(sw);
+        StringBuilder buffer = getMessageStringBuilder();
+        final PrintWriter pw = new PrintWriter(new StringBuilderWriter(buffer));
         throwable.printStackTrace(pw);
         pw.flush();
-        return sw.toString();
+        return buffer;
+    }
+
+    private static void formatThrowableAsArray(final StringBuilder jsonBuilder, final Throwable throwable) {
+        final StringBuilder buffer = getMessageStringBuilder();
+        final PrintWriter pw = new PrintWriter(new StringBuilderWriter(buffer), true) {
+            @Override
+            public void println() {
+                flush();
+                jsonBuilder.append("\t\"");
+                JsonUtils.quoteAsString(buffer, jsonBuilder);
+                jsonBuilder.append("\",");
+                jsonBuilder.append(NEW_LINE);
+                buffer.setLength(0);
+            }
+        };
+        throwable.printStackTrace(pw);
+        removeIfEndsWith(jsonBuilder, NEW_LINE);
+        removeIfEndsWith(jsonBuilder, ",");
+    }
+
+    public static void removeIfEndsWith(StringBuilder sb, String ending) {
+        if (endsWith(sb, ending)) {
+            sb.setLength(sb.length() - ending.length());
+        }
+    }
+
+    public static boolean endsWith(StringBuilder sb, String ending) {
+        int endingLength = ending.length();
+        int startIndex = sb.length() - endingLength;
+        if (startIndex < 0) {
+            return false;
+        }
+        for (int i = 0; i < endingLength; i++) {
+            if (sb.charAt(startIndex + i) != ending.charAt(i)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static StringBuilder getMessageStringBuilder() {
+        StringBuilder result = messageStringBuilder.get();
+        if (result == null) {
+            result = new StringBuilder(1024);
+            messageStringBuilder.set(result);
+        }
+        result.setLength(0);
+        return result;
+    }
+
+    private static class StringBuilderWriter extends Writer {
+
+        private final StringBuilder buffer;
+
+        StringBuilderWriter(StringBuilder buffer) {
+            this.buffer = buffer;
+        }
+
+        @Override
+        public Writer append(CharSequence csq) {
+            buffer.append(csq);
+            return this;
+        }
+
+        @Override
+        public void write(String str) {
+            buffer.append(str);
+        }
+
+        @Override
+        public void write(String str, int off, int len) {
+            buffer.append(str, off, len);
+        }
+
+        @Override
+        public Writer append(CharSequence csq, int start, int end) {
+            buffer.append(csq, start, end);
+            return this;
+        }
+
+        @Override
+        public Writer append(char c) {
+            buffer.append(c);
+            return this;
+        }
+
+        @Override
+        public void write(int c) {
+            buffer.append((char) c);
+        }
+
+        @Override
+        public void write(char[] cbuf, int off, int len) {
+            buffer.append(cbuf, off, len);
+        }
+
+        @Override
+        public void flush() {
+
+        }
+
+        @Override
+        public void close() {
+
+        }
     }
 }

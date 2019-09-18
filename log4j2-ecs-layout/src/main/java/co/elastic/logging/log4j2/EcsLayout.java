@@ -43,13 +43,12 @@ import org.apache.logging.log4j.core.layout.PatternLayout;
 import org.apache.logging.log4j.core.lookup.StrSubstitutor;
 import org.apache.logging.log4j.core.pattern.PatternFormatter;
 import org.apache.logging.log4j.core.util.KeyValuePair;
-import org.apache.logging.log4j.core.util.StringBuilderWriter;
-import org.apache.logging.log4j.message.MapMessage;
 import org.apache.logging.log4j.message.Message;
+import org.apache.logging.log4j.message.MultiformatMessage;
+import org.apache.logging.log4j.util.MultiFormatStringBuilderFormattable;
 import org.apache.logging.log4j.util.StringBuilderFormattable;
 import org.apache.logging.log4j.util.TriConsumer;
 
-import java.io.PrintWriter;
 import java.nio.charset.Charset;
 import java.util.Arrays;
 import java.util.Collection;
@@ -57,12 +56,14 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 @Plugin(name = "EcsLayout", category = Node.CATEGORY, elementType = Layout.ELEMENT_TYPE)
 public class EcsLayout extends AbstractStringLayout {
 
-    private static final ThreadLocal<StringBuilder> messageStringBuilder = new ThreadLocal<StringBuilder>();
     public static final Charset UTF_8 = Charset.forName("UTF-8");
+    public static final String[] JSON_FORMAT = {"JSON"};
 
     private final TriConsumer<String, Object, StringBuilder> WRITE_KEY_VALUES_INTO = new TriConsumer<String, Object, StringBuilder>() {
         @Override
@@ -81,14 +82,17 @@ public class EcsLayout extends AbstractStringLayout {
     private final KeyValuePair[] additionalFields;
     private final PatternFormatter[][] fieldValuePatternFormatter;
     private final Set<String> topLevelLabels;
+    private final boolean stackTraceAsArray;
     private String serviceName;
     private boolean includeMarkers;
+    private final ConcurrentMap<Class<? extends MultiformatMessage>, Boolean> supportsJson = new ConcurrentHashMap<Class<? extends MultiformatMessage>, Boolean>();
 
-    private EcsLayout(Configuration config, String serviceName, boolean includeMarkers, KeyValuePair[] additionalFields, Collection<String> topLevelLabels) {
+    private EcsLayout(Configuration config, String serviceName, boolean includeMarkers, KeyValuePair[] additionalFields, Collection<String> topLevelLabels, boolean stackTraceAsArray) {
         super(config, UTF_8, null, null);
         this.serviceName = serviceName;
         this.includeMarkers = includeMarkers;
         this.topLevelLabels = new HashSet<String>(topLevelLabels);
+        this.stackTraceAsArray = stackTraceAsArray;
         this.topLevelLabels.add("trace.id");
         this.topLevelLabels.add("transaction.id");
         this.additionalFields = additionalFields;
@@ -106,16 +110,6 @@ public class EcsLayout extends AbstractStringLayout {
     @PluginBuilderFactory
     public static EcsLayout.Builder newBuilder() {
         return new EcsLayout.Builder().asBuilder();
-    }
-
-    private static StringBuilder getMessageStringBuilder() {
-        StringBuilder result = messageStringBuilder.get();
-        if (result == null) {
-            result = new StringBuilder(DEFAULT_STRING_BUILDER_SIZE);
-            messageStringBuilder.set(result);
-        }
-        result.setLength(0);
-        return result;
     }
 
     private static boolean valueNeedsLookup(final String value) {
@@ -144,6 +138,7 @@ public class EcsLayout extends AbstractStringLayout {
         EcsJsonSerializer.serializeLoggerName(builder, event.getLoggerName());
         serializeLabels(event, builder);
         serializeTags(event, builder);
+        EcsJsonSerializer.serializeException(builder, event.getThrown(), stackTraceAsArray);
         EcsJsonSerializer.serializeObjectEnd(builder);
         return builder;
     }
@@ -158,13 +153,13 @@ public class EcsLayout extends AbstractStringLayout {
                     PatternFormatter[] formatters = fieldValuePatternFormatter[i];
                     CharSequence value = null;
                     if (formatters != null) {
-                        StringBuilder buffer = getMessageStringBuilder();
+                        StringBuilder buffer = EcsJsonSerializer.getMessageStringBuilder();
                         formatPattern(event, formatters, buffer);
                         if (buffer.length() > 0) {
                             value = buffer;
                         }
                     } else if (valueNeedsLookup(additionalField.getValue())) {
-                        StringBuilder lookupValue = getMessageStringBuilder();
+                        StringBuilder lookupValue = EcsJsonSerializer.getMessageStringBuilder();
                         lookupValue.append(additionalField.getValue());
                         if (strSubstitutor.replaceIn(event, lookupValue)) {
                             value = lookupValue;
@@ -230,11 +225,42 @@ public class EcsLayout extends AbstractStringLayout {
     }
 
     private void serializeMessage(StringBuilder builder, boolean gcFree, Message message, Throwable thrown) {
+        if (message instanceof MultiformatMessage) {
+            MultiformatMessage multiformatMessage = (MultiformatMessage) message;
+            if (supportsJson(multiformatMessage)) {
+                serializeJsonMessage(builder, multiformatMessage);
+            } else {
+                serializeSimpleMessage(builder, gcFree, message, thrown);
+            }
+        } else {
+            serializeSimpleMessage(builder, gcFree, message, thrown);
+        }
+    }
+
+    private void serializeJsonMessage(StringBuilder builder, MultiformatMessage message) {
+        final StringBuilder messageBuffer = EcsJsonSerializer.getMessageStringBuilder();
+        if (message instanceof MultiFormatStringBuilderFormattable) {
+            ((MultiFormatStringBuilderFormattable) message).formatTo(JSON_FORMAT, messageBuffer);
+        } else {
+            messageBuffer.append(message.getFormattedMessage(JSON_FORMAT));
+        }
+        if (isObject(messageBuffer)) {
+            moveToRoot(messageBuffer);
+            builder.append(messageBuffer);
+            builder.append(", ");
+        } else {
+            builder.append("\"message\":");
+            builder.append(messageBuffer);
+            builder.append(", ");
+        }
+    }
+
+    private void serializeSimpleMessage(StringBuilder builder, boolean gcFree, Message message, Throwable thrown) {
         builder.append("\"message\":\"");
         if (message instanceof CharSequence) {
             JsonUtils.quoteAsString(((CharSequence) message), builder);
         } else if (gcFree && message instanceof StringBuilderFormattable) {
-            final StringBuilder messageBuffer = getMessageStringBuilder();
+            final StringBuilder messageBuffer = EcsJsonSerializer.getMessageStringBuilder();
             try {
                 ((StringBuilderFormattable) message).formatTo(messageBuffer);
                 JsonUtils.quoteAsString(messageBuffer, builder);
@@ -244,23 +270,31 @@ public class EcsLayout extends AbstractStringLayout {
         } else {
             JsonUtils.quoteAsString(EcsJsonSerializer.toNullSafeString(message.getFormattedMessage()), builder);
         }
-        if (thrown != null) {
-            builder.append("\\n");
-            JsonUtils.quoteAsString(formatThrowable(thrown), builder);
-        }
         builder.append("\", ");
-        if (message instanceof MapMessage) {
-            MapMessage mapMessage = (MapMessage) message;
-            mapMessage.forEach(WRITE_KEY_VALUES_INTO, builder);
-        }
     }
 
-    private static CharSequence formatThrowable(final Throwable throwable) {
-        StringBuilderWriter sw = new StringBuilderWriter(getMessageStringBuilder());
-        final PrintWriter pw = new PrintWriter(sw);
-        throwable.printStackTrace(pw);
-        pw.flush();
-        return sw.getBuilder();
+    private boolean isObject(StringBuilder messageBuffer) {
+        return messageBuffer.length() > 1 && messageBuffer.charAt(0) == '{' && messageBuffer.charAt(messageBuffer.length() -1) == '}';
+    }
+
+    private void moveToRoot(StringBuilder messageBuffer) {
+        messageBuffer.setCharAt(0, ' ');
+        messageBuffer.setCharAt(messageBuffer.length() -1, ' ');
+    }
+
+    private boolean supportsJson(MultiformatMessage message) {
+        Boolean supportsJson = this.supportsJson.get(message.getClass());
+        if (supportsJson == null) {
+            supportsJson = false;
+            for (String format : message.getFormats()) {
+                if (format.equalsIgnoreCase("JSON")) {
+                    supportsJson = true;
+                    break;
+                }
+            }
+            this.supportsJson.put(message.getClass(), supportsJson);
+        }
+        return supportsJson;
     }
 
     public static class Builder extends AbstractStringLayout.Builder<EcsLayout.Builder>
@@ -270,6 +304,8 @@ public class EcsLayout extends AbstractStringLayout {
         private String serviceName;
         @PluginBuilderAttribute("includeMarkers")
         private boolean includeMarkers = false;
+        @PluginBuilderAttribute("stackTraceAsArray")
+        private boolean stackTraceAsArray = false;
         @PluginElement("AdditionalField")
         private KeyValuePair[] additionalFields;
         @PluginElement("TopLevelLabels")
@@ -321,9 +357,18 @@ public class EcsLayout extends AbstractStringLayout {
             return asBuilder();
         }
 
+        public EcsLayout.Builder setStackTraceAsArray(boolean stackTraceAsArray) {
+            this.stackTraceAsArray = stackTraceAsArray;
+            return asBuilder();
+        }
+
         @Override
         public EcsLayout build() {
-            return new EcsLayout(getConfiguration(), serviceName, includeMarkers, additionalFields, topLevelLabels == null ? Collections.<String>emptyList() : Arrays.<String>asList(topLevelLabels));
+            return new EcsLayout(getConfiguration(), serviceName, includeMarkers, additionalFields, topLevelLabels == null ? Collections.<String>emptyList() : Arrays.<String>asList(topLevelLabels), stackTraceAsArray);
+        }
+
+        public boolean isStackTraceAsArray() {
+            return stackTraceAsArray;
         }
     }
 }

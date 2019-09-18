@@ -20,16 +20,34 @@ Example:
 {"@timestamp":"2019-08-06T12:09:12.375Z", "log.level": "INFO", "message":"Tomcat started on port(s): 8080 (http) with context path ''", "service.name":"spring-petclinic","process.thread.name":"restartedMain","log.logger":"org.springframework.boot.web.embedded.tomcat.TomcatWebServer"}
 {"@timestamp":"2019-08-06T12:09:12.379Z", "log.level": "INFO", "message":"Started PetClinicApplication in 7.095 seconds (JVM running for 9.082)", "service.name":"spring-petclinic","process.thread.name":"restartedMain","log.logger":"org.springframework.samples.petclinic.PetClinicApplication"}
 {"@timestamp":"2019-08-06T14:08:40.199Z", "log.level":"DEBUG", "message":"init find form", "service.name":"spring-petclinic","process.thread.name":"http-nio-8080-exec-8","log.logger":"org.springframework.samples.petclinic.owner.OwnerController","transaction.id":"28b7fb8d5aba51f1","trace.id":"2869b25b5469590610fea49ac04af7da"}
+{"@timestamp":"2019-09-17T13:16:48.038Z", "log.level":"ERROR", "message":"Servlet.service() for servlet [dispatcherServlet] in context with path [] threw exception [Request processing failed; nested exception is java.lang.RuntimeException: Expected: controller used to showcase what happens when an exception is thrown] with root cause", "process.thread.name":"http-nio-8080-exec-1","log.logger":"org.apache.catalina.core.ContainerBase.[Tomcat].[localhost].[/].[dispatcherServlet]","log.origin":{"file":"DirectJDKLog.java","function":"log","line":175},"error.code":"java.lang.RuntimeException","error.message":"Expected: controller used to showcase what happens when an exception is thrown","error.stack_trace":[
+	"java.lang.RuntimeException: Expected: controller used to showcase what happens when an exception is thrown",
+	"\tat org.springframework.samples.petclinic.system.CrashController.triggerException(CrashController.java:33)",
+	"\tat sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)",
+	"\tat sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)",
+	"\tat sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)",
+	"\tat java.lang.reflect.Method.invoke(Method.java:498)",
+	"\tat org.apache.tomcat.util.threads.TaskThread$WrappingRunnable.run(TaskThread.java:61)",
+	"\tat java.lang.Thread.run(Thread.java:748)"]}
 ```
 
 ## Why ECS logging?
 
-Logging in ECS-compatible JSON has the advantage that you don't need to set up a logstash/ingest node pipeline to parse logs using grok.
-Another benefit is that you are automatically using the field names the
-[Logs UI](https://www.elastic.co/guide/en/kibana/7.3/xpack-logs.html) expects,
-which means that getting started with it is straightforward.
+* No parsing of the log file required \
+  Logging in ECS-compatible JSON has the advantage that you don't need to set up a logstash/ingest node pipeline to parse logs using grok.
+* No external dependencies
+* Highly efficient by manually serializing JSON
+* Low/Zero allocations (reduces GC pauses) \
+  The log4j2 `EcsLayout` does not allocate any memory (unless the log event contains an `Exception`)
+* Decently human-readable JSON structure \
+  The first three fields are always `@timestamp`, `log.level` and `message`.
+  It's also possible to format stack traces so that each element is rendered in a new line.
+* Use the Kibana [Logs UI](https://www.elastic.co/guide/en/kibana/7.3/xpack-logs.html) without additional configuration \
+  As this library adheres to [ECS](https://www.elastic.co/guide/en/ecs/current/ecs-reference.html), the Logs UI knows which fields to show
+* Out-of-the-box correlation of logs and traces via the Logs UI and APM UI when using the [Elastic APM Java agent](https://www.elastic.co/guide/en/apm/agent/java/current/index.html)
+* Using a common schema across different services and teams makes it possible create reusable dashboards and avoids [mapping explosions](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html#mapping-limit-settings).
 
-## APM Log correlation
+### APM Log correlation
 
 If you are using the [Elastic APM Java agent](https://www.elastic.co/guide/en/apm/agent/java/current/index.html),
 you can leverage the [log correlation feature](https://www.elastic.co/guide/en/apm/agent/java/current/config-logging.html#config-enable-log-correlation) without any additional configuration.
@@ -38,19 +56,6 @@ This lets you jump from the [Span timeline in the APM UI](https://www.elastic.co
 [Logs UI](https://www.elastic.co/guide/en/kibana/7.3/xpack-logs.html),
 showing only the logs which belong to the corresponding request.
 Vice versa, you can also jump from a log line in the Logs UI to the Span Timeline of the APM UI.
-
-## Advantages
-
-* No external dependencies
-* Highly efficient by manually serializing JSON
-* Low/Zero allocations (reduces GC pauses) \
-  The log4j2 `EcsLayout` does not allocate any memory (unless the log event contains an `Exception`)
-* No parsing of the log file required
-* Decently human-readable JSON structure \
-  The first three fields are always `@timestamp`, `log.level` and `message`.
-* Use the Kibana [Logs UI](https://www.elastic.co/guide/en/kibana/7.3/xpack-logs.html) without additional configuration \
-  As this library adheres to [ECS](https://www.elastic.co/guide/en/ecs/current/ecs-reference.html), the Logs UI knows which fields to show
-* Out-of-the-box correlation of logs and traces via the Logs UI and APM UI when using the [Elastic APM Java agent](https://www.elastic.co/guide/en/apm/agent/java/current/index.html)
 
 ### Additional advantages when using in combination with Filebeat
 
@@ -74,10 +79,12 @@ We recommend using this library to log into a JSON log file and let Filebeat sen
 |ECS field | Log4j2 API  |
 |----------|-------------|
 |[`@timestamp`](https://www.elastic.co/guide/en/ecs/current/ecs-base.html) | [`LogEvent#getTimeMillis()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getTimeMillis()) |
-| [`log.level`](https://www.elastic.co/guide/en/ecs/current/ecs-log.html) | [`LogEvent#getLevel()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getLevel()) |
-|[`log.logger`](https://www.elastic.co/guide/en/ecs/current/ecs-log.html)|[`LogEvent#getLoggerName(`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getLoggerName())|
+|[`log.level`](https://www.elastic.co/guide/en/ecs/current/ecs-log.html) | [`LogEvent#getLevel()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getLevel()) |
+|[`log.logger`](https://www.elastic.co/guide/en/ecs/current/ecs-log.html)|[`LogEvent#getLoggerName()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getLoggerName())|
 |[`message`](https://www.elastic.co/guide/en/ecs/current/ecs-base.html)|[`LogEvent#getMessage()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getMessage())|
-|[`message`](https://www.elastic.co/guide/en/ecs/current/ecs-base.html)|[`LogEvent#getThrown()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getThrown())|
+|[`error.code`](https://www.elastic.co/guide/en/ecs/current/ecs-error.html)|[`Throwable#getClass()`](https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html#getClass())|
+|[`error.message`](https://www.elastic.co/guide/en/ecs/current/ecs-error.html)|[`Throwable#getStackTrace()`](https://docs.oracle.com/javase/7/docs/api/java/lang/Throwable.html#getMessage())|
+|[`error.stack_trace`](https://www.elastic.co/guide/en/ecs/current/ecs-error.html)|[`Throwable#getStackTrace()`](https://docs.oracle.com/javase/7/docs/api/java/lang/Throwable.html#getStackTrace())|
 |[`process.thread.name`](https://www.elastic.co/guide/en/ecs/current/ecs-process.html)|[`LogEvent#getThreadName()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getThreadName()) |
 |[`labels`](https://www.elastic.co/guide/en/ecs/current/ecs-base.html)|[`LogEvent#getContextMap()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getContextMap())|
 |[`tags`](https://www.elastic.co/guide/en/ecs/current/ecs-base.html)|[`LogEvent#getContextStack()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getContextStack())|
@@ -128,3 +135,33 @@ For more information, check the [Filebeat documentation](https://www.elastic.co/
   - Set `Output type` to `Elasticsearch`
   - Configure the `hosts`
   - For secured Elasticsearch deployments (like Elastic cloud) set `Username` and `Password`
+
+#### When `stackTraceAsArray` is enabled
+
+Filebeat can normally only decoding JSON if there is one JSON object per line.
+When `stackTraceAsArray` is enabled, there will be a new line for each stack trace element which improves readability.
+But when combining the multiline settings with a `decode_json_fields` we can also handle multi-line JSON.
+
+```yaml
+filebeat.inputs:
+  - type: log
+    paths: /path/to/logs.json
+    multiline.pattern: '^{'
+    multiline.negate: true
+    multiline.match: after
+processors:
+  - decode_json_fields:
+      fields: message
+      target: ""
+      overwrite_keys: true
+  # flattens the array to a single string
+  - script:
+      when:
+        has_fields: ['error.stack_trace']
+      lang: javascript
+      id: my_filter
+      source: >
+        function process(event) {
+            event.Put("error.stack_trace", event.Get("error.stack_trace").join("\n"));
+        }
+```

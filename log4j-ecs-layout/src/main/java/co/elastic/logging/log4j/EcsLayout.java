@@ -27,12 +27,14 @@ package co.elastic.logging.log4j;
 import co.elastic.logging.EcsJsonSerializer;
 import org.apache.log4j.Layout;
 import org.apache.log4j.spi.LoggingEvent;
+import org.apache.log4j.spi.ThrowableInformation;
 
 import java.util.HashSet;
 import java.util.Set;
 
 public class EcsLayout extends Layout {
 
+    private boolean stackTraceAsArray = false;
     private String serviceName;
     private Set<String> topLevelLabels = new HashSet<String>(EcsJsonSerializer.DEFAULT_TOP_LEVEL_LABELS);
 
@@ -41,13 +43,16 @@ public class EcsLayout extends Layout {
         StringBuilder builder = new StringBuilder();
         EcsJsonSerializer.serializeObjectStart(builder, event.getTimeStamp());
         EcsJsonSerializer.serializeLogLevel(builder, event.getLevel().toString());
-        Throwable thrown = event.getThrowableInformation() != null ? event.getThrowableInformation().getThrowable() : null;
-        EcsJsonSerializer.serializeFormattedMessage(builder, event.getRenderedMessage(), thrown);
+        EcsJsonSerializer.serializeFormattedMessage(builder, event.getRenderedMessage());
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
         EcsJsonSerializer.serializeLoggerName(builder, event.getLoggerName());
         EcsJsonSerializer.serializeLabels(builder, event.getProperties(), topLevelLabels);
         EcsJsonSerializer.serializeTag(builder, event.getNDC());
+        ThrowableInformation throwableInformation = event.getThrowableInformation();
+        if (throwableInformation != null) {
+            EcsJsonSerializer.serializeException(builder, throwableInformation.getThrowable(), stackTraceAsArray);
+        }
         EcsJsonSerializer.serializeObjectEnd(builder);
         return builder.toString();
     }
@@ -64,5 +69,9 @@ public class EcsLayout extends Layout {
 
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
+    }
+
+    public void setStackTraceAsArray(boolean stackTraceAsArray) {
+        this.stackTraceAsArray = stackTraceAsArray;
     }
 }
