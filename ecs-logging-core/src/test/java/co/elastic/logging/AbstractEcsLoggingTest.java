@@ -88,7 +88,7 @@ public abstract class AbstractEcsLoggingTest {
         error("test", new RuntimeException("test"));
         assertThat(getLastLogLine().get("log.level").textValue()).isEqualTo("ERROR");
         assertThat(getLastLogLine().get("error.message").textValue()).isEqualTo("test");
-        assertThat(getLastLogLine().get("error.code").textValue()).isEqualTo(RuntimeException.class.getName());
+        assertThat(getLastLogLine().get("error.type").textValue()).isEqualTo(RuntimeException.class.getName());
         String stackTrace = StreamSupport.stream(getLastLogLine().get("error.stack_trace").spliterator(), false)
                 .map(JsonNode::textValue)
                 .collect(Collectors.joining("\n", "", "\n"));
