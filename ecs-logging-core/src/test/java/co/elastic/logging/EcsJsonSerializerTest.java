@@ -47,7 +47,7 @@ class EcsJsonSerializerTest {
         jsonBuilder.append('}');
         JsonNode jsonNode = new ObjectMapper().readTree(jsonBuilder.toString());
 
-        assertThat(jsonNode.get("error.code").textValue()).isEqualTo(exception.getClass().getName());
+        assertThat(jsonNode.get("error.type").textValue()).isEqualTo(exception.getClass().getName());
         assertThat(jsonNode.get("error.message").textValue()).isEqualTo("foo");
         StringWriter stringWriter = new StringWriter();
         exception.printStackTrace(new PrintWriter(stringWriter));
@@ -64,7 +64,7 @@ class EcsJsonSerializerTest {
         System.out.println(jsonBuilder);
         JsonNode jsonNode = new ObjectMapper().readTree(jsonBuilder.toString());
 
-        assertThat(jsonNode.get("error.code").textValue()).isEqualTo(exception.getClass().getName());
+        assertThat(jsonNode.get("error.type").textValue()).isEqualTo(exception.getClass().getName());
         assertThat(jsonNode.get("error.message").textValue()).isEqualTo("foo");
         StringWriter stringWriter = new StringWriter();
         exception.printStackTrace(new PrintWriter(stringWriter));

@@ -156,7 +156,7 @@ public class EcsJsonSerializer {
 
     public static void serializeException(StringBuilder builder, Throwable thrown, boolean stackTraceAsArray) {
         if (thrown != null) {
-            builder.append("\"error.code\":\"");
+            builder.append("\"error.type\":\"");
             JsonUtils.quoteAsString(thrown.getClass().getName(), builder);
             builder.append("\",");
             builder.append("\"error.message\":\"");
@@ -175,7 +175,7 @@ public class EcsJsonSerializer {
     }
 
     public static void serializeException(StringBuilder builder, String exceptionClassName, String exceptionMessage, String stackTrace, boolean stackTraceAsArray) {
-        builder.append("\"error.code\":\"");
+        builder.append("\"error.type\":\"");
         JsonUtils.quoteAsString(exceptionClassName, builder);
         builder.append("\",");
         builder.append("\"error.message\":\"");
