@@ -1,10 +1,8 @@
 # Log4j2 ECS Layout
 
-## Step 0: build the project
-Check out the project and build with `mvn clean install`.
-Once this project is available on maven central, this step is no longer needed.
-
 ## Step 1: add dependency
+
+Latest version: [![Maven Central](https://img.shields.io/maven-central/v/co.elastic.logging/log4j2-ecs-layout.svg)](https://search.maven.org/search?q=g:co.elastic.logging%20AND%20a:log4j2-ecs-layout)
 
 Add a dependency to your application
 ```xml
