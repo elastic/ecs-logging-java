@@ -14,6 +14,7 @@
     </properties>
 
     <artifactId>log4j2-ecs-layout</artifactId>
+    <name>${project.groupId}:${project.artifactId}</name>
 
     <build>
         <plugins>
