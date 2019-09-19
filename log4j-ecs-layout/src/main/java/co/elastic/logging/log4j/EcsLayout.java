@@ -26,6 +26,7 @@ package co.elastic.logging.log4j;
 
 import co.elastic.logging.EcsJsonSerializer;
 import org.apache.log4j.Layout;
+import org.apache.log4j.spi.LocationInfo;
 import org.apache.log4j.spi.LoggingEvent;
 import org.apache.log4j.spi.ThrowableInformation;
 
@@ -37,6 +38,7 @@ public class EcsLayout extends Layout {
     private boolean stackTraceAsArray = false;
     private String serviceName;
     private Set<String> topLevelLabels = new HashSet<String>(EcsJsonSerializer.DEFAULT_TOP_LEVEL_LABELS);
+    private boolean includeOrigin;
 
     @Override
     public String format(LoggingEvent event) {
@@ -49,12 +51,31 @@ public class EcsLayout extends Layout {
         EcsJsonSerializer.serializeLoggerName(builder, event.getLoggerName());
         EcsJsonSerializer.serializeLabels(builder, event.getProperties(), topLevelLabels);
         EcsJsonSerializer.serializeTag(builder, event.getNDC());
+        if (includeOrigin) {
+            LocationInfo locationInformation = event.getLocationInformation();
+            if (locationInformation != null) {
+                EcsJsonSerializer.serializeOrigin(builder, locationInformation.getFileName(), locationInformation.getMethodName(), getLineNumber(locationInformation));
+            }
+        }
         ThrowableInformation throwableInformation = event.getThrowableInformation();
         if (throwableInformation != null) {
             EcsJsonSerializer.serializeException(builder, throwableInformation.getThrowable(), stackTraceAsArray);
         }
         EcsJsonSerializer.serializeObjectEnd(builder);
         return builder.toString();
+    }
+
+    private static int getLineNumber(LocationInfo locationInformation) {
+        int lineNumber = -1;
+        String lineNumberString = locationInformation.getLineNumber();
+        if (!LocationInfo.NA.equals(lineNumberString)) {
+            try {
+                lineNumber = Integer.parseInt(lineNumberString);
+            } catch (NumberFormatException e) {
+                // ignore
+            }
+        }
+        return lineNumber;
     }
 
     @Override
@@ -69,6 +90,10 @@ public class EcsLayout extends Layout {
 
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
+    }
+
+    public void setIncludeOrigin(boolean includeOrigin) {
+        this.includeOrigin = includeOrigin;
     }
 
     public void setStackTraceAsArray(boolean stackTraceAsArray) {

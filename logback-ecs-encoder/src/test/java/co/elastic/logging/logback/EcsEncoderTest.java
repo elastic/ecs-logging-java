@@ -25,8 +25,6 @@
 package co.elastic.logging.logback;
 
 import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.spi.ILoggingEvent;
-import ch.qos.logback.core.read.ListAppender;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -34,26 +32,27 @@ import java.io.IOException;
 
 class EcsEncoderTest extends AbstractEcsEncoderTest {
 
-    private ListAppender<ILoggingEvent> appender;
-    private EcsEncoder ecsEncoder;
+    private OutputStreamAppender appender;
 
     @BeforeEach
     void setUp() {
         LoggerContext context = new LoggerContext();
         logger = context.getLogger(getClass());
-        appender = new ListAppender<>();
+        appender = new OutputStreamAppender();
         appender.setContext(context);
-        appender.start();
         logger.addAppender(appender);
-        ecsEncoder = new EcsEncoder();
+        EcsEncoder ecsEncoder = new EcsEncoder();
         ecsEncoder.setServiceName("test");
         ecsEncoder.setIncludeMarkers(true);
         ecsEncoder.setStackTraceAsArray(true);
+        ecsEncoder.setIncludeOrigin(true);
         ecsEncoder.start();
+        appender.setEncoder(ecsEncoder);
+        appender.start();
     }
 
     @Override
     public JsonNode getLastLogLine() throws IOException {
-        return objectMapper.readTree(ecsEncoder.encode(appender.list.get(0)));
+        return objectMapper.readTree(appender.getBytes());
     }
 }

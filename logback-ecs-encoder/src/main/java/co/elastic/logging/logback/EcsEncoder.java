@@ -45,6 +45,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
     private boolean includeMarkers = false;
     private ThrowableProxyConverter throwableProxyConverter;
     private Set<String> topLevelLabels = new HashSet<String>(EcsJsonSerializer.DEFAULT_TOP_LEVEL_LABELS);
+    private boolean includeOrigin;
 
     @Override
     public byte[] headerBytes() {
@@ -69,6 +70,12 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
         EcsJsonSerializer.serializeLoggerName(builder, event.getLoggerName());
         EcsJsonSerializer.serializeLabels(builder, event.getMDCPropertyMap(), topLevelLabels);
+        if (includeOrigin) {
+            StackTraceElement[] callerData = event.getCallerData();
+            if (callerData != null && callerData.length > 0) {
+                EcsJsonSerializer.serializeOrigin(builder, callerData[0]);
+            }
+        }
         IThrowableProxy throwableProxy = event.getThrowableProxy();
         if (throwableProxy instanceof ThrowableProxy) {
             EcsJsonSerializer.serializeException(builder, ((ThrowableProxy) throwableProxy).getThrowable(), stackTraceAsArray);
@@ -114,5 +121,9 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
 
     public void setStackTraceAsArray(boolean stackTraceAsArray) {
         this.stackTraceAsArray = stackTraceAsArray;
+    }
+
+    public void setIncludeOrigin(boolean includeOrigin) {
+        this.includeOrigin = includeOrigin;
     }
 }

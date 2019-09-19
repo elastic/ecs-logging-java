@@ -31,13 +31,10 @@ import org.apache.log4j.Logger;
 import org.apache.log4j.MDC;
 import org.apache.log4j.NDC;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
-
-import static org.assertj.core.api.Assertions.assertThat;
 
 class Log4jEcsLayoutTest extends AbstractEcsLoggingTest {
 
@@ -54,6 +51,8 @@ class Log4jEcsLayoutTest extends AbstractEcsLoggingTest {
         ecsLayout = new EcsLayout();
         ecsLayout.setServiceName("test");
         ecsLayout.setStackTraceAsArray(true);
+        ecsLayout.setIncludeOrigin(true);
+        appender.setLayout(ecsLayout);
     }
 
     @BeforeEach
@@ -87,7 +86,7 @@ class Log4jEcsLayoutTest extends AbstractEcsLoggingTest {
 
     @Override
     public JsonNode getLastLogLine() throws IOException {
-        return objectMapper.readTree(ecsLayout.format(appender.getLogEvents().get(0)));
+        return objectMapper.readTree(appender.getLogEvents().get(0));
     }
 
 }
