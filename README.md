@@ -44,7 +44,6 @@ Example:
   It's also possible to format stack traces so that each element is rendered in a new line.
 * Use the Kibana [Logs UI](https://www.elastic.co/guide/en/kibana/7.3/xpack-logs.html) without additional configuration \
   As this library adheres to [ECS](https://www.elastic.co/guide/en/ecs/current/ecs-reference.html), the Logs UI knows which fields to show
-* Out-of-the-box correlation of logs and traces via the Logs UI and APM UI when using the [Elastic APM Java agent](https://www.elastic.co/guide/en/apm/agent/java/current/index.html)
 * Using a common schema across different services and teams makes it possible create reusable dashboards and avoids [mapping explosions](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping.html#mapping-limit-settings).
 
 ### APM Log correlation
