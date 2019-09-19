@@ -50,6 +50,8 @@ abstract class AbstractLog4j2EcsLayoutTest extends AbstractEcsLoggingTest {
     @Test
     void globalLabels() throws Exception {
         putMdc("trace.id", "foo");
+        putMdc("top_level", "foo");
+        putMdc("nested_under_labels", "foo");
         debug("test");
         assertThat(getLastLogLine().get("cluster.uuid").textValue()).isEqualTo("9fe9134b-20b0-465e-acf9-8cc09ac9053b");
         assertThat(getLastLogLine().get("node.id").textValue()).isEqualTo("foo");
@@ -57,6 +59,8 @@ abstract class AbstractLog4j2EcsLayoutTest extends AbstractEcsLoggingTest {
         assertThat(getLastLogLine().get("emptyPattern")).isNull();
         assertThat(getLastLogLine().get("clazz").textValue()).startsWith(getClass().getPackageName());
         assertThat(getLastLogLine().get("404")).isNull();
+        assertThat(getLastLogLine().get("top_level").textValue()).isEqualTo("foo");
+        assertThat(getLastLogLine().get("labels.nested_under_labels").textValue()).isEqualTo("foo");
     }
 
     @Test

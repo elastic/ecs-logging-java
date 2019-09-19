@@ -76,9 +76,11 @@ public abstract class AbstractEcsLoggingTest {
     @Test
     void testTopLevelLabels() throws Exception {
         putMdc("transaction.id", "0af7651916cd43dd8448eb211c80319c");
+        putMdc("span.id", "foo");
         debug("test");
         assertThat(getLastLogLine().get("labels.transaction.id")).isNull();
         assertThat(getLastLogLine().get("transaction.id").textValue()).isEqualTo("0af7651916cd43dd8448eb211c80319c");
+        assertThat(getLastLogLine().get("span.id").textValue()).isEqualTo("foo");
     }
 
     @Test

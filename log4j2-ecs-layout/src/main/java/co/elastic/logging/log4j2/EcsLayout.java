@@ -50,9 +50,8 @@ import org.apache.logging.log4j.util.StringBuilderFormattable;
 import org.apache.logging.log4j.util.TriConsumer;
 
 import java.nio.charset.Charset;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -93,10 +92,9 @@ public class EcsLayout extends AbstractStringLayout {
         this.serviceName = serviceName;
         this.includeMarkers = includeMarkers;
         this.topLevelLabels = new HashSet<String>(topLevelLabels);
+        this.topLevelLabels.addAll(EcsJsonSerializer.DEFAULT_TOP_LEVEL_LABELS);
         this.includeOrigin = includeOrigin;
         this.stackTraceAsArray = stackTraceAsArray;
-        this.topLevelLabels.add("trace.id");
-        this.topLevelLabels.add("transaction.id");
         this.additionalFields = additionalFields;
         fieldValuePatternFormatter = new PatternFormatter[additionalFields.length][];
         for (int i = 0; i < additionalFields.length; i++) {
@@ -313,8 +311,8 @@ public class EcsLayout extends AbstractStringLayout {
         private boolean stackTraceAsArray = false;
         @PluginElement("AdditionalField")
         private KeyValuePair[] additionalFields;
-        @PluginElement("TopLevelLabels")
-        private String[] topLevelLabels;
+        @PluginBuilderAttribute("topLevelLabels")
+        private String topLevelLabels;
         @PluginBuilderAttribute("includeOrigin")
         private boolean includeOrigin;
 
@@ -339,11 +337,11 @@ public class EcsLayout extends AbstractStringLayout {
             return includeOrigin;
         }
 
-        public String[] getTopLevelLabels() {
+        public String getTopLevelLabels() {
             return topLevelLabels;
         }
 
-        public EcsLayout.Builder setTopLevelLabels(final String[] topLevelLabels) {
+        public EcsLayout.Builder setTopLevelLabels(final String topLevelLabels) {
             this.topLevelLabels = topLevelLabels;
             return asBuilder();
         }
@@ -380,7 +378,13 @@ public class EcsLayout extends AbstractStringLayout {
 
         @Override
         public EcsLayout build() {
-            return new EcsLayout(getConfiguration(), serviceName, includeMarkers, additionalFields, topLevelLabels == null ? Collections.<String>emptyList() : Arrays.<String>asList(topLevelLabels), includeOrigin, stackTraceAsArray);
+            List<String> topLevelLabelsList = new ArrayList<String>();
+            if (topLevelLabels != null) {
+                for (String label : topLevelLabels.split(",")) {
+                    topLevelLabelsList.add(label.trim());
+                }
+            }
+            return new EcsLayout(getConfiguration(), serviceName, includeMarkers, additionalFields, topLevelLabelsList, includeOrigin, stackTraceAsArray);
         }
 
         public boolean isStackTraceAsArray() {
