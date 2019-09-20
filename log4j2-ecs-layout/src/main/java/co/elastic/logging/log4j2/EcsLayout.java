@@ -310,11 +310,11 @@ public class EcsLayout extends AbstractStringLayout {
         @PluginBuilderAttribute("stackTraceAsArray")
         private boolean stackTraceAsArray = false;
         @PluginElement("AdditionalField")
-        private KeyValuePair[] additionalFields;
+        private KeyValuePair[] additionalFields = new KeyValuePair[] {};
         @PluginBuilderAttribute("topLevelLabels")
         private String topLevelLabels;
         @PluginBuilderAttribute("includeOrigin")
-        private boolean includeOrigin;
+        private boolean includeOrigin = false;
 
         Builder() {
             super();
