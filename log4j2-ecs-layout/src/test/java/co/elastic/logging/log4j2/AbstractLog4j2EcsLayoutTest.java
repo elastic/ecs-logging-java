@@ -84,6 +84,12 @@ abstract class AbstractLog4j2EcsLayoutTest extends AbstractEcsLoggingTest {
         assertThat(log.get("foo").textValue()).isEqualTo("bar");
     }
 
+    @Test
+    void testCustomPatternConverter() throws Exception {
+        debug("test");
+        assertThat(getLastLogLine().get("custom").textValue()).isEqualTo("foo");
+    }
+
     @Override
     public void putMdc(String key, String value) {
         ThreadContext.put(key, value);

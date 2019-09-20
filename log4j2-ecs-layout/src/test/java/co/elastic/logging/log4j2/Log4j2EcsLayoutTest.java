@@ -76,6 +76,7 @@ class Log4j2EcsLayoutTest extends AbstractLog4j2EcsLayoutTest {
                         new KeyValuePair("node.id", "${node.id}"),
                         new KeyValuePair("empty", "${empty}"),
                         new KeyValuePair("clazz", "%C"),
+                        new KeyValuePair("custom", "%custom"),
                         new KeyValuePair("emptyPattern", "%notEmpty{%invalidPattern}"),
                 })
                 .build();

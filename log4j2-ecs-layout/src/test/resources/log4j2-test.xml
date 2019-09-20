@@ -10,6 +10,7 @@
                 <KeyValuePair key="node.id" value="${node.id}"/>
                 <KeyValuePair key="empty" value="${empty}"/>
                 <KeyValuePair key="clazz" value="%C"/>
+                <KeyValuePair key="custom" value="%custom"/>
                 <KeyValuePair key="emptyPattern" value="%notEmpty{%invalidPattern}"/>
             </EcsLayout>
         </List>
