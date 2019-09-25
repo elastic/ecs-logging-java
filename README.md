@@ -133,6 +133,7 @@ For more information, check the [Filebeat documentation](https://www.elastic.co/
     ```yaml
     type: log
     json.keys_under_root: true
+    json.overwrite_keys: true
     ```
 - Add an `Output` configuration block
   - Set `Output type` to `Elasticsearch`
