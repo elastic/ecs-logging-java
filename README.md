@@ -141,7 +141,7 @@ For more information, check the [Filebeat documentation](https://www.elastic.co/
 
 #### When `stackTraceAsArray` is enabled
 
-Filebeat can normally only decoding JSON if there is one JSON object per line.
+Filebeat can normally only decode JSON if there is one JSON object per line.
 When `stackTraceAsArray` is enabled, there will be a new line for each stack trace element which improves readability.
 But when combining the multiline settings with a `decode_json_fields` we can also handle multi-line JSON.
 
