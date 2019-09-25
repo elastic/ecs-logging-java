@@ -86,7 +86,7 @@ We recommend using this library to log into a JSON log file and let Filebeat sen
 |[`log.origin.function`](https://www.elastic.co/guide/en/ecs/current/ecs-log.html)|[`StackTraceElement#getMethodName()`](https://docs.oracle.com/javase/6/docs/api/java/lang/StackTraceElement.html#getMethodName())|
 |[`message`](https://www.elastic.co/guide/en/ecs/current/ecs-base.html)|[`LogEvent#getMessage()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getMessage())|
 |[`error.type`](https://www.elastic.co/guide/en/ecs/current/ecs-error.html)|[`Throwable#getClass()`](https://docs.oracle.com/javase/7/docs/api/java/lang/Object.html#getClass())|
-|[`error.message`](https://www.elastic.co/guide/en/ecs/current/ecs-error.html)|[`Throwable#getStackTrace()`](https://docs.oracle.com/javase/7/docs/api/java/lang/Throwable.html#getMessage())|
+|[`error.message`](https://www.elastic.co/guide/en/ecs/current/ecs-error.html)|[`Throwable#getMessage()`](https://docs.oracle.com/javase/7/docs/api/java/lang/Throwable.html#getMessage())|
 |[`error.stack_trace`](https://www.elastic.co/guide/en/ecs/current/ecs-error.html)|[`Throwable#getStackTrace()`](https://docs.oracle.com/javase/7/docs/api/java/lang/Throwable.html#getStackTrace())|
 |[`process.thread.name`](https://www.elastic.co/guide/en/ecs/current/ecs-process.html)|[`LogEvent#getThreadName()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getThreadName()) |
 |[`labels`](https://www.elastic.co/guide/en/ecs/current/ecs-base.html)|[`LogEvent#getContextMap()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getContextMap())|
