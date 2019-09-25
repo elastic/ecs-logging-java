@@ -109,6 +109,7 @@ filebeat.inputs:
 - type: log
   paths: /path/to/logs.json
   json.keys_under_root: true
+  json.overwrite_keys: true
 
 # no further processing required, logs can directly be sent to Elasticsearch  
 output.elasticsearch:
