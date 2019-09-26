@@ -85,6 +85,13 @@ abstract class AbstractLog4j2EcsLayoutTest extends AbstractEcsLoggingTest {
     }
 
     @Test
+    void testParameterizedStructuredMessage() throws Exception {
+        root.info(ParameterizedStructuredMessage.of("hello {}", "world").with("foo", "bar"));
+        assertThat(getLastLogLine().get("message").textValue()).isEqualTo("hello world");
+        assertThat(getLastLogLine().get("foo").textValue()).isEqualTo("bar");
+    }
+
+    @Test
     void testCustomPatternConverter() throws Exception {
         debug("test");
         assertThat(getLastLogLine().get("custom").textValue()).isEqualTo("foo");

@@ -58,6 +58,7 @@ To include any custom field in the output, use following syntax:
 ```
 
 Custom fields are included in the order they are declared. The values support [lookups](https://logging.apache.org/log4j/2.x/manual/lookups.html).
+
 ## Structured logging
 
 By leveraging log4j2's `MapMessage` or even by implementing your own `MultiformatMessage` with JSON support,
@@ -66,8 +67,18 @@ you can add additional fields to the resulting JSON.
 Example:
 
 ```java
-logger.info(new StringMapMessage().with("message", "foo").with("foo", "bar"));
+logger.info(new StringMapMessage()
+    .with("message", "Hello World!")
+    .with("foo", "bar"));
 ``` 
+
+### Tips
+It's recommended to use existing [ECS fields](https://www.elastic.co/guide/en/ecs/current/ecs-field-reference.html).
+
+If there is no appropriate ECS field,
+consider prefixing your fields with `labels.`, as in `labels.foo`, for simple key/value pairs.
+For nested structures consider prefixing with `custom.` to make sure you won't get conflicts if ECS later adds the same fields but with a different mapping.
+
 
 ### Gotchas
 
