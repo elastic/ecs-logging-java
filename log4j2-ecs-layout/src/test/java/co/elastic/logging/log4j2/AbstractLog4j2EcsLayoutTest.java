@@ -31,10 +31,13 @@ import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.core.Logger;
+import org.apache.logging.log4j.message.ObjectMessage;
 import org.apache.logging.log4j.message.StringMapMessage;
 import org.apache.logging.log4j.test.appender.ListAppender;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -95,6 +98,85 @@ abstract class AbstractLog4j2EcsLayoutTest extends AbstractEcsLoggingTest {
     void testCustomPatternConverter() throws Exception {
         debug("test");
         assertThat(getLastLogLine().get("custom").textValue()).isEqualTo("foo");
+    }
+
+    @Test
+    void testJsonMessageObject() throws Exception {
+        root.info(new ObjectMessage(new TestClass("foo", 42, true)));
+
+        assertThat(getLastLogLine().get("foo").textValue()).isEqualTo("foo");
+        assertThat(getLastLogLine().get("bar").intValue()).isEqualTo(42);
+        assertThat(getLastLogLine().get("baz").booleanValue()).isEqualTo(true);
+    }
+
+    @Test
+    void testJsonMessageArray() throws Exception {
+        root.info(new ObjectMessage(List.of("foo", "bar")));
+
+        assertThat(getLastLogLine().get("message").isArray()).isFalse();
+        assertThat(getLastLogLine().get("message").textValue()).isEqualTo("[\"foo\",\"bar\"]");
+    }
+
+    @Test
+    void testJsonMessageString() throws Exception {
+        root.info(new ObjectMessage("foo"));
+
+        assertThat(getLastLogLine().get("message").textValue()).isEqualTo("foo");
+    }
+
+    @Test
+    void testJsonMessageNumber() throws Exception {
+        root.info(new ObjectMessage(42));
+
+        assertThat(getLastLogLine().get("message").isNumber()).isFalse();
+        assertThat(getLastLogLine().get("message").textValue()).isEqualTo("42");
+    }
+
+    @Test
+    void testJsonMessageBoolean() throws Exception {
+        root.info(new ObjectMessage(true));
+
+        assertThat(getLastLogLine().get("message").isBoolean()).isFalse();
+        assertThat(getLastLogLine().get("message").textValue()).isEqualTo("true");
+    }
+
+    public static class TestClass {
+        String foo;
+        int bar;
+        boolean baz;
+
+        private TestClass() {
+        }
+
+        private TestClass(String foo, int bar, boolean baz) {
+            this.foo = foo;
+            this.bar = bar;
+            this.baz = baz;
+        }
+
+        public String getFoo() {
+            return foo;
+        }
+
+        public void setFoo(String foo) {
+            this.foo = foo;
+        }
+
+        public int getBar() {
+            return bar;
+        }
+
+        public void setBar(int bar) {
+            this.bar = bar;
+        }
+
+        public boolean isBaz() {
+            return baz;
+        }
+
+        public void setBaz(boolean baz) {
+            this.baz = baz;
+        }
     }
 
     @Override

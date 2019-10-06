@@ -45,6 +45,7 @@ import org.apache.logging.log4j.core.pattern.PatternFormatter;
 import org.apache.logging.log4j.core.util.KeyValuePair;
 import org.apache.logging.log4j.message.Message;
 import org.apache.logging.log4j.message.MultiformatMessage;
+import org.apache.logging.log4j.message.ObjectMessage;
 import org.apache.logging.log4j.util.MultiFormatStringBuilderFormattable;
 import org.apache.logging.log4j.util.StringBuilderFormattable;
 import org.apache.logging.log4j.util.TriConsumer;
@@ -86,6 +87,7 @@ public class EcsLayout extends AbstractStringLayout {
     private final boolean includeMarkers;
     private final boolean includeOrigin;
     private final ConcurrentMap<Class<? extends MultiformatMessage>, Boolean> supportsJson = new ConcurrentHashMap<Class<? extends MultiformatMessage>, Boolean>();
+    private final ObjectMessageJacksonSerializer objectMessageJacksonSerializer = ObjectMessageJacksonSerializer.Resolver.INSTANCE.resolve();
 
     private EcsLayout(Configuration config, String serviceName, boolean includeMarkers, KeyValuePair[] additionalFields, Collection<String> topLevelLabels, boolean includeOrigin, boolean stackTraceAsArray) {
         super(config, UTF_8, null, null);
@@ -235,26 +237,41 @@ public class EcsLayout extends AbstractStringLayout {
             } else {
                 serializeSimpleMessage(builder, gcFree, message, thrown);
             }
+        } else if (objectMessageJacksonSerializer != null && message instanceof ObjectMessage) {
+            final StringBuilder jsonBuffer = EcsJsonSerializer.getMessageStringBuilder();
+            objectMessageJacksonSerializer.formatTo(jsonBuffer, (ObjectMessage) message);
+            addJson(builder, jsonBuffer);
         } else {
             serializeSimpleMessage(builder, gcFree, message, thrown);
         }
     }
 
-    private void serializeJsonMessage(StringBuilder builder, MultiformatMessage message) {
+    private static void serializeJsonMessage(StringBuilder builder, MultiformatMessage message) {
         final StringBuilder messageBuffer = EcsJsonSerializer.getMessageStringBuilder();
         if (message instanceof MultiFormatStringBuilderFormattable) {
             ((MultiFormatStringBuilderFormattable) message).formatTo(JSON_FORMAT, messageBuffer);
         } else {
             messageBuffer.append(message.getFormattedMessage(JSON_FORMAT));
         }
-        if (isObject(messageBuffer)) {
-            moveToRoot(messageBuffer);
-            builder.append(messageBuffer);
-            builder.append(", ");
+        addJson(builder, messageBuffer);
+    }
+
+    private static void addJson(StringBuilder buffer, StringBuilder jsonBuffer) {
+        if (isObject(jsonBuffer)) {
+            moveToRoot(jsonBuffer);
+            buffer.append(jsonBuffer);
+            buffer.append(", ");
         } else {
-            builder.append("\"message\":");
-            builder.append(messageBuffer);
-            builder.append(", ");
+            buffer.append("\"message\":");
+            if (isString(jsonBuffer)) {
+                buffer.append(jsonBuffer);
+            } else {
+                // message always has to be a string to avoid mapping conflicts
+                buffer.append('"');
+                JsonUtils.quoteAsString(jsonBuffer, buffer);
+                buffer.append('"');
+            }
+            buffer.append(", ");
         }
     }
 
@@ -276,11 +293,15 @@ public class EcsLayout extends AbstractStringLayout {
         builder.append("\", ");
     }
 
-    private boolean isObject(StringBuilder messageBuffer) {
+    private static boolean isObject(StringBuilder messageBuffer) {
         return messageBuffer.length() > 1 && messageBuffer.charAt(0) == '{' && messageBuffer.charAt(messageBuffer.length() -1) == '}';
     }
 
-    private void moveToRoot(StringBuilder messageBuffer) {
+    private static boolean isString(StringBuilder messageBuffer) {
+        return messageBuffer.length() > 1 && messageBuffer.charAt(0) == '"' && messageBuffer.charAt(messageBuffer.length() -1) == '"';
+    }
+
+    private static void moveToRoot(StringBuilder messageBuffer) {
         messageBuffer.setCharAt(0, ' ');
         messageBuffer.setCharAt(messageBuffer.length() -1, ' ');
     }
