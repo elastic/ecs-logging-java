@@ -52,6 +52,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <parent.base.dir>${project.basedir}</parent.base.dir>
+        <version.log4j>2.12.0</version.log4j>
     </properties>
 
     <distributionManagement>

@@ -72,6 +72,18 @@ logger.info(new StringMapMessage()
     .with("foo", "bar"));
 ``` 
 
+If Jackson is on the classpath, you can also use an `ObjectMessage` to add a custom object the resulting JSON.
+
+```java
+logger.info(new ObjectMessage(myObject));
+```
+
+The `myObject` variable refers to a custom object which can be serialized by a Jackson `ObjectMapper`.
+
+Using either will merge the object at the top-level (not nested under `message`) of the log event if it is a JSON object.
+If it's a string, number boolean or an array, it will be converted into a string and added as the `message` property.
+The conversion is done in order to avoid mapping conflicts as `message` is typed as a string in the Elasticsearch mapping.
+
 ### Tips
 It's recommended to use existing [ECS fields](https://www.elastic.co/guide/en/ecs/current/ecs-field-reference.html).
 
