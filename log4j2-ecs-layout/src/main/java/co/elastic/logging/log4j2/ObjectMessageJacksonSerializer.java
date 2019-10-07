@@ -33,7 +33,7 @@ import org.apache.logging.log4j.status.StatusLogger;
 import java.io.IOException;
 import java.util.ServiceLoader;
 
-public interface ObjectMessageJacksonSerializer {
+interface ObjectMessageJacksonSerializer {
 
     void formatTo(StringBuilder buffer, ObjectMessage objectMessage);
 
