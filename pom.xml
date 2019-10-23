@@ -3,7 +3,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>co.elastic.logging</groupId>
-    <artifactId>java-ecs-logging-parent</artifactId>
+    <artifactId>ecs-logging-java-parent</artifactId>
     <version>0.1.2-SNAPSHOT</version>
     <name>${project.groupId}:${project.artifactId}</name>
     <modules>
@@ -20,7 +20,7 @@
     </organization>
 
     <description>Centralized logging for Java applications with the Elastic stack made easy</description>
-    <url>https://github.com/elastic/java-ecs-logging</url>
+    <url>https://github.com/elastic/ecs-logging-java</url>
 
     <licenses>
         <license>
@@ -30,9 +30,9 @@
     </licenses>
 
     <scm>
-        <connection>scm:git:git@github.com:elastic/java-ecs-logging.git</connection>
-        <developerConnection>scm:git:git@github.com:elastic/java-ecs-logging.git</developerConnection>
-        <url>https://github.com/elastic/java-ecs-logging</url>
+        <connection>scm:git:git@github.com:elastic/ecs-logging-java.git</connection>
+        <developerConnection>scm:git:git@github.com:elastic/ecs-logging-java.git</developerConnection>
+        <url>https://github.com/elastic/ecs-logging-java</url>
         <tag>HEAD</tag>
     </scm>
 

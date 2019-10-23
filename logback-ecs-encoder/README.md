@@ -9,7 +9,7 @@ Add a dependency to your application
 <dependency>
     <groupId>co.elastic.logging</groupId>
     <artifactId>logback-ecs-encoder</artifactId>
-    <version>${java-ecs-logging.version}</version>
+    <version>${ecs-logging-java.version}</version>
 </dependency>
 ```
 

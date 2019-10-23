@@ -5,7 +5,7 @@
 pipeline {
   agent any
   environment {
-    REPO = 'java-ecs-logging'
+    REPO = 'ecs-logging-java'
     BASE_DIR = "src/github.com/elastic/${env.REPO}"
     NOTIFY_TO = credentials('notify-to')
     JOB_GCS_BUCKET = credentials('gcs-bucket')
