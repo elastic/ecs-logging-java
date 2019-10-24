@@ -25,7 +25,7 @@
         discover-pr-forks-trust: permission
         discover-pr-origin: merge-current
         discover-tags: true
-        repo: java-ecs-logging
+        repo: ecs-logging-java
         repo-owner: elastic
         credentials-id: 2a9602aa-ab9f-4e52-baf3-b71ca88469c7-UserAndToken
         ssh-checkout:

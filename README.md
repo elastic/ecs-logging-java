@@ -1,5 +1,5 @@
-[![Build Status](https://apm-ci.elastic.co/buildStatus/icon?job=apm-agent-java%2Fjava-ecs-logging-mbp%2Fmaster)](https://apm-ci.elastic.co/job/apm-agent-java/job/java-ecs-logging-mbp/job/master/)
-[![Maven Central](https://img.shields.io/maven-central/v/co.elastic.logging/java-ecs-logging-parent.svg)](https://search.maven.org/search?q=g:co.elastic.logging)
+[![Build Status](https://apm-ci.elastic.co/buildStatus/icon?job=apm-agent-java%2Fecs-logging-java-mbp%2Fmaster)](https://apm-ci.elastic.co/job/apm-agent-java/job/ecs-logging-java-mbp/job/master/)
+[![Maven Central](https://img.shields.io/maven-central/v/co.elastic.logging/ecs-logging-java-parent.svg)](https://search.maven.org/search?q=g:co.elastic.logging)
 
 # ECS-based logging for Java applications
 
