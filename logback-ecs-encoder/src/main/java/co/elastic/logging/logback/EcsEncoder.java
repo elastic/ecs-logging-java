@@ -86,6 +86,10 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         // all these allocations kinda hurt
         return builder.toString().getBytes(UTF_8);
     }
+    
+    public void addTopLevelLabel(String topLevelLabel) {
+        this.topLevelLabels.add(topLevelLabel);
+    }
 
     private void serializeMarkers(ILoggingEvent event, StringBuilder builder) {
         Marker marker = event.getMarker();

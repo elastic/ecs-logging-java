@@ -52,6 +52,7 @@ class Log4jEcsLayoutTest extends AbstractEcsLoggingTest {
         ecsLayout.setServiceName("test");
         ecsLayout.setStackTraceAsArray(true);
         ecsLayout.setIncludeOrigin(true);
+        ecsLayout.addTopLevelLabel("top_level");
         appender.setLayout(ecsLayout);
     }
 

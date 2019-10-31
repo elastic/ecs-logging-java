@@ -6,6 +6,7 @@
             <includeMarkers>true</includeMarkers>
             <includeOrigin>true</includeOrigin>
             <stackTraceAsArray>true</stackTraceAsArray>
+            <topLevelLabel>top_level</topLevelLabel>
         </encoder>
     </appender>
     <root level="DEBUG">
