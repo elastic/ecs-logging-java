@@ -70,7 +70,7 @@ class EcsJsonSerializerTest {
         exception.printStackTrace(new PrintWriter(stringWriter));
         assertThat(StreamSupport.stream(jsonNode.get("error.stack_trace").spliterator(), false)
                 .map(JsonNode::textValue)
-                .collect(Collectors.joining("\n", "", "\n")))
+                .collect(Collectors.joining(System.lineSeparator(), "", System.lineSeparator())))
                 .isEqualTo(stringWriter.toString());
     }
 

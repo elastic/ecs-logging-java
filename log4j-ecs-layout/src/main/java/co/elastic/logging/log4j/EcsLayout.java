@@ -99,4 +99,8 @@ public class EcsLayout extends Layout {
     public void setStackTraceAsArray(boolean stackTraceAsArray) {
         this.stackTraceAsArray = stackTraceAsArray;
     }
+    
+    public void addTopLevelLabel(String topLevelLabel) {
+        this.topLevelLabels.add(topLevelLabel);
+    }
 }

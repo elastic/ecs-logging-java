@@ -46,6 +46,7 @@ class EcsEncoderTest extends AbstractEcsEncoderTest {
         ecsEncoder.setIncludeMarkers(true);
         ecsEncoder.setStackTraceAsArray(true);
         ecsEncoder.setIncludeOrigin(true);
+        ecsEncoder.addTopLevelLabel("top_level");
         ecsEncoder.start();
         appender.setEncoder(ecsEncoder);
         appender.start();
