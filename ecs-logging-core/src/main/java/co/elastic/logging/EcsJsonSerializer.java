@@ -159,9 +159,13 @@ public class EcsJsonSerializer {
             builder.append("\"error.type\":\"");
             JsonUtils.quoteAsString(thrown.getClass().getName(), builder);
             builder.append("\",");
-            builder.append("\"error.message\":\"");
-            JsonUtils.quoteAsString(thrown.getMessage(), builder);
-            builder.append("\",");
+
+            String message = thrown.getMessage();
+            if (message != null) {
+                builder.append("\"error.message\":\"");
+                JsonUtils.quoteAsString(message, builder);
+                builder.append("\",");
+            }
             if (stackTraceAsArray) {
                 builder.append("\"error.stack_trace\":[").append(NEW_LINE);
                 formatThrowableAsArray(builder, thrown);

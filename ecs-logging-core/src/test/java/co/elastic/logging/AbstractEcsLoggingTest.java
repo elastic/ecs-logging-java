@@ -104,6 +104,13 @@ public abstract class AbstractEcsLoggingTest {
     }
 
     @Test
+    void testLogExceptionNullMessage() throws Exception {
+        error("test", new RuntimeException());
+        assertThat(getLastLogLine().get("error.message")).isNull();
+        assertThat(getLastLogLine().get("error.type").textValue()).isEqualTo(RuntimeException.class.getName());
+    }
+
+    @Test
     void testLogOrigin() throws Exception {
         debug("test");
         assertThat(getLastLogLine().get("log.origin").get("file.name").textValue()).endsWith(".java");
