@@ -26,6 +26,7 @@ package co.elastic.logging;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 import java.util.TimeZone;
 
 /**
@@ -109,7 +110,7 @@ class TimestampSerializer {
         private final long endOfCachedDate;
 
         private CachedDate(long epochTimestamp) {
-            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ROOT);
             dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
             cachedDateIso = dateFormat.format(new Date(epochTimestamp));
             startOfCachedDate = atStartOfDay(epochTimestamp);

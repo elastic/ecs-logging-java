@@ -33,6 +33,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
+import java.util.Locale;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -41,10 +42,23 @@ class TimestampSerializerTest {
     private TimestampSerializer dateSerializer;
     private DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'").withZone(ZoneId.of("UTC"));
 
-
     @BeforeEach
     void setUp() {
         dateSerializer = new TimestampSerializer();
+    }
+
+    @Test
+    public void testSerializeWithCustomLocale() throws InterruptedException {
+        Locale.setDefault(new Locale.Builder()
+                .setLanguage("uz")
+                .setRegion("UZ")
+                .setScript("Cyrl")
+                .build());
+
+        dateSerializer = new TimestampSerializer();
+
+        long timestamp = Instant.now().toEpochMilli();
+        assertDateFormattingIsCorrect(Instant.ofEpochMilli(timestamp));
     }
 
     @Test
