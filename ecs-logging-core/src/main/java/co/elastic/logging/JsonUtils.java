@@ -2,7 +2,7 @@
  * #%L
  * Java ECS logging
  * %%
- * Copyright (C) 2019 Elastic and contributors
+ * Copyright (C) 2019 - 2020 Elastic and contributors
  * %%
  * Licensed to Elasticsearch B.V. under one or more contributor
  * license agreements. See the NOTICE file distributed with
