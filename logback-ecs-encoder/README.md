@@ -64,3 +64,16 @@ All you have to do is to use the `co.elastic.logging.logback.EcsEncoder` instead
 |includeMarkers   |boolean|`false`|Log [Markers](https://logging.apache.org/log4j/2.0/manual/markers.html) as [`tags`](https://www.elastic.co/guide/en/ecs/current/ecs-base.html) |
 |stackTraceAsArray|boolean|`false`|Serializes the [`error.stack_trace`](https://www.elastic.co/guide/en/ecs/current/ecs-error.html) as a JSON array where each element is in a new line to improve readability. Note that this requires a slightly more complex [Filebeat configuration](../README.md#when-stacktraceasarray-is-enabled).|
 |includeOrigin    |boolean|`false`|If `true`, adds the [`log.origin.file.name`](https://www.elastic.co/guide/en/ecs/current/ecs-log.html), [`log.origin.file.line`](https://www.elastic.co/guide/en/ecs/current/ecs-log.html) and [`log.origin.function`](https://www.elastic.co/guide/en/ecs/current/ecs-log.html) fields. Note that you also have to set `includeLocation="true"` on your loggers and appenders if you are using the async ones. |
+
+To include any custom field in the output, use following syntax:
+
+```xml
+<additionalField>
+    <key>foo</key>
+    <value>bar</value>
+</additionalField>
+<additionalField>
+    <key>baz</key>
+    <value>qux</value>
+</additionalField>
+```

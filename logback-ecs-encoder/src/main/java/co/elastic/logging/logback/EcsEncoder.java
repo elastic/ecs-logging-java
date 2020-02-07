@@ -30,11 +30,14 @@ import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.classic.spi.ThrowableProxy;
 import ch.qos.logback.core.encoder.EncoderBase;
 import co.elastic.logging.EcsJsonSerializer;
+import co.elastic.logging.JsonUtils;
 import org.slf4j.Marker;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 public class EcsEncoder extends EncoderBase<ILoggingEvent> {
@@ -46,6 +49,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
     private ThrowableProxyConverter throwableProxyConverter;
     private Set<String> topLevelLabels = new HashSet<String>(EcsJsonSerializer.DEFAULT_TOP_LEVEL_LABELS);
     private boolean includeOrigin;
+    private List<Pair> additionalFields = new ArrayList<Pair>();
 
     @Override
     public byte[] headerBytes() {
@@ -69,6 +73,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
         EcsJsonSerializer.serializeLoggerName(builder, event.getLoggerName());
+        serializeAdditionalFields(builder);
         EcsJsonSerializer.serializeLabels(builder, event.getMDCPropertyMap(), topLevelLabels);
         if (includeOrigin) {
             StackTraceElement[] callerData = event.getCallerData();
@@ -86,7 +91,22 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         // all these allocations kinda hurt
         return builder.toString().getBytes(UTF_8);
     }
-    
+
+    private void serializeAdditionalFields(StringBuilder builder) {
+        if (!additionalFields.isEmpty()) {
+            for (int i = 0, size = additionalFields.size(); i < size; i++) {
+                Pair additionalField = additionalFields.get(i);
+                if (additionalField.getKey() != null) {
+                    builder.append('\"');
+                    JsonUtils.quoteAsString(additionalField.getKey(), builder);
+                    builder.append("\":\"");
+                    JsonUtils.quoteAsString(additionalField.getValue(), builder);
+                    builder.append("\",");
+                }
+            }
+        }
+    }
+
     public void addTopLevelLabel(String topLevelLabel) {
         this.topLevelLabels.add(topLevelLabel);
     }
@@ -129,5 +149,38 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
 
     public void setIncludeOrigin(boolean includeOrigin) {
         this.includeOrigin = includeOrigin;
+    }
+
+    public void addAdditionalField(Pair pair) {
+        this.additionalFields.add(pair);
+    }
+
+    public static class Pair {
+        private String key;
+        private String value = "";
+
+        public Pair() {
+        }
+
+        public Pair(String key, String value) {
+            this.key = key;
+            this.value = value;
+        }
+
+        public String getKey() {
+            return key;
+        }
+
+        public void setKey(String key) {
+            this.key = key;
+        }
+
+        public String getValue() {
+            return value;
+        }
+
+        public void setValue(String value) {
+            this.value = value;
+        }
     }
 }

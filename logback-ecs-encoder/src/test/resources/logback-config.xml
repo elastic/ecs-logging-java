@@ -7,6 +7,14 @@
             <includeOrigin>true</includeOrigin>
             <stackTraceAsArray>true</stackTraceAsArray>
             <topLevelLabel>top_level</topLevelLabel>
+            <additionalField>
+                <key>foo</key>
+                <value>bar</value>
+            </additionalField>
+            <additionalField>
+                <key>baz</key>
+                <value>qux</value>
+            </additionalField>
         </encoder>
     </appender>
     <root level="DEBUG">
