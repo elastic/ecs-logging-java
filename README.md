@@ -94,13 +94,17 @@ We recommend using this library to log into a JSON log file and let Filebeat sen
 
 ## Getting Started
 
-### Logging configuration
+### Step 1: Configure application logging
 
-- [Logback](logback-ecs-encoder/README.md)
+- [Logback](logback-ecs-encoder/README.md) (default for Spring Boot)
 - [Log4j2](log4j2-ecs-layout/README.md)
 - [Log4j](log4j-ecs-layout/README.md)
 
-### Filebeat configuration
+### Step 2: Enable APM log correlation (optional)
+If you are using the Elastic APM Java agent,
+set [`enable_log_correlation`](https://www.elastic.co/guide/en/apm/agent/java/current/config-logging.html#config-enable-log-correlation) to `true`.
+
+### Step 3: Filebeat configuration
 
 #### With `filebeat.yml` configuration file
 

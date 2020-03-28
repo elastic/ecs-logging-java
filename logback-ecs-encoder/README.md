@@ -15,45 +15,43 @@ Add a dependency to your application
 
 ## Step 2: use the `EcsEncoder`
 
-All you have to do is to use the `co.elastic.logging.logback.EcsEncoder` instead of the default pattern encoder
+## Spring Boot applications
+
+`src/main/resources/logback-spring.xml`
+```xml
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}/spring.log}"/>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+    <include resource="org/springframework/boot/logging/logback/file-appender.xml" />
+    <include resource="co/elastic/logging/logback/boot/ecs-file-appender.xml" />
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="ECS_JSON_FILE"/>
+        <appender-ref ref="FILE"/>
+    </root>
+</configuration>
+```
+
+You also need to configure the following properties to your `application.properties`:
+
+```properties
+spring.application.name=my-application
+# for Spring Boot 2.2.x+
+logging.file.name=/path/to/my-application.log
+# for older Spring Boot versions
+logging.file=/path/to/my-application.log
+```
+
+## Other applications 
+
+All you have to do is to use the `co.elastic.logging.logback.EcsEncoder` instead of the default pattern encoder in `logback.xml`
+
 ```xml
 <encoder class="co.elastic.logging.logback.EcsEncoder">
     <serviceName>my-application</serviceName>
 </encoder>
-```
-
-## Example `logback.xml` for Spring Boot applications
- 
-```xml
-<?xml version="1.0" encoding="UTF-8"?>
-<configuration>
-    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
-    <include resource="org/springframework/boot/logging/logback/file-appender.xml"/>
-    <appender name="console" class="ch.qos.logback.core.ConsoleAppender">
-        <encoder class="co.elastic.logging.logback.EcsEncoder">
-            <serviceName>my-application</serviceName>
-        </encoder>
-    </appender>
-    <appender name="json-file" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <encoder class="co.elastic.logging.logback.EcsEncoder">
-            <serviceName>my-application</serviceName>
-        </encoder>
-        <file>${LOG_FILE}.json</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <fileNamePattern>${LOG_FILE}.json.%d{yyyy-MM-dd}.%i.gz</fileNamePattern>
-            <maxFileSize>${LOG_FILE_MAX_SIZE:-10MB}</maxFileSize>
-            <maxHistory>${LOG_FILE_MAX_HISTORY:-0}</maxHistory>
-        </rollingPolicy>
-    </appender>
-
-    <root level="INFO">
-        <appender-ref ref="console"/>
-        <appender-ref ref="json-file"/>
-        <!-- uncomment this if you also want to log in plain text        
-        <appender-ref ref="FILE"/>
-        -->
-    </root>
-</configuration>
 ```
 
 ## Encoder Parameters
