@@ -35,10 +35,8 @@ import org.slf4j.Marker;
 
 import java.nio.charset.Charset;
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 public class EcsEncoder extends EncoderBase<ILoggingEvent> {
 
@@ -47,7 +45,6 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
     private String serviceName;
     private boolean includeMarkers = false;
     private ThrowableProxyConverter throwableProxyConverter;
-    private Set<String> topLevelLabels = new HashSet<String>(EcsJsonSerializer.DEFAULT_TOP_LEVEL_LABELS);
     private boolean includeOrigin;
     private List<Pair> additionalFields = new ArrayList<Pair>();
 
@@ -74,7 +71,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
         EcsJsonSerializer.serializeLoggerName(builder, event.getLoggerName());
         serializeAdditionalFields(builder);
-        EcsJsonSerializer.serializeLabels(builder, event.getMDCPropertyMap(), topLevelLabels);
+        EcsJsonSerializer.serializeMDC(builder, event.getMDCPropertyMap());
         if (includeOrigin) {
             StackTraceElement[] callerData = event.getCallerData();
             if (callerData != null && callerData.length > 0) {
@@ -105,10 +102,6 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
                 }
             }
         }
-    }
-
-    public void addTopLevelLabel(String topLevelLabel) {
-        this.topLevelLabels.add(topLevelLabel);
     }
 
     private void serializeMarkers(ILoggingEvent event, StringBuilder builder) {

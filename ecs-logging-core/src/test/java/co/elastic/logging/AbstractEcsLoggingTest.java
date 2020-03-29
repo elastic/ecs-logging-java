@@ -62,7 +62,7 @@ public abstract class AbstractEcsLoggingTest {
     void testThreadContext() throws Exception {
         putMdc("foo", "bar");
         debug("test");
-        assertThat(getLastLogLine().get("labels.foo").textValue()).isEqualTo("bar");
+        assertThat(getLastLogLine().get("foo").textValue()).isEqualTo("bar");
     }
 
     @Test
@@ -74,21 +74,15 @@ public abstract class AbstractEcsLoggingTest {
     }
 
     @Test
-    void testTopLevelLabels() throws Exception {
+    void testMdc() throws Exception {
         putMdc("transaction.id", "0af7651916cd43dd8448eb211c80319c");
         putMdc("span.id", "foo");
+        putMdc("foo", "bar");
         debug("test");
         assertThat(getLastLogLine().get("labels.transaction.id")).isNull();
         assertThat(getLastLogLine().get("transaction.id").textValue()).isEqualTo("0af7651916cd43dd8448eb211c80319c");
         assertThat(getLastLogLine().get("span.id").textValue()).isEqualTo("foo");
-    }
-    
-    @Test
-    void testCustomTopLevelLabels() throws Exception {
-        putMdc("top_level", "foo");
-        debug("test");
-        assertThat(getLastLogLine().get("labels.top_level")).isNull();
-        assertThat(getLastLogLine().get("top_level").textValue()).isEqualTo("foo");
+        assertThat(getLastLogLine().get("foo").textValue()).isEqualTo("bar");
     }
 
     @Test

@@ -51,11 +51,7 @@ import org.apache.logging.log4j.util.StringBuilderFormattable;
 import org.apache.logging.log4j.util.TriConsumer;
 
 import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
@@ -65,13 +61,10 @@ public class EcsLayout extends AbstractStringLayout {
     public static final Charset UTF_8 = Charset.forName("UTF-8");
     public static final String[] JSON_FORMAT = {"JSON"};
 
-    private final TriConsumer<String, Object, StringBuilder> WRITE_KEY_VALUES_INTO = new TriConsumer<String, Object, StringBuilder>() {
+    private final TriConsumer<String, Object, StringBuilder> WRITE_MDC = new TriConsumer<String, Object, StringBuilder>() {
         @Override
         public void accept(final String key, final Object value, final StringBuilder stringBuilder) {
             stringBuilder.append('\"');
-            if (!topLevelLabels.contains(key)) {
-                stringBuilder.append("labels.");
-            }
             JsonUtils.quoteAsString(key, stringBuilder);
             stringBuilder.append("\":\"");
             JsonUtils.quoteAsString(EcsJsonSerializer.toNullSafeString(String.valueOf(value)), stringBuilder);
@@ -81,7 +74,6 @@ public class EcsLayout extends AbstractStringLayout {
 
     private final KeyValuePair[] additionalFields;
     private final PatternFormatter[][] fieldValuePatternFormatter;
-    private final Set<String> topLevelLabels;
     private final boolean stackTraceAsArray;
     private final String serviceName;
     private final boolean includeMarkers;
@@ -89,12 +81,10 @@ public class EcsLayout extends AbstractStringLayout {
     private final ConcurrentMap<Class<? extends MultiformatMessage>, Boolean> supportsJson = new ConcurrentHashMap<Class<? extends MultiformatMessage>, Boolean>();
     private final ObjectMessageJacksonSerializer objectMessageJacksonSerializer = ObjectMessageJacksonSerializer.Resolver.INSTANCE.resolve();
 
-    private EcsLayout(Configuration config, String serviceName, boolean includeMarkers, KeyValuePair[] additionalFields, Collection<String> topLevelLabels, boolean includeOrigin, boolean stackTraceAsArray) {
+    private EcsLayout(Configuration config, String serviceName, boolean includeMarkers, KeyValuePair[] additionalFields, boolean includeOrigin, boolean stackTraceAsArray) {
         super(config, UTF_8, null, null);
         this.serviceName = serviceName;
         this.includeMarkers = includeMarkers;
-        this.topLevelLabels = new HashSet<String>(topLevelLabels);
-        this.topLevelLabels.addAll(EcsJsonSerializer.DEFAULT_TOP_LEVEL_LABELS);
         this.includeOrigin = includeOrigin;
         this.stackTraceAsArray = stackTraceAsArray;
         this.additionalFields = additionalFields;
@@ -138,7 +128,7 @@ public class EcsLayout extends AbstractStringLayout {
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
         EcsJsonSerializer.serializeLoggerName(builder, event.getLoggerName());
-        serializeLabels(event, builder);
+        serializeAdditionalFieldsAndMDC(event, builder);
         serializeTags(event, builder);
         if (includeOrigin) {
             EcsJsonSerializer.serializeOrigin(builder, event.getSource());
@@ -148,7 +138,7 @@ public class EcsLayout extends AbstractStringLayout {
         return builder;
     }
 
-    private void serializeLabels(LogEvent event, StringBuilder builder) {
+    private void serializeAdditionalFieldsAndMDC(LogEvent event, StringBuilder builder) {
         final int length = additionalFields.length;
         if (!event.getContextData().isEmpty() || length > 0) {
             if (length > 0) {
@@ -182,7 +172,7 @@ public class EcsLayout extends AbstractStringLayout {
                     }
                 }
             }
-            event.getContextData().forEach(WRITE_KEY_VALUES_INTO, builder);
+            event.getContextData().forEach(WRITE_MDC, builder);
         }
     }
 
@@ -332,8 +322,6 @@ public class EcsLayout extends AbstractStringLayout {
         private boolean stackTraceAsArray = false;
         @PluginElement("AdditionalField")
         private KeyValuePair[] additionalFields = new KeyValuePair[] {};
-        @PluginBuilderAttribute("topLevelLabels")
-        private String topLevelLabels;
         @PluginBuilderAttribute("includeOrigin")
         private boolean includeOrigin = false;
 
@@ -356,15 +344,6 @@ public class EcsLayout extends AbstractStringLayout {
 
         public boolean isIncludeOrigin() {
             return includeOrigin;
-        }
-
-        public String getTopLevelLabels() {
-            return topLevelLabels;
-        }
-
-        public EcsLayout.Builder setTopLevelLabels(final String topLevelLabels) {
-            this.topLevelLabels = topLevelLabels;
-            return asBuilder();
         }
 
         /**
@@ -399,13 +378,7 @@ public class EcsLayout extends AbstractStringLayout {
 
         @Override
         public EcsLayout build() {
-            List<String> topLevelLabelsList = new ArrayList<String>();
-            if (topLevelLabels != null) {
-                for (String label : topLevelLabels.split(",")) {
-                    topLevelLabelsList.add(label.trim());
-                }
-            }
-            return new EcsLayout(getConfiguration(), serviceName, includeMarkers, additionalFields, topLevelLabelsList, includeOrigin, stackTraceAsArray);
+            return new EcsLayout(getConfiguration(), serviceName, includeMarkers, additionalFields, includeOrigin, stackTraceAsArray);
         }
 
         public boolean isStackTraceAsArray() {
