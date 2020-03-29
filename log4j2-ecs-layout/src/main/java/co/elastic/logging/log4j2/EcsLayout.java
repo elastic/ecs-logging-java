@@ -84,14 +84,16 @@ public class EcsLayout extends AbstractStringLayout {
     private final Set<String> topLevelLabels;
     private final boolean stackTraceAsArray;
     private final String serviceName;
+    private final String eventDataset;
     private final boolean includeMarkers;
     private final boolean includeOrigin;
     private final ConcurrentMap<Class<? extends MultiformatMessage>, Boolean> supportsJson = new ConcurrentHashMap<Class<? extends MultiformatMessage>, Boolean>();
     private final ObjectMessageJacksonSerializer objectMessageJacksonSerializer = ObjectMessageJacksonSerializer.Resolver.INSTANCE.resolve();
 
-    private EcsLayout(Configuration config, String serviceName, boolean includeMarkers, KeyValuePair[] additionalFields, Collection<String> topLevelLabels, boolean includeOrigin, boolean stackTraceAsArray) {
+    private EcsLayout(Configuration config, String serviceName, String eventDataset, boolean includeMarkers, KeyValuePair[] additionalFields, Collection<String> topLevelLabels, boolean includeOrigin, boolean stackTraceAsArray) {
         super(config, UTF_8, null, null);
         this.serviceName = serviceName;
+        this.eventDataset = eventDataset;
         this.includeMarkers = includeMarkers;
         this.topLevelLabels = new HashSet<String>(topLevelLabels);
         this.topLevelLabels.addAll(EcsJsonSerializer.DEFAULT_TOP_LEVEL_LABELS);
@@ -136,6 +138,7 @@ public class EcsLayout extends AbstractStringLayout {
         EcsJsonSerializer.serializeLogLevel(builder, event.getLevel().toString());
         serializeMessage(builder, gcFree, event.getMessage(), event.getThrown());
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
+        EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
         EcsJsonSerializer.serializeLoggerName(builder, event.getLoggerName());
         serializeLabels(event, builder);
@@ -326,12 +329,14 @@ public class EcsLayout extends AbstractStringLayout {
 
         @PluginBuilderAttribute("serviceName")
         private String serviceName;
+        @PluginBuilderAttribute("eventDataset")
+        private String eventDataset;
         @PluginBuilderAttribute("includeMarkers")
         private boolean includeMarkers = false;
         @PluginBuilderAttribute("stackTraceAsArray")
         private boolean stackTraceAsArray = false;
         @PluginElement("AdditionalField")
-        private KeyValuePair[] additionalFields = new KeyValuePair[] {};
+        private KeyValuePair[] additionalFields = new KeyValuePair[]{};
         @PluginBuilderAttribute("topLevelLabels")
         private String topLevelLabels;
         @PluginBuilderAttribute("includeOrigin")
@@ -348,6 +353,10 @@ public class EcsLayout extends AbstractStringLayout {
 
         public String getServiceName() {
             return serviceName;
+        }
+
+        public String getEventDataset() {
+            return eventDataset;
         }
 
         public boolean isIncludeMarkers() {
@@ -382,6 +391,11 @@ public class EcsLayout extends AbstractStringLayout {
             return asBuilder();
         }
 
+        public EcsLayout.Builder setEventDataset(String eventDataset) {
+            this.eventDataset = eventDataset;
+            return asBuilder();
+        }
+
         public EcsLayout.Builder setIncludeMarkers(final boolean includeMarkers) {
             this.includeMarkers = includeMarkers;
             return asBuilder();
@@ -405,7 +419,7 @@ public class EcsLayout extends AbstractStringLayout {
                     topLevelLabelsList.add(label.trim());
                 }
             }
-            return new EcsLayout(getConfiguration(), serviceName, includeMarkers, additionalFields, topLevelLabelsList, includeOrigin, stackTraceAsArray);
+            return new EcsLayout(getConfiguration(), serviceName, EcsJsonSerializer.computeEventDataset(eventDataset, serviceName), includeMarkers, additionalFields, topLevelLabelsList, includeOrigin, stackTraceAsArray);
         }
 
         public boolean isStackTraceAsArray() {

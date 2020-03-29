@@ -7,6 +7,7 @@
             <includeOrigin>true</includeOrigin>
             <stackTraceAsArray>true</stackTraceAsArray>
             <topLevelLabel>top_level</topLevelLabel>
+            <eventDataset>testdataset.log</eventDataset>
             <additionalField>
                 <key>foo</key>
                 <value>bar</value>

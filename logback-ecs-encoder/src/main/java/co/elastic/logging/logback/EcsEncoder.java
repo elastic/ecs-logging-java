@@ -45,6 +45,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
     private static final Charset UTF_8 = Charset.forName("UTF-8");
     private boolean stackTraceAsArray = false;
     private String serviceName;
+    private String eventDataset;
     private boolean includeMarkers = false;
     private ThrowableProxyConverter throwableProxyConverter;
     private Set<String> topLevelLabels = new HashSet<String>(EcsJsonSerializer.DEFAULT_TOP_LEVEL_LABELS);
@@ -61,6 +62,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         super.start();
         throwableProxyConverter = new ThrowableProxyConverter();
         throwableProxyConverter.start();
+        eventDataset = EcsJsonSerializer.computeEventDataset(eventDataset, serviceName);
     }
 
     @Override
@@ -71,6 +73,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         EcsJsonSerializer.serializeFormattedMessage(builder, event.getFormattedMessage());
         serializeMarkers(event, builder);
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
+        EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
         EcsJsonSerializer.serializeLoggerName(builder, event.getLoggerName());
         serializeAdditionalFields(builder);
@@ -153,6 +156,10 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
 
     public void addAdditionalField(Pair pair) {
         this.additionalFields.add(pair);
+    }
+
+    public void setEventDataset(String eventDataset) {
+        this.eventDataset = eventDataset;
     }
 
     public static class Pair {

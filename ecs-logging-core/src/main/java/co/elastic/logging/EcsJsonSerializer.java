@@ -81,6 +81,12 @@ public class EcsJsonSerializer {
         }
     }
 
+    public static void serializeEventDataset(StringBuilder builder, String eventDataset) {
+        if (eventDataset != null) {
+            builder.append("\"event.dataset\":\"").append(eventDataset).append("\",");
+        }
+    }
+
     public static void serializeLogLevel(StringBuilder builder, String level) {
         builder.append("\"log.level\":");
         // add padding so that all levels line up
@@ -258,6 +264,13 @@ public class EcsJsonSerializer {
         }
         result.setLength(0);
         return result;
+    }
+
+    public static String computeEventDataset(String eventDataset, String serviceName) {
+        if (eventDataset == null && serviceName != null && !serviceName.isEmpty()) {
+            return serviceName + ".log";
+        }
+        return eventDataset;
     }
 
     private static class StringBuilderWriter extends Writer {

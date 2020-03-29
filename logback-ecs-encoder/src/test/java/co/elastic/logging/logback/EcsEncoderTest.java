@@ -49,6 +49,7 @@ class EcsEncoderTest extends AbstractEcsEncoderTest {
         ecsEncoder.addTopLevelLabel("top_level");
         ecsEncoder.addAdditionalField(new EcsEncoder.Pair("foo", "bar"));
         ecsEncoder.addAdditionalField(new EcsEncoder.Pair("baz", "qux"));
+        ecsEncoder.setEventDataset("testdataset.log");
         ecsEncoder.start();
         appender.setEncoder(ecsEncoder);
         appender.start();
