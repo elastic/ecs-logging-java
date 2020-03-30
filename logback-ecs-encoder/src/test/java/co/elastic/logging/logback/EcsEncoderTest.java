@@ -46,7 +46,6 @@ class EcsEncoderTest extends AbstractEcsEncoderTest {
         ecsEncoder.setIncludeMarkers(true);
         ecsEncoder.setStackTraceAsArray(true);
         ecsEncoder.setIncludeOrigin(true);
-        ecsEncoder.addTopLevelLabel("top_level");
         ecsEncoder.addAdditionalField(new EcsEncoder.Pair("foo", "bar"));
         ecsEncoder.addAdditionalField(new EcsEncoder.Pair("baz", "qux"));
         ecsEncoder.start();
