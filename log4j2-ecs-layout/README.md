@@ -43,6 +43,7 @@ Instead of the usual `<PatternLayout/>`, use `<EcsLayout serviceName="my-app"/>`
 |Parameter name   |Type   |Default|Description|
 |-----------------|-------|-------|-----------|
 |serviceName      |String |       |Sets the `service.name` field so you can filter your logs by a particular service |
+|eventDataset     |String |`${serviceName}.log`|Sets the `event.dataset` field used by the machine learning job of the Logs app to look for anomalies in the log rate. |
 |topLevelLabels   |String |`trace.id, transaction.id, span.id, error.id, service.name`|Usually, MDC keys are nested under [`labels`](https://www.elastic.co/guide/en/ecs/current/ecs-base.html). You can specify a comma-separated list of properties which should be on the top level. |
 |includeMarkers   |boolean|`false`|Log [Markers](https://logging.apache.org/log4j/2.0/manual/markers.html) as [`tags`](https://www.elastic.co/guide/en/ecs/current/ecs-base.html) |
 |stackTraceAsArray|boolean|`false`|Serializes the [`error.stack_trace`](https://www.elastic.co/guide/en/ecs/current/ecs-error.html) as a JSON array where each element is in a new line to improve readability. Note that this requires a slightly more complex [Filebeat configuration](../README.md#when-stacktraceasarray-is-enabled).|

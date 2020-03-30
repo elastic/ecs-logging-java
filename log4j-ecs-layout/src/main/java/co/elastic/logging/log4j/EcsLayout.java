@@ -39,6 +39,7 @@ public class EcsLayout extends Layout {
     private String serviceName;
     private Set<String> topLevelLabels = new HashSet<String>(EcsJsonSerializer.DEFAULT_TOP_LEVEL_LABELS);
     private boolean includeOrigin;
+    private String eventDataset;
 
     @Override
     public String format(LoggingEvent event) {
@@ -47,6 +48,7 @@ public class EcsLayout extends Layout {
         EcsJsonSerializer.serializeLogLevel(builder, event.getLevel().toString());
         EcsJsonSerializer.serializeFormattedMessage(builder, event.getRenderedMessage());
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
+        EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
         EcsJsonSerializer.serializeLoggerName(builder, event.getLoggerName());
         EcsJsonSerializer.serializeLabels(builder, event.getProperties(), topLevelLabels);
@@ -85,7 +87,7 @@ public class EcsLayout extends Layout {
 
     @Override
     public void activateOptions() {
-
+        eventDataset = EcsJsonSerializer.computeEventDataset(eventDataset, serviceName);
     }
 
     public void setServiceName(String serviceName) {
@@ -99,8 +101,12 @@ public class EcsLayout extends Layout {
     public void setStackTraceAsArray(boolean stackTraceAsArray) {
         this.stackTraceAsArray = stackTraceAsArray;
     }
-    
+
     public void addTopLevelLabel(String topLevelLabel) {
         this.topLevelLabels.add(topLevelLabel);
+    }
+
+    public void setEventDataset(String eventDataset) {
+        this.eventDataset = eventDataset;
     }
 }
