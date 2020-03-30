@@ -35,6 +35,7 @@ public class EcsLayout extends Layout {
     private boolean stackTraceAsArray = false;
     private String serviceName;
     private boolean includeOrigin;
+    private String eventDataset;
 
     @Override
     public String format(LoggingEvent event) {
@@ -43,6 +44,7 @@ public class EcsLayout extends Layout {
         EcsJsonSerializer.serializeLogLevel(builder, event.getLevel().toString());
         EcsJsonSerializer.serializeFormattedMessage(builder, event.getRenderedMessage());
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
+        EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
         EcsJsonSerializer.serializeLoggerName(builder, event.getLoggerName());
         EcsJsonSerializer.serializeMDC(builder, event.getProperties());
@@ -81,7 +83,7 @@ public class EcsLayout extends Layout {
 
     @Override
     public void activateOptions() {
-
+        eventDataset = EcsJsonSerializer.computeEventDataset(eventDataset, serviceName);
     }
 
     public void setServiceName(String serviceName) {
@@ -96,4 +98,7 @@ public class EcsLayout extends Layout {
         this.stackTraceAsArray = stackTraceAsArray;
     }
 
+    public void setEventDataset(String eventDataset) {
+        this.eventDataset = eventDataset;
+    }
 }

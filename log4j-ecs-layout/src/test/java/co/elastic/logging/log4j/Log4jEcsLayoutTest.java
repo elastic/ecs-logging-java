@@ -52,6 +52,8 @@ class Log4jEcsLayoutTest extends AbstractEcsLoggingTest {
         ecsLayout.setServiceName("test");
         ecsLayout.setStackTraceAsArray(true);
         ecsLayout.setIncludeOrigin(true);
+        ecsLayout.setEventDataset("testdataset.log");
+        ecsLayout.activateOptions();
         appender.setLayout(ecsLayout);
     }
 
