@@ -30,14 +30,10 @@ import org.apache.log4j.spi.LocationInfo;
 import org.apache.log4j.spi.LoggingEvent;
 import org.apache.log4j.spi.ThrowableInformation;
 
-import java.util.HashSet;
-import java.util.Set;
-
 public class EcsLayout extends Layout {
 
     private boolean stackTraceAsArray = false;
     private String serviceName;
-    private Set<String> topLevelLabels = new HashSet<String>(EcsJsonSerializer.DEFAULT_TOP_LEVEL_LABELS);
     private boolean includeOrigin;
     private String eventDataset;
 
@@ -51,7 +47,7 @@ public class EcsLayout extends Layout {
         EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
         EcsJsonSerializer.serializeLoggerName(builder, event.getLoggerName());
-        EcsJsonSerializer.serializeLabels(builder, event.getProperties(), topLevelLabels);
+        EcsJsonSerializer.serializeMDC(builder, event.getProperties());
         EcsJsonSerializer.serializeTag(builder, event.getNDC());
         if (includeOrigin) {
             LocationInfo locationInformation = event.getLocationInformation();
@@ -100,10 +96,6 @@ public class EcsLayout extends Layout {
 
     public void setStackTraceAsArray(boolean stackTraceAsArray) {
         this.stackTraceAsArray = stackTraceAsArray;
-    }
-
-    public void addTopLevelLabel(String topLevelLabel) {
-        this.topLevelLabels.add(topLevelLabel);
     }
 
     public void setEventDataset(String eventDataset) {

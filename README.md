@@ -89,8 +89,15 @@ We recommend using this library to log into a JSON log file and let Filebeat sen
 |[`error.message`](https://www.elastic.co/guide/en/ecs/current/ecs-error.html)|[`Throwable#getMessage()`](https://docs.oracle.com/javase/7/docs/api/java/lang/Throwable.html#getMessage())|
 |[`error.stack_trace`](https://www.elastic.co/guide/en/ecs/current/ecs-error.html)|[`Throwable#getStackTrace()`](https://docs.oracle.com/javase/7/docs/api/java/lang/Throwable.html#getStackTrace())|
 |[`process.thread.name`](https://www.elastic.co/guide/en/ecs/current/ecs-process.html)|[`LogEvent#getThreadName()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getThreadName()) |
-|[`labels`](https://www.elastic.co/guide/en/ecs/current/ecs-base.html)|[`LogEvent#getContextMap()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getContextMap())|
+|Each MDC entry is a top-level field <a href="#note1" id="note1ref"><sup>1</sup></a>|[`LogEvent#getContextMap()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getContextMap())|
 |[`tags`](https://www.elastic.co/guide/en/ecs/current/ecs-base.html)|[`LogEvent#getContextStack()`](https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getContextStack())|
+
+<a id="note1" href="#note1ref"><sup>1</sup></a> It's recommended to use existing [ECS fields](https://www.elastic.co/guide/en/ecs/current/ecs-field-reference.html) for MDC values.
+
+If there is no appropriate ECS field,
+consider prefixing your fields with `labels.`, as in `labels.foo`, for simple key/value pairs.
+For nested structures consider prefixing with `custom.` to make sure you won't get conflicts if ECS later adds the same fields but with a different mapping.
+
 
 ## Getting Started
 

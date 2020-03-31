@@ -26,14 +26,10 @@ package co.elastic.logging;
 
 import java.io.PrintWriter;
 import java.io.Writer;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 public class EcsJsonSerializer {
 
-    public static final List<String> DEFAULT_TOP_LEVEL_LABELS = Arrays.asList("trace.id", "transaction.id", "span.id", "error.id", "service.name");
     private static final TimestampSerializer TIMESTAMP_SERIALIZER = new TimestampSerializer();
     private static final ThreadLocal<StringBuilder> messageStringBuilder = new ThreadLocal<StringBuilder>();
     private static final  String NEW_LINE = System.getProperty("line.separator");
@@ -144,14 +140,11 @@ public class EcsJsonSerializer {
         builder.append("},");
     }
 
-    public static void serializeLabels(StringBuilder builder, Map<String, ?> labels, Set<String> topLevelLabels) {
-        if (!labels.isEmpty()) {
-            for (Map.Entry<String, ?> entry : labels.entrySet()) {
+    public static void serializeMDC(StringBuilder builder, Map<String, ?> properties) {
+        if (!properties.isEmpty()) {
+            for (Map.Entry<String, ?> entry : properties.entrySet()) {
                 builder.append('\"');
                 String key = entry.getKey();
-                if (!topLevelLabels.contains(key)) {
-                    builder.append("labels.");
-                }
                 JsonUtils.quoteAsString(key, builder);
                 builder.append("\":\"");
                 JsonUtils.quoteAsString(toNullSafeString(String.valueOf(entry.getValue())), builder);
