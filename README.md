@@ -5,6 +5,12 @@
 
 Centralized logging for Java applications with the Elastic stack made easy
 
+---
+
+**Please note** that this library is in a **beta** version and backwards-incompatible changes might be introduced in future releases while the major version is zero (0.x.x).
+
+---
+
 <img width="1829" alt="logs-ui" src="https://user-images.githubusercontent.com/2163464/62682932-9cac3600-b9bd-11e9-9cc3-39e907280f8e.png">
 
 ## What is ECS?
