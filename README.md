@@ -7,7 +7,7 @@ Centralized logging for Java applications with the Elastic stack made easy
 
 ---
 
-**Please note** that this library is in a **beta** version and backwards-incompatible changes might be introduced in future releases. While we strive to comply to [semver](https://semver.org/), we can not guarantee to avoid breaking changes in minor releases.
+**Please note** that this library is in a **beta** version and backwards-incompatible changes might be introduced in future releases while the major version is zero (0.x.x).
 
 ---
 
