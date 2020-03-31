@@ -4,7 +4,7 @@
 
     <groupId>co.elastic.logging</groupId>
     <artifactId>ecs-logging-java-parent</artifactId>
-    <version>0.3.0</version>
+    <version>0.3.1-SNAPSHOT</version>
     <name>${project.groupId}:${project.artifactId}</name>
     <modules>
         <module>ecs-logging-core</module>
@@ -33,7 +33,7 @@
         <connection>scm:git:git@github.com:elastic/ecs-logging-java.git</connection>
         <developerConnection>scm:git:git@github.com:elastic/ecs-logging-java.git</developerConnection>
         <url>https://github.com/elastic/ecs-logging-java</url>
-        <tag>v0.3.0</tag>
+        <tag>HEAD</tag>
     </scm>
 
     <developers>
