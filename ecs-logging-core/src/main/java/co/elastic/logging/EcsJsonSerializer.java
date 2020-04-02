@@ -65,6 +65,11 @@ public class EcsJsonSerializer {
         }
     }
 
+    public static void serializeThreadId(StringBuilder builder, long threadId) {
+        builder.append("\"process.thread.id\":");
+        builder.append(threadId);
+        builder.append(",");
+    }
     public static void serializeFormattedMessage(StringBuilder builder, String message) {
         builder.append("\"message\":\"");
         JsonUtils.quoteAsString(message, builder);

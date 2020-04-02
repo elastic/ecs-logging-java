@@ -112,6 +112,7 @@ For nested structures consider prefixing with `custom.` to make sure you won't g
 - [Logback](logback-ecs-encoder/README.md) (default for Spring Boot)
 - [Log4j2](log4j2-ecs-layout/README.md)
 - [Log4j](log4j-ecs-layout/README.md)
+- [java.util.logging](jul-ecs-formatter/README.md)
 
 ### Step 2: Enable APM log correlation (optional)
 If you are using the Elastic APM Java agent,
