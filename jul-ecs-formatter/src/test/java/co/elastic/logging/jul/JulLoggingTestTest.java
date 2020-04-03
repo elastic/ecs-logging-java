@@ -29,8 +29,10 @@ import static org.assertj.core.api.Assertions.within;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
@@ -47,6 +49,28 @@ import com.fasterxml.jackson.databind.JsonNode;
 import co.elastic.logging.AbstractEcsLoggingTest;
 
 public class JulLoggingTestTest extends AbstractEcsLoggingTest {
+
+    private final class InMemoryStreamHandler extends StreamHandler {
+        private InMemoryStreamHandler(OutputStream out, Formatter formatter) {
+            super(out, formatter);
+        }
+
+        /**
+         * Override {@code StreamHandler.close} to do a flush but not
+         * to close the output stream.  That is, we do <b>not</b>
+         * close {@code System.err}.
+         */
+        @Override
+        public void close() {
+            flush();
+        }
+
+        @Override
+        public void publish(LogRecord record) {
+            super.publish(record);
+            flush();
+        }
+    }
 
     private final EcsFormatter formatter = new EcsFormatter();
     
@@ -73,29 +97,16 @@ public class JulLoggingTestTest extends AbstractEcsLoggingTest {
 
     @BeforeEach
     void setUp() {
+        clearHandlers();
+        
         formatter.setIncludeOrigin(true);
         formatter.setStackTraceAsArray(true);
         formatter.setServiceName("test");
         formatter.setEventDataset("testdataset.log");
-        Handler handler = new StreamHandler(out, formatter) {
-
-            /**
-             * Override {@code StreamHandler.close} to do a flush but not
-             * to close the output stream.  That is, we do <b>not</b>
-             * close {@code System.err}.
-             */
-            @Override
-            public void close() {
-                flush();
-            }
-
-            @Override
-            public void publish(LogRecord record) {
-                super.publish(record);
-                flush();
-            }
-        };
+        
+        Handler handler = new InMemoryStreamHandler(out, formatter);
         handler.setLevel(Level.ALL);
+        
         logger.addHandler(handler);
         logger.setLevel(Level.ALL);
     }
@@ -122,4 +133,11 @@ public class JulLoggingTestTest extends AbstractEcsLoggingTest {
         assertThat(getLastLogLine().get("log.logger")).isNotNull();
         assertThat(getLastLogLine().get("event.dataset").textValue()).isEqualTo("testdataset.log");
     }
+    
+    private void clearHandlers() {
+        for (Handler handler : logger.getHandlers()) {
+            logger.removeHandler(handler);
+        }
+    }
+
 }
