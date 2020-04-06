@@ -47,7 +47,7 @@ public class EcsFormatterTest {
         final String result = formatter.format(record);
 
         assertThat(result).isEqualTo(
-                "{\"@timestamp\":\"1970-01-01T00:00:00.005Z\", \"log.level\": \"INFO\", \"message\":\"Example Meesage\", \"process.thread.name\":\"thread-7\",\"process.thread.id\":7,\"log.logger\":\"ExampleClass\",\"log.origin\":{\"file.name\":\"ExampleClass.java\",\"function\":\"exampleMethod\",\"file.line\":1}}\n");
+                "{\"@timestamp\":\"1970-01-01T00:00:00.005Z\", \"log.level\": \"INFO\", \"message\":\"Example Meesage\", \"process.thread.id\":7,\"log.logger\":\"ExampleLogger\",\"log.origin\":{\"file.name\":\"ExampleClass.java\",\"function\":\"exampleMethod\"}}\n");
     }
 
     @Test
@@ -56,7 +56,49 @@ public class EcsFormatterTest {
         final String result = formatter.format(record);
 
         assertThat(result).isEqualTo(
-                "{\"@timestamp\":\"1970-01-01T00:00:00.005Z\", \"log.level\": \"INFO\", \"message\":\"Example Meesage\", \"process.thread.name\":\"thread-7\",\"process.thread.id\":7,\"log.logger\":\"ExampleClass\"}\n");
+                "{\"@timestamp\":\"1970-01-01T00:00:00.005Z\", \"log.level\": \"INFO\", \"message\":\"Example Meesage\", \"process.thread.id\":7,\"log.logger\":\"ExampleLogger\"}\n");
+    }
+
+    @Test
+    public void testFormatWithoutLoggerName() {
+        record.setLoggerName(null);
+
+        final String result = formatter.format(record);
+
+        assertThat(result).isEqualTo(
+                "{\"@timestamp\":\"1970-01-01T00:00:00.005Z\", \"log.level\": \"INFO\", \"message\":\"Example Meesage\", \"process.thread.id\":7}\n");
+    }
+
+    @Test
+    public void testFormatWithEmptyLoggerName() {
+        record.setLoggerName("");
+
+        final String result = formatter.format(record);
+
+        assertThat(result).isEqualTo(
+                "{\"@timestamp\":\"1970-01-01T00:00:00.005Z\", \"log.level\": \"INFO\", \"message\":\"Example Meesage\", \"process.thread.id\":7,\"log.logger\":\"\"}\n");
+    }
+
+    @Test
+    public void testFormatWithInnerClassName() {
+        formatter.setIncludeOrigin(true);
+        record.setSourceClassName("test.ExampleClass$InnerClass");
+
+        final String result = formatter.format(record);
+
+        assertThat(result).isEqualTo(
+                "{\"@timestamp\":\"1970-01-01T00:00:00.005Z\", \"log.level\": \"INFO\", \"message\":\"Example Meesage\", \"process.thread.id\":7,\"log.logger\":\"ExampleLogger\",\"log.origin\":{\"file.name\":\"ExampleClass.java\",\"function\":\"exampleMethod\"}}\n");
+    }
+
+    @Test
+    public void testFormatWithInvalidClassName() {
+        formatter.setIncludeOrigin(true);
+        record.setSourceClassName("$test.ExampleClass");
+
+        final String result = formatter.format(record);
+
+        assertThat(result).isEqualTo(
+                "{\"@timestamp\":\"1970-01-01T00:00:00.005Z\", \"log.level\": \"INFO\", \"message\":\"Example Meesage\", \"process.thread.id\":7,\"log.logger\":\"ExampleLogger\",\"log.origin\":{\"file.name\":\"<Unknown>\",\"function\":\"exampleMethod\"}}\n");
     }
 
     @BeforeEach
@@ -65,6 +107,7 @@ public class EcsFormatterTest {
         record.setSourceClassName("ExampleClass");
         record.setSourceMethodName("exampleMethod");
         record.setThreadID(7);
+        record.setLoggerName("ExampleLogger");
     }
 
 }

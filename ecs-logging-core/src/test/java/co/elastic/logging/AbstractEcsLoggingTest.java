@@ -61,7 +61,7 @@ public abstract class AbstractEcsLoggingTest {
 
     @Test
     void testThreadContext() throws Exception {
-        if(putMdc("foo", "bar")) {
+        if (putMdc("foo", "bar")) {
             debug("test");
             assertThat(getLastLogLine().get("foo").textValue()).isEqualTo("bar");
         }
@@ -118,7 +118,7 @@ public abstract class AbstractEcsLoggingTest {
 
     public boolean putMdc(String key, String value) {
         return false;
-    };
+    }
 
     public boolean putNdc(String message) {
         return false;

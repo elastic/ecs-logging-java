@@ -134,6 +134,15 @@ public class JulLoggingTestTest extends AbstractEcsLoggingTest {
         assertThat(getLastLogLine().get("event.dataset").textValue()).isEqualTo("testdataset.log");
     }
     
+    @Test
+    void testLogOrigin() throws Exception {
+        debug("test");
+        assertThat(getLastLogLine().get("log.origin").get("file.name").textValue()).endsWith(".java");
+        assertThat(getLastLogLine().get("log.origin").get("function").textValue()).isEqualTo("debug");
+        //No file.line for JUL
+    }
+
+    
     private void clearHandlers() {
         for (Handler handler : logger.getHandlers()) {
             logger.removeHandler(handler);

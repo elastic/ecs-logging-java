@@ -32,6 +32,8 @@ import co.elastic.logging.EcsJsonSerializer;
 
 public class EcsFormatter extends Formatter {
 
+    private static final String UNKNOWN_FILE = "<Unknown>";
+    
     private boolean stackTraceAsArray;
     private String serviceName;
     private boolean includeOrigin;
@@ -51,20 +53,17 @@ public class EcsFormatter extends Formatter {
 
     @Override
     public String format(final LogRecord record) {
-        final StringBuilder builder = new StringBuilder();
+        final StringBuilder builder = EcsJsonSerializer.getMessageStringBuilder();
         EcsJsonSerializer.serializeObjectStart(builder, record.getMillis());
         EcsJsonSerializer.serializeLogLevel(builder, record.getLevel().getName());
         EcsJsonSerializer.serializeFormattedMessage(builder, record.getMessage());
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
         EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
-        EcsJsonSerializer.serializeThreadName(builder, "thread-" + record.getThreadID());
         EcsJsonSerializer.serializeThreadId(builder, record.getThreadID());
-        EcsJsonSerializer.serializeLoggerName(builder, record.getSourceClassName());
+        EcsJsonSerializer.serializeLoggerName(builder, record.getLoggerName());
         if (includeOrigin && record.getSourceClassName() != null && record.getSourceMethodName() != null) {
-            EcsJsonSerializer.serializeOrigin(builder, record.getSourceClassName().replaceAll(".*\\.", "") + ".java",
-                    record.getSourceMethodName(), 1);
+            EcsJsonSerializer.serializeOrigin(builder, buildFileName(record.getSourceClassName()), record.getSourceMethodName(), -1);
 
-            // EcsJsonSerializer.serializeOrigin(builder, callerData[0]);
         }
         final Throwable throwableInformation = record.getThrown();
         if (throwableInformation != null) {
@@ -98,6 +97,21 @@ public class EcsFormatter extends Formatter {
             value = value.trim();
         }
         return value;
+    }
+    
+    private String buildFileName(String className) {
+        String result = UNKNOWN_FILE;
+        if (className != null) {
+            int fileNameEnd = className.indexOf('$');
+            if (fileNameEnd < 0) {
+                fileNameEnd = className.length();
+            }
+            int classNameStart = className.lastIndexOf('.');
+            if (classNameStart < fileNameEnd) {
+                result = className.substring(classNameStart + 1, fileNameEnd) + ".java";
+            }
+        }
+        return result;
     }
 
 }

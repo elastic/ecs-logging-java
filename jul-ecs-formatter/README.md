@@ -14,7 +14,7 @@ Add a dependency to your application
     <version>${ecs-logging-java.version}</version>
 </dependency>
 ```
-In some case you may `jul-ecs-formatter` and `ecs-logging-core` jars manually to the classpath. For example to the `$CATALINA_HOME/lib` directory.
+If you are not using a dependency management tool, like maven, you have to add both, `jul-ecs-formatter` and `ecs-logging-core` jars manually to the classpath. For example to the `$CATALINA_HOME/lib` directory.
 
 ## Step 2: use the `EcsFormatter`
 
