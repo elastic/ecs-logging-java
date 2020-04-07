@@ -65,9 +65,10 @@ class Log4jEcsLayoutTest extends AbstractEcsLoggingTest {
     }
 
     @Override
-    public void putMdc(String key, String value) {
+    public boolean putMdc(String key, String value) {
         MDC.put(key, value);
         Assumptions.assumeTrue(value.equals(MDC.get(key)));
+        return true;
     }
 
     @Override

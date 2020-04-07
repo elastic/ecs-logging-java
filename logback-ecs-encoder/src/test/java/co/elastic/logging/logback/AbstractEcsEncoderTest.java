@@ -38,8 +38,9 @@ abstract class AbstractEcsEncoderTest extends AbstractEcsLoggingTest {
     protected Logger logger;
 
     @Override
-    public void putMdc(String key, String value) {
+    public boolean putMdc(String key, String value) {
         MDC.put(key, value);
+        return true;
     }
 
     @Override

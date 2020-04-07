@@ -178,8 +178,9 @@ abstract class AbstractLog4j2EcsLayoutTest extends AbstractEcsLoggingTest {
     }
 
     @Override
-    public void putMdc(String key, String value) {
+    public boolean putMdc(String key, String value) {
         ThreadContext.put(key, value);
+        return true;
     }
 
     @Override

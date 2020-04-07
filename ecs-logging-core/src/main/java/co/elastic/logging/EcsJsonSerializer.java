@@ -52,9 +52,11 @@ public class EcsJsonSerializer {
     }
 
     public static void serializeLoggerName(StringBuilder builder, String loggerName) {
-        builder.append("\"log.logger\":\"");
-        JsonUtils.quoteAsString(loggerName, builder);
-        builder.append("\",");
+        if (loggerName != null) {
+            builder.append("\"log.logger\":\"");
+            JsonUtils.quoteAsString(loggerName, builder);
+            builder.append("\",");
+        }
     }
 
     public static void serializeThreadName(StringBuilder builder, String threadName) {
@@ -65,6 +67,11 @@ public class EcsJsonSerializer {
         }
     }
 
+    public static void serializeThreadId(StringBuilder builder, long threadId) {
+        builder.append("\"process.thread.id\":");
+        builder.append(threadId);
+        builder.append(",");
+    }
     public static void serializeFormattedMessage(StringBuilder builder, String message) {
         builder.append("\"message\":\"");
         JsonUtils.quoteAsString(message, builder);
@@ -134,9 +141,12 @@ public class EcsJsonSerializer {
         builder.append("\",");
         builder.append("\"function\":\"");
         JsonUtils.quoteAsString(methodName, builder);
-        builder.append("\",");
-        builder.append("\"file.line\":");
-        builder.append(lineNumber);
+        builder.append('"');
+        if (lineNumber >= 0) {
+            builder.append(',');
+            builder.append("\"file.line\":");
+            builder.append(lineNumber);
+        }
         builder.append("},");
     }
 
