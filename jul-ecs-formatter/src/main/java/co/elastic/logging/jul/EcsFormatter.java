@@ -53,7 +53,7 @@ public class EcsFormatter extends Formatter {
 
     @Override
     public String format(final LogRecord record) {
-        final StringBuilder builder = EcsJsonSerializer.getMessageStringBuilder();
+        final StringBuilder builder = new StringBuilder();
         EcsJsonSerializer.serializeObjectStart(builder, record.getMillis());
         EcsJsonSerializer.serializeLogLevel(builder, record.getLevel().getName());
         EcsJsonSerializer.serializeFormattedMessage(builder, record.getMessage());
@@ -63,7 +63,6 @@ public class EcsFormatter extends Formatter {
         EcsJsonSerializer.serializeLoggerName(builder, record.getLoggerName());
         if (includeOrigin && record.getSourceClassName() != null && record.getSourceMethodName() != null) {
             EcsJsonSerializer.serializeOrigin(builder, buildFileName(record.getSourceClassName()), record.getSourceMethodName(), -1);
-
         }
         final Throwable throwableInformation = record.getThrown();
         if (throwableInformation != null) {
