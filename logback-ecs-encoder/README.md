@@ -13,6 +13,10 @@ Add a dependency to your application
 </dependency>
 ```
 
+If you are not using a dependency management tool, like maven, you have to add both,
+`logback-ecs-encoder` and `ecs-logging-core` jars manually to the classpath.
+For example to the `$CATALINA_HOME/lib` directory.
+
 ## Step 2: use the `EcsEncoder`
 
 ## Spring Boot applications

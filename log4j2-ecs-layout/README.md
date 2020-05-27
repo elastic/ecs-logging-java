@@ -13,6 +13,10 @@ Add a dependency to your application
 </dependency>
 ```
 
+If you are not using a dependency management tool, like maven, you have to add both,
+`log4j2-ecs-layout` and `ecs-logging-core` jars manually to the classpath.
+For example to the `$CATALINA_HOME/lib` directory.
+
 ## Step 2: use the `EcsLayout`
 
 Instead of the usual `<PatternLayout/>`, use `<EcsLayout serviceName="my-app"/>`.

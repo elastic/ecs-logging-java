@@ -12,3 +12,7 @@ Add a dependency to your application
     <version>${ecs-logging-java.version}</version>
 </dependency>
 ```
+
+If you are not using a dependency management tool, like maven, you have to add both,
+`log4j2-ecs-layout` and `ecs-logging-core` jars manually to the classpath.
+For example to the `$CATALINA_HOME/lib` directory.
