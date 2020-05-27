@@ -12,6 +12,7 @@
         <module>log4j2-ecs-layout</module>
         <module>logback-ecs-encoder</module>
         <module>jul-ecs-formatter</module>
+        <module>jboss-logmanager-ecs-formatter</module>
     </modules>
     <packaging>pom</packaging>
     <inceptionYear>2019</inceptionYear>
