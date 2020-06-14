@@ -31,6 +31,7 @@ import org.jboss.logmanager.Logger;
 import org.jboss.logmanager.JBossLogmanagerLoggerProducer;
 import org.jboss.logmanager.MDC;
 import org.jboss.logmanager.NDC;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.io.ByteArrayOutputStream;
@@ -95,6 +96,12 @@ class JBossLogManagerTest extends AbstractEcsLoggingTest {
             }
         });
 
+        MDC.clear();
+        NDC.clear();
+    }
+
+    @AfterEach
+    void tearDown() {
         MDC.clear();
         NDC.clear();
     }
