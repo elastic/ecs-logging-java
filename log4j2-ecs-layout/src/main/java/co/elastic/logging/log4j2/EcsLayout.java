@@ -51,6 +51,7 @@ import org.apache.logging.log4j.util.StringBuilderFormattable;
 import org.apache.logging.log4j.util.TriConsumer;
 
 import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -58,8 +59,8 @@ import java.util.concurrent.ConcurrentMap;
 @Plugin(name = "EcsLayout", category = Node.CATEGORY, elementType = Layout.ELEMENT_TYPE)
 public class EcsLayout extends AbstractStringLayout {
 
-    public static final Charset UTF_8 = Charset.forName("UTF-8");
-    public static final String[] JSON_FORMAT = {"JSON"};
+    public static final Charset UTF_8 = StandardCharsets.UTF_8;
+    static final String[] JSON_FORMAT = {"JSON"};
 
     private final TriConsumer<String, Object, StringBuilder> WRITE_MDC = new TriConsumer<String, Object, StringBuilder>() {
         @Override
@@ -336,7 +337,7 @@ public class EcsLayout extends AbstractStringLayout {
         }
 
         public KeyValuePair[] getAdditionalFields() {
-            return additionalFields;
+            return additionalFields.clone();
         }
 
         public String getServiceName() {
@@ -361,7 +362,7 @@ public class EcsLayout extends AbstractStringLayout {
          * @return this builder
          */
         public EcsLayout.Builder setAdditionalFields(final KeyValuePair[] additionalFields) {
-            this.additionalFields = additionalFields;
+            this.additionalFields = additionalFields.clone();
             return asBuilder();
         }
 
