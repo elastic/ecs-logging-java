@@ -27,12 +27,14 @@ package co.elastic.logging;
 import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 public class EcsJsonSerializer {
 
     private static final TimestampSerializer TIMESTAMP_SERIALIZER = new TimestampSerializer();
     private static final ThreadLocal<StringBuilder> messageStringBuilder = new ThreadLocal<StringBuilder>();
     private static final  String NEW_LINE = System.getProperty("line.separator");
+    private static final Pattern NEW_LINE_PATTERN = Pattern.compile("\\n");
 
     public static CharSequence toNullSafeString(final CharSequence s) {
         return s == null ? "" : s;
@@ -196,7 +198,7 @@ public class EcsJsonSerializer {
         builder.append("\",");
         if (stackTraceAsArray) {
             builder.append("\"error.stack_trace\":[").append(NEW_LINE);
-            for (String line : stackTrace.split("\\n")) {
+            for (String line : NEW_LINE_PATTERN.split(stackTrace)) {
                 appendQuoted(builder, line);
             }
             builder.append("]");
