@@ -50,7 +50,7 @@ import co.elastic.logging.AbstractEcsLoggingTest;
 
 public class JulLoggingTestTest extends AbstractEcsLoggingTest {
 
-    private final class InMemoryStreamHandler extends StreamHandler {
+    private static final class InMemoryStreamHandler extends StreamHandler {
         private InMemoryStreamHandler(OutputStream out, Formatter formatter) {
             super(out, formatter);
         }
@@ -74,9 +74,9 @@ public class JulLoggingTestTest extends AbstractEcsLoggingTest {
 
     private final EcsFormatter formatter = new EcsFormatter();
     
-    private Logger logger = Logger.getLogger("");
+    private final Logger logger = Logger.getLogger("");
     
-    private  ByteArrayOutputStream out = new ByteArrayOutputStream();
+    private final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
     private LogRecord record;
 
