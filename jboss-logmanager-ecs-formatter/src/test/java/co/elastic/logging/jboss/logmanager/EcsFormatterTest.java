@@ -53,46 +53,6 @@ class EcsFormatterTest {
     }
 
     @Test
-    void testBasicLogging() {
-        assertThat(formatter.format(record)).isEqualTo("{" +
-                "\"@timestamp\":\"1970-01-01T00:00:00.005Z\", " +
-                "\"log.level\": \"INFO\", " +
-                "\"message\":\"Example Message\", " +
-                "\"process.thread.name\":\"ExampleThread\"," +
-                "\"log.logger\":\"ExampleLogger\"" +
-                "}\n");
-    }
-
-    @Test
-    void testSingleMDCInformationLogging() {
-        record.setMdc(Map.of("Example Key", "Example Value"));
-
-        assertThat(formatter.format(record)).isEqualTo("{" +
-                "\"@timestamp\":\"1970-01-01T00:00:00.005Z\", " +
-                "\"log.level\": \"INFO\", " +
-                "\"message\":\"Example Message\", " +
-                "\"process.thread.name\":\"ExampleThread\"," +
-                "\"log.logger\":\"ExampleLogger\"," +
-                "\"Example Key\":\"Example Value\"" +
-                "}\n");
-    }
-
-    @Test
-    void testMultipleMDCInformationLogging() {
-        record.setMdc(Map.of("Example Key 1", "Example Value 1", "Example Key 2", "Example Value 2"));
-
-        assertThat(formatter.format(record)).isEqualTo("{\"" +
-                "@timestamp\":\"1970-01-01T00:00:00.005Z\", " +
-                "\"log.level\": \"INFO\", " +
-                "\"message\":\"Example Message\", " +
-                "\"process.thread.name\":\"ExampleThread\"," +
-                "\"log.logger\":\"ExampleLogger\"," +
-                "\"Example Key 1\":\"Example Value 1\"," +
-                "\"Example Key 2\":\"Example Value 2\"" +
-                "}\n");
-    }
-
-    @Test
     void testSingleNDCInformationLogging() {
         record.setNdc("exampleTag");
 
@@ -139,72 +99,6 @@ class EcsFormatterTest {
                 "\"error.type\":\"co.elastic.logging.jboss.logmanager.EcsFormatterTest$1\"," +
                 "\"error.message\":\"Example Exception Message\"," +
                 "\"error.stack_trace\":\"co.elastic.logging.jboss.logmanager.EcsFormatterTest$1: Example Exception Message\\n\\tat co.elastic.logging.jboss.logmanager.EcsFormatterTest.testExceptionLogging(EcsFormatterTest.java:125)\\n\"" +
-                "}\n");
-    }
-
-    @Test
-    void testExceptionLoggingWithStackTraceAsArray() {
-        formatter.setStackTraceAsArray(true);
-        record.setThrown(new RuntimeException("Example Exception Message") {
-            @Override
-            public void printStackTrace(PrintWriter pw) {
-                pw.println("co.elastic.logging.jboss.logmanager.EcsFormatterTest$1: Example Exception Message");
-                pw.println("\tat co.elastic.logging.jboss.logmanager.EcsFormatterTest.testExceptionLoggingWithStackTraceAsArray(EcsFormatterTest.java:147)");
-            }
-        });
-
-        assertThat(formatter.format(record)).isEqualTo("{" +
-                "\"@timestamp\":\"1970-01-01T00:00:00.005Z\", " +
-                "\"log.level\": \"INFO\", " +
-                "\"message\":\"Example Message\", " +
-                "\"process.thread.name\":\"ExampleThread\"," +
-                "\"log.logger\":\"ExampleLogger\"," +
-                "\"error.type\":\"co.elastic.logging.jboss.logmanager.EcsFormatterTest$2\"," +
-                "\"error.message\":\"Example Exception Message\"," +
-                "\"error.stack_trace\":[\n\t\"co.elastic.logging.jboss.logmanager.EcsFormatterTest$1: Example Exception Message\",\n\t\"\\tat co.elastic.logging.jboss.logmanager.EcsFormatterTest.testExceptionLoggingWithStackTraceAsArray(EcsFormatterTest.java:147)\"]" +
-                "}\n");
-    }
-
-    @Test
-    void testOriginLogging() {
-        formatter.setIncludeOrigin(true);
-
-        assertThat(formatter.format(record)).isEqualTo("{" +
-                "\"@timestamp\":\"1970-01-01T00:00:00.005Z\", " +
-                "\"log.level\": \"INFO\", " +
-                "\"message\":\"Example Message\", " +
-                "\"process.thread.name\":\"ExampleThread\"," +
-                "\"log.logger\":\"ExampleLogger\"," +
-                "\"log.origin\":{\"file.name\":\"ExampleSourceFile.java\",\"function\":\"exampleSourceMethod\",\"file.line\":10}" +
-                "}\n");
-    }
-
-    @Test
-    void testServiceNameLogging() {
-        formatter.setServiceName("ExampleService");
-
-        assertThat(formatter.format(record)).isEqualTo("{" +
-                "\"@timestamp\":\"1970-01-01T00:00:00.005Z\", " +
-                "\"log.level\": \"INFO\", " +
-                "\"message\":\"Example Message\", " +
-                "\"service.name\":\"ExampleService\"," +
-                "\"event.dataset\":\"ExampleService.log\"," +
-                "\"process.thread.name\":\"ExampleThread\"," +
-                "\"log.logger\":\"ExampleLogger\"" +
-                "}\n");
-    }
-
-    @Test
-    void testEventDatasetLogging() {
-        formatter.setEventDataset("ExampleEventDataset");
-
-        assertThat(formatter.format(record)).isEqualTo("{" +
-                "\"@timestamp\":\"1970-01-01T00:00:00.005Z\", " +
-                "\"log.level\": \"INFO\", " +
-                "\"message\":\"Example Message\", " +
-                "\"event.dataset\":\"ExampleEventDataset\"," +
-                "\"process.thread.name\":\"ExampleThread\"," +
-                "\"log.logger\":\"ExampleLogger\"" +
                 "}\n");
     }
 }
