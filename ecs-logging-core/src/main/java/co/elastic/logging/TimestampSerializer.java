@@ -24,26 +24,24 @@
  */
 package co.elastic.logging;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Locale;
+import java.util.TimeZone;
 
 /**
  * This class serializes an epoch timestamp in milliseconds to a ISO 8601 date time sting,
  * for example {@code 1970-01-01T00:00:00.000Z}
  * <p>
  * The main advantage of this class is that is able to serialize the timestamp in a garbage free way,
- * i.e. without object allocations and that it is faster than
- * {@link java.time.format.DateTimeFormatter#format(java.time.temporal.TemporalAccessor)}.
+ * i.e. without object allocations and that it is faster than {@link java.text.DateFormat#format(Date)}.
  * </p>
  * <p>
  * The most complex part when formatting a ISO date is to determine the actual year,
  * month and date as you have to account for leap years.
  * Leveraging the fact that for a whole day this stays the same
  * and that logging only requires to serialize the current timestamp and not arbitrary ones,
- * we offload this task to {@link java.time.format.DateTimeFormatter#format(java.time.temporal.TemporalAccessor)}
- * and cache the result.
+ * we offload this task to {@link java.text.DateFormat#format(Date)} and cache the result.
  * So we only have to serialize the time part of the ISO timestamp which is easy
  * as a day has exactly {@code 1000 * 60 * 60 * 24} milliseconds.
  * Also, we don't have to worry about leap seconds when dealing with the epoch timestamp.
@@ -112,10 +110,9 @@ class TimestampSerializer {
         private final long endOfCachedDate;
 
         private CachedDate(long epochTimestamp) {
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
-                    .localizedBy(Locale.ROOT)
-                    .withZone(ZoneId.of("UTC"));
-            cachedDateIso = formatter.format(Instant.ofEpochMilli(epochTimestamp));
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.ROOT);
+            dateFormat.setTimeZone(TimeZone.getTimeZone("UTC"));
+            cachedDateIso = dateFormat.format(new Date(epochTimestamp));
             startOfCachedDate = atStartOfDay(epochTimestamp);
             endOfCachedDate = atEndOfDay(epochTimestamp);
         }

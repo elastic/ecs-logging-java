@@ -31,9 +31,12 @@ import org.apache.logging.log4j.util.TriConsumer;
 public class ParameterizedStructuredMessage extends MapMessage<ParameterizedStructuredMessage, Object> {
 
     private static final String MESSAGE = "message";
-    private static final TriConsumer<String, Object, StringBuilder> ADD_KEY_VALUE_PAIR = (key, value, builder) -> {
-        if (!MESSAGE.equals(key)) {
-            builder.append(' ').append(key).append('[').append(value).append(']');
+    private static final TriConsumer<String, Object, StringBuilder> ADD_KEY_VALUE_PAIR = new TriConsumer<>() {
+        @Override
+        public void accept(String key, Object value, StringBuilder builder) {
+            if (!MESSAGE.equals(key)) {
+                builder.append(' ').append(key).append('[').append(value).append(']');
+            }
         }
     };
     private static final long serialVersionUID = -170788861790476303L;

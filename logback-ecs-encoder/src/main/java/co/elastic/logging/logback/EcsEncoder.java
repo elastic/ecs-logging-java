@@ -34,14 +34,13 @@ import co.elastic.logging.JsonUtils;
 import org.slf4j.Marker;
 
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
 public class EcsEncoder extends EncoderBase<ILoggingEvent> {
 
-    private static final Charset UTF_8 = StandardCharsets.UTF_8;
+    private static final Charset UTF_8 = Charset.forName("UTF-8");
     private boolean stackTraceAsArray = false;
     private String serviceName;
     private String eventDataset;
