@@ -39,6 +39,7 @@ public class ParameterizedStructuredMessage extends MapMessage<ParameterizedStru
             }
         }
     };
+    private static final long serialVersionUID = -170788861790476303L;
 
     private final String message;
 

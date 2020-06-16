@@ -31,7 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 class ListAppender extends AppenderSkeleton {
-    private List<String> logEvents = new ArrayList<>();
+    private final List<String> logEvents = new ArrayList<String>();
 
     @Override
     protected void append(LoggingEvent event) {

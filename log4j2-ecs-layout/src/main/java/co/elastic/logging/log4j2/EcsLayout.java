@@ -59,7 +59,7 @@ import java.util.concurrent.ConcurrentMap;
 public class EcsLayout extends AbstractStringLayout {
 
     public static final Charset UTF_8 = Charset.forName("UTF-8");
-    public static final String[] JSON_FORMAT = {"JSON"};
+    static final String[] JSON_FORMAT = {"JSON"};
 
     private final TriConsumer<String, Object, StringBuilder> WRITE_MDC = new TriConsumer<String, Object, StringBuilder>() {
         @Override
@@ -336,7 +336,7 @@ public class EcsLayout extends AbstractStringLayout {
         }
 
         public KeyValuePair[] getAdditionalFields() {
-            return additionalFields;
+            return additionalFields.clone();
         }
 
         public String getServiceName() {
@@ -361,7 +361,7 @@ public class EcsLayout extends AbstractStringLayout {
          * @return this builder
          */
         public EcsLayout.Builder setAdditionalFields(final KeyValuePair[] additionalFields) {
-            this.additionalFields = additionalFields;
+            this.additionalFields = additionalFields.clone();
             return asBuilder();
         }
 
