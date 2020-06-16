@@ -47,7 +47,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
     private boolean includeMarkers = false;
     private ThrowableProxyConverter throwableProxyConverter;
     private boolean includeOrigin;
-    private final List<Pair> additionalFields = new ArrayList<>();
+    private final List<Pair> additionalFields = new ArrayList<Pair>();
 
     @Override
     public byte[] headerBytes() {
