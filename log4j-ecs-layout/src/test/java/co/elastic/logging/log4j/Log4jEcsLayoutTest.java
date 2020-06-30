@@ -25,11 +25,9 @@
 package co.elastic.logging.log4j;
 
 import co.elastic.logging.AbstractEcsLoggingTest;
+import co.elastic.logging.ParameterizedLogSupport;
 import com.fasterxml.jackson.databind.JsonNode;
-import org.apache.log4j.LogManager;
-import org.apache.log4j.Logger;
-import org.apache.log4j.MDC;
-import org.apache.log4j.NDC;
+import org.apache.log4j.*;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
@@ -80,6 +78,16 @@ class Log4jEcsLayoutTest extends AbstractEcsLoggingTest {
     @Override
     public void debug(String message) {
         logger.debug(message);
+    }
+
+    @Override
+    public ParameterizedLogSupport getParameterizedLogSettings() {
+        return ParameterizedLogSupport.NOT_SUPPORTED;
+    }
+
+    @Override
+    public void debug(String message, Object[] logParams) {
+        throw new UnsupportedOperationException();
     }
 
     @Override
