@@ -41,6 +41,7 @@ import java.util.logging.StreamHandler;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
+import co.elastic.logging.ParameterizedLogSupport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -83,6 +84,16 @@ public class JulLoggingTestTest extends AbstractEcsLoggingTest {
     @Override
     public void debug(String message) {
         logger.log(Level.FINE, message);
+    }
+
+    @Override
+    public ParameterizedLogSupport getParameterizedLogSettings() {
+        return ParameterizedLogSupport.NUMBER_AND_BRACKETS;
+    }
+
+    @Override
+    public void debug(String message, Object... logParams) {
+        logger.log(Level.FINE, message, logParams);
     }
 
     @Override

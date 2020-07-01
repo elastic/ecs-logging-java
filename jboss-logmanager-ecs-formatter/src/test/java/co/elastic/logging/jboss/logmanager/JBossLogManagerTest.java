@@ -25,6 +25,7 @@
 package co.elastic.logging.jboss.logmanager;
 
 import co.elastic.logging.AbstractEcsLoggingTest;
+import co.elastic.logging.ParameterizedLogSupport;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.jboss.logmanager.Level;
 import org.jboss.logmanager.Logger;
@@ -62,6 +63,16 @@ class JBossLogManagerTest extends AbstractEcsLoggingTest {
     @Override
     public void debug(String message) {
         logger.log(Level.DEBUG, message);
+    }
+
+    @Override
+    public ParameterizedLogSupport getParameterizedLogSettings() {
+        return ParameterizedLogSupport.NUMBER_AND_BRACKETS;
+    }
+
+    @Override
+    public void debug(String message, Object... logParams) {
+        logger.log(Level.DEBUG, message, logParams);
     }
 
     @Override

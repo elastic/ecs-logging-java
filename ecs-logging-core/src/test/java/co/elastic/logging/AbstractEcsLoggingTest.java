@@ -60,6 +60,24 @@ public abstract class AbstractEcsLoggingTest {
     }
 
     @Test
+    void testSimpleParameterizedLog() throws Exception {
+        ParameterizedLogSupport parameterizedLogSupport = getParameterizedLogSettings();
+
+        // don't test parameterized logging if the log framework implementation does not support it.
+        if (parameterizedLogSupport == ParameterizedLogSupport.NOT_SUPPORTED) {
+            return;
+        }
+
+        if (parameterizedLogSupport == ParameterizedLogSupport.NUMBER_AND_BRACKETS) {
+            debug("{0} is not {1}", 1, 2);
+        } else if (parameterizedLogSupport == ParameterizedLogSupport.BRACKETS_ONLY) {
+            debug("{} is not {}", 1, 2);
+        }
+
+        assertThat(getLastLogLine().get("message").textValue()).isEqualTo("1 is not 2");
+    }
+
+    @Test
     void testThreadContext() throws Exception {
         if (putMdc("foo", "bar")) {
             debug("test");
@@ -124,7 +142,13 @@ public abstract class AbstractEcsLoggingTest {
         return false;
     }
 
+    public ParameterizedLogSupport getParameterizedLogSettings() {
+        return ParameterizedLogSupport.BRACKETS_ONLY;
+    }
+
     public abstract void debug(String message);
+
+    public abstract void debug(String message, Object... logParams);
 
     public abstract void error(String message, Throwable t);
 

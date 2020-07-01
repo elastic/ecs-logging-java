@@ -48,6 +48,11 @@ abstract class AbstractEcsEncoderTest extends AbstractEcsLoggingTest {
         logger.debug(message);
     }
 
+    @Override
+    public void debug(String message, Object... logParams) {
+        logger.debug(message, logParams);
+    }
+
     @Test
     void testAdditionalFields() throws Exception {
         debug("test");

@@ -56,7 +56,7 @@ public class EcsFormatter extends Formatter {
         final StringBuilder builder = new StringBuilder();
         EcsJsonSerializer.serializeObjectStart(builder, record.getMillis());
         EcsJsonSerializer.serializeLogLevel(builder, record.getLevel().getName());
-        EcsJsonSerializer.serializeFormattedMessage(builder, record.getMessage());
+        EcsJsonSerializer.serializeFormattedMessage(builder, super.formatMessage(record));
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
         EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
         EcsJsonSerializer.serializeThreadId(builder, record.getThreadID());

@@ -90,7 +90,7 @@ class EcsFormatterTest {
             }
         });
 
-        assertThat(formatter.format(record)).isEqualTo("{" +
+        assertThat(formatter.format(record).replace("\\r\\n", "\\n")).isEqualTo("{" +
                 "\"@timestamp\":\"1970-01-01T00:00:00.005Z\", " +
                 "\"log.level\": \"INFO\", " +
                 "\"message\":\"Example Message\", " +
