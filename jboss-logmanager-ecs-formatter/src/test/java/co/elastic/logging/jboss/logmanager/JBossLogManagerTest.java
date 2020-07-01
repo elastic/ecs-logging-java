@@ -71,7 +71,7 @@ class JBossLogManagerTest extends AbstractEcsLoggingTest {
     }
 
     @Override
-    public void debug(String message, Object[] logParams) {
+    public void debug(String message, Object... logParams) {
         logger.log(Level.DEBUG, message, logParams);
     }
 

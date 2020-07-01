@@ -86,7 +86,7 @@ class Log4jEcsLayoutTest extends AbstractEcsLoggingTest {
     }
 
     @Override
-    public void debug(String message, Object[] logParams) {
+    public void debug(String message, Object... logParams) {
         throw new UnsupportedOperationException();
     }
 

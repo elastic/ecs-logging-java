@@ -92,7 +92,7 @@ public class JulLoggingTestTest extends AbstractEcsLoggingTest {
     }
 
     @Override
-    public void debug(String message, Object[] logParams) {
+    public void debug(String message, Object... logParams) {
         logger.log(Level.FINE, message, logParams);
     }
 

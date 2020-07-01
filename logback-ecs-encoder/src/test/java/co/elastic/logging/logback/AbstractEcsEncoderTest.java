@@ -49,7 +49,7 @@ abstract class AbstractEcsEncoderTest extends AbstractEcsLoggingTest {
     }
 
     @Override
-    public void debug(String message, Object[] logParams) {
+    public void debug(String message, Object... logParams) {
         logger.debug(message, logParams);
     }
 

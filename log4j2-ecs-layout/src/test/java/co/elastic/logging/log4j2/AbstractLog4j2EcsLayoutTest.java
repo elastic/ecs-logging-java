@@ -195,7 +195,7 @@ abstract class AbstractLog4j2EcsLayoutTest extends AbstractEcsLoggingTest {
     }
 
     @Override
-    public void debug(String message, Object[] logParams) {
+    public void debug(String message, Object... logParams) {
         root.debug(message, logParams);
     }
 

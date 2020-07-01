@@ -69,9 +69,9 @@ public abstract class AbstractEcsLoggingTest {
         }
 
         if (parameterizedLogSupport == ParameterizedLogSupport.NUMBER_AND_BRACKETS) {
-            debug("{0} is not {1}", new Object[]{1, 2});
+            debug("{0} is not {1}", 1, 2);
         } else if (parameterizedLogSupport == ParameterizedLogSupport.BRACKETS_ONLY) {
-            debug("{} is not {}", new Object[]{1, 2});
+            debug("{} is not {}", 1, 2);
         }
 
         assertThat(getLastLogLine().get("message").textValue()).isEqualTo("1 is not 2");
@@ -148,7 +148,7 @@ public abstract class AbstractEcsLoggingTest {
 
     public abstract void debug(String message);
 
-    public abstract void debug(String message, Object[] logParams);
+    public abstract void debug(String message, Object... logParams);
 
     public abstract void error(String message, Throwable t);
 
