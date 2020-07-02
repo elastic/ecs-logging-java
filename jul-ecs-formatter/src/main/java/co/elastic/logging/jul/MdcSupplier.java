@@ -55,9 +55,6 @@ public interface MdcSupplier {
     enum Available implements MdcSupplier {
         INSTANCE;
 
-        Available() {
-        }
-
         @Override
         public Map<String, String> getMDC() {
             Map<String, String> copyOfContextMap = MDC.getCopyOfContextMap();
