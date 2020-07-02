@@ -48,8 +48,9 @@ import org.junit.jupiter.api.Test;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import co.elastic.logging.AbstractEcsLoggingTest;
+import org.slf4j.MDC;
 
-public class JulLoggingTestTest extends AbstractEcsLoggingTest {
+public class JulLoggingTest extends AbstractEcsLoggingTest {
 
     private static final class InMemoryStreamHandler extends StreamHandler {
         private InMemoryStreamHandler(OutputStream out, Formatter formatter) {
@@ -84,6 +85,12 @@ public class JulLoggingTestTest extends AbstractEcsLoggingTest {
     @Override
     public void debug(String message) {
         logger.log(Level.FINE, message);
+    }
+
+    @Override
+    public boolean putMdc(String key, String value) {
+        MDC.put(key, value);
+        return true;
     }
 
     @Override
@@ -131,7 +138,7 @@ public class JulLoggingTestTest extends AbstractEcsLoggingTest {
         String stackTrace = StreamSupport.stream(getLastLogLine().get("error.stack_trace").spliterator(), false)
                 .map(JsonNode::textValue)
                 .collect(Collectors.joining("\n", "", "\n"));
-        assertThat(stackTrace).contains("at co.elastic.logging.jul.JulLoggingTestTest.testLogException");
+        assertThat(stackTrace).contains("at co.elastic.logging.jul.JulLoggingTest.testLogException");
     }
     
     @Test
