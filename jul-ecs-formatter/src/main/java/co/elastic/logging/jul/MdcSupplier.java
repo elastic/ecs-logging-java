@@ -43,7 +43,7 @@ public interface MdcSupplier {
                 // implementation. When no MDC bindings are available calls to MDC.put will be ignored by slf4j.
                 // That is why we want to ensure that the StaticMDCBinder exists
                 Class.forName("org.slf4j.impl.StaticMDCBinder");
-                return Available.INSTANCE;
+                return (MdcSupplier) Class.forName("co.elastic.logging.jul.MdcSupplier$Available").getEnumConstants()[0];
             } catch (Exception e) {
                 return Unavailable.INSTANCE;
             } catch (LinkageError e ) {
