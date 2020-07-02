@@ -26,7 +26,7 @@ package co.elastic.logging.jul;
 
 import org.slf4j.MDC;
 
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 
 public interface MdcSupplier {
@@ -61,7 +61,7 @@ public interface MdcSupplier {
             if (copyOfContextMap != null ) {
                 return copyOfContextMap;
             }
-            return new HashMap<String, String>();
+            return Collections.emptyMap();
         }
     }
 
@@ -73,7 +73,7 @@ public interface MdcSupplier {
 
         @Override
         public Map<String, String> getMDC() {
-            return new HashMap<String, String>();
+            return Collections.emptyMap();
         }
     }
 }
