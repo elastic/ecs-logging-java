@@ -33,6 +33,7 @@ import co.elastic.logging.EcsJsonSerializer;
 public class EcsFormatter extends Formatter {
 
     private static final String UNKNOWN_FILE = "<Unknown>";
+    private static final MdcSupplier mdcSupplier = MdcSupplier.Resolver.INSTANCE.resolve();
     
     private boolean stackTraceAsArray;
     private String serviceName;
@@ -57,6 +58,7 @@ public class EcsFormatter extends Formatter {
         EcsJsonSerializer.serializeObjectStart(builder, record.getMillis());
         EcsJsonSerializer.serializeLogLevel(builder, record.getLevel().getName());
         EcsJsonSerializer.serializeFormattedMessage(builder, super.formatMessage(record));
+        EcsJsonSerializer.serializeMDC(builder, mdcSupplier.getMDC());
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
         EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
         EcsJsonSerializer.serializeThreadId(builder, record.getThreadID());
