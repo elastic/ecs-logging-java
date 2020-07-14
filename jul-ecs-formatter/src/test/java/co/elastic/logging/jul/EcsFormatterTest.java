@@ -30,6 +30,8 @@ import java.time.Instant;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -38,68 +40,7 @@ public class EcsFormatterTest {
     private final EcsFormatter formatter = new EcsFormatter();
 
     private final LogRecord record = new LogRecord(Level.INFO, "Example Meesage");
-
-    @Test
-    public void testFormatWithIncludeOriginFlag() {
-
-        formatter.setIncludeOrigin(true);
-
-        final String result = formatter.format(record);
-
-        assertThat(result).isEqualTo(
-                "{\"@timestamp\":\"1970-01-01T00:00:00.005Z\", \"log.level\": \"INFO\", \"message\":\"Example Meesage\", \"process.thread.id\":7,\"log.logger\":\"ExampleLogger\",\"log.origin\":{\"file.name\":\"ExampleClass.java\",\"function\":\"exampleMethod\"}}\n");
-    }
-
-    @Test
-    public void testFormatWithoutIncludeOriginFlag() {
-
-        final String result = formatter.format(record);
-
-        assertThat(result).isEqualTo(
-                "{\"@timestamp\":\"1970-01-01T00:00:00.005Z\", \"log.level\": \"INFO\", \"message\":\"Example Meesage\", \"process.thread.id\":7,\"log.logger\":\"ExampleLogger\"}\n");
-    }
-
-    @Test
-    public void testFormatWithoutLoggerName() {
-        record.setLoggerName(null);
-
-        final String result = formatter.format(record);
-
-        assertThat(result).isEqualTo(
-                "{\"@timestamp\":\"1970-01-01T00:00:00.005Z\", \"log.level\": \"INFO\", \"message\":\"Example Meesage\", \"process.thread.id\":7}\n");
-    }
-
-    @Test
-    public void testFormatWithEmptyLoggerName() {
-        record.setLoggerName("");
-
-        final String result = formatter.format(record);
-
-        assertThat(result).isEqualTo(
-                "{\"@timestamp\":\"1970-01-01T00:00:00.005Z\", \"log.level\": \"INFO\", \"message\":\"Example Meesage\", \"process.thread.id\":7,\"log.logger\":\"\"}\n");
-    }
-
-    @Test
-    public void testFormatWithInnerClassName() {
-        formatter.setIncludeOrigin(true);
-        record.setSourceClassName("test.ExampleClass$InnerClass");
-
-        final String result = formatter.format(record);
-
-        assertThat(result).isEqualTo(
-                "{\"@timestamp\":\"1970-01-01T00:00:00.005Z\", \"log.level\": \"INFO\", \"message\":\"Example Meesage\", \"process.thread.id\":7,\"log.logger\":\"ExampleLogger\",\"log.origin\":{\"file.name\":\"ExampleClass.java\",\"function\":\"exampleMethod\"}}\n");
-    }
-
-    @Test
-    public void testFormatWithInvalidClassName() {
-        formatter.setIncludeOrigin(true);
-        record.setSourceClassName("$test.ExampleClass");
-
-        final String result = formatter.format(record);
-
-        assertThat(result).isEqualTo(
-                "{\"@timestamp\":\"1970-01-01T00:00:00.005Z\", \"log.level\": \"INFO\", \"message\":\"Example Meesage\", \"process.thread.id\":7,\"log.logger\":\"ExampleLogger\",\"log.origin\":{\"file.name\":\"<Unknown>\",\"function\":\"exampleMethod\"}}\n");
-    }
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     void setUp() {
@@ -108,6 +49,60 @@ public class EcsFormatterTest {
         record.setSourceMethodName("exampleMethod");
         record.setThreadID(7);
         record.setLoggerName("ExampleLogger");
+    }
+
+    @Test
+    public void testFormatWithIncludeOriginFlag() throws Exception {
+        formatter.setIncludeOrigin(true);
+
+        final String result = formatter.format(record);
+
+        assertThat(objectMapper.readTree(result).get("log.origin").get("file.name").textValue()).isEqualTo("ExampleClass.java");
+        assertThat(objectMapper.readTree(result).get("log.origin").get("function").textValue()).isEqualTo("exampleMethod");
+    }
+
+    @Test
+    public void testFormatWithoutIncludeOriginFlag() throws Exception {
+        final JsonNode result = objectMapper.readTree(formatter.format(record));
+        assertThat(result.get("log.origin")).isNull();
+    }
+
+    @Test
+    public void testFormatWithoutLoggerName() throws Exception {
+        record.setLoggerName(null);
+
+        final JsonNode result = objectMapper.readTree(formatter.format(record));
+
+        assertThat(result.get("log.logger")).isNull();
+    }
+
+    @Test
+    public void testFormatWithEmptyLoggerName() throws Exception {
+        record.setLoggerName("");
+
+        final JsonNode result = objectMapper.readTree(formatter.format(record));
+
+        assertThat(result.get("log.logger").textValue()).isEmpty();
+    }
+
+    @Test
+    public void testFormatWithInnerClassName() throws Exception {
+        formatter.setIncludeOrigin(true);
+        record.setSourceClassName("test.ExampleClass$InnerClass");
+
+        JsonNode result = objectMapper.readTree(formatter.format(record));
+        assertThat(result.get("log.origin").get("file.name").textValue()).isEqualTo("ExampleClass.java");
+        assertThat(result.get("log.origin").get("function").textValue()).isEqualTo("exampleMethod");
+    }
+
+    @Test
+    public void testFormatWithInvalidClassName() throws Exception {
+        formatter.setIncludeOrigin(true);
+        record.setSourceClassName("$test.ExampleClass");
+
+        JsonNode result = objectMapper.readTree(formatter.format(record));
+        assertThat(result.get("log.origin").get("file.name").textValue()).isEqualTo("<Unknown>");
+        assertThat(result.get("log.origin").get("function").textValue()).isEqualTo("exampleMethod");
     }
 
 }

@@ -24,22 +24,23 @@
  */
 package co.elastic.logging.jboss.logmanager;
 
-import static org.assertj.core.api.Assertions.assertThat;
-
-import java.io.PrintWriter;
-import java.time.Instant;
-import java.util.Map;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.logmanager.ExtLogRecord;
 import org.jboss.logmanager.Level;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.PrintWriter;
+import java.time.Instant;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
 class EcsFormatterTest {
 
     private final EcsFormatter formatter = new EcsFormatter();
-
     private final ExtLogRecord record = new ExtLogRecord(Level.INFO, "Example Message", "ExampleLoggerClass");
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     void setUp() {
@@ -53,35 +54,25 @@ class EcsFormatterTest {
     }
 
     @Test
-    void testSingleNDCInformationLogging() {
+    void testSingleNDCInformationLogging() throws Exception {
         record.setNdc("exampleTag");
-
-        assertThat(formatter.format(record)).isEqualTo("{" +
-                "\"@timestamp\":\"1970-01-01T00:00:00.005Z\", " +
-                "\"log.level\": \"INFO\", " +
-                "\"message\":\"Example Message\", " +
-                "\"process.thread.name\":\"ExampleThread\"," +
-                "\"log.logger\":\"ExampleLogger\"," +
-                "\"tags\":[\"exampleTag\"]" +
-                "}\n");
+        JsonNode result = objectMapper.readTree(formatter.format(record));
+        assertThat(result.get("tags")).hasSize(1);
+        assertThat(result.get("tags").get(0).textValue()).isEqualTo("exampleTag");
     }
 
     @Test
-    void testMultipleNDCInformationLogging() {
+    void testMultipleNDCInformationLogging() throws Exception {
         record.setNdc("exampleTag1.exampleTag2");
 
-        assertThat(formatter.format(record)).isEqualTo("{" +
-                "\"@timestamp\":\"1970-01-01T00:00:00.005Z\", " +
-                "\"log.level\": \"INFO\", " +
-                "\"message\":\"Example Message\", " +
-                "\"process.thread.name\":\"ExampleThread\"," +
-                "\"log.logger\":\"ExampleLogger\"," +
-                "\"tags\":[\"exampleTag1\",\"exampleTag2\"]" +
-                "}\n");
+        JsonNode result = objectMapper.readTree(formatter.format(record));
+        assertThat(result.get("tags")).hasSize(2);
+        assertThat(result.get("tags").get(0).textValue()).isEqualTo("exampleTag1");
+        assertThat(result.get("tags").get(1).textValue()).isEqualTo("exampleTag2");
     }
 
     @Test
-    void testExceptionLogging() {
+    void testExceptionLogging() throws Exception {
         record.setThrown(new RuntimeException("Example Exception Message") {
             @Override
             public void printStackTrace(PrintWriter pw) {
@@ -90,16 +81,12 @@ class EcsFormatterTest {
             }
         });
 
-        assertThat(formatter.format(record).replace("\\r\\n", "\\n")).isEqualTo("{" +
-                "\"@timestamp\":\"1970-01-01T00:00:00.005Z\", " +
-                "\"log.level\": \"INFO\", " +
-                "\"message\":\"Example Message\", " +
-                "\"process.thread.name\":\"ExampleThread\"," +
-                "\"log.logger\":\"ExampleLogger\"," +
-                "\"error.type\":\"co.elastic.logging.jboss.logmanager.EcsFormatterTest$1\"," +
-                "\"error.message\":\"Example Exception Message\"," +
-                "\"error.stack_trace\":\"co.elastic.logging.jboss.logmanager.EcsFormatterTest$1: Example Exception Message\\n\\tat co.elastic.logging.jboss.logmanager.EcsFormatterTest.testExceptionLogging(EcsFormatterTest.java:125)\\n\"" +
-                "}\n");
+        JsonNode result = objectMapper.readTree(formatter.format(record));
+        assertThat(result.get("error.type").textValue()).isEqualTo("co.elastic.logging.jboss.logmanager.EcsFormatterTest$1");
+        assertThat(result.get("error.message").textValue()).isEqualTo("Example Exception Message");
+        assertThat(result.get("error.stack_trace").textValue())
+                .isEqualTo("co.elastic.logging.jboss.logmanager.EcsFormatterTest$1: Example Exception Message\n" +
+                        "\tat co.elastic.logging.jboss.logmanager.EcsFormatterTest.testExceptionLogging(EcsFormatterTest.java:125)\n");
     }
 }
 
