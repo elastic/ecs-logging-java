@@ -31,6 +31,8 @@ import org.jboss.logmanager.LogManager;
 
 public class EcsFormatter extends ExtFormatter {
 
+    private static final ThreadLocal<StringBuilder> STRING_BUILDER = new ThreadLocal<StringBuilder>();
+
     private String serviceName;
     private String eventDataset;
     private boolean includeOrigin;
@@ -44,9 +46,21 @@ public class EcsFormatter extends ExtFormatter {
         stackTraceAsArray = Boolean.getBoolean(getProperty("co.elastic.logging.jboss.logmanager.EcsFormatter.stackTraceAsArray", "false"));
     }
 
+    private static StringBuilder getStringBuilder() {
+        StringBuilder result = STRING_BUILDER.get();
+        if (result == null) {
+            result = new StringBuilder(1024);
+            STRING_BUILDER.set(result);
+        }
+
+        result.setLength(0);
+
+        return result;
+    }
+
     @Override
     public String format(ExtLogRecord record) {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = getStringBuilder();
         EcsJsonSerializer.serializeObjectStart(builder, record.getMillis());
         EcsJsonSerializer.serializeLogLevel(builder, record.getLevel().getName());
         EcsJsonSerializer.serializeFormattedMessage(builder, record.getFormattedMessage());
