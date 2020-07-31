@@ -62,6 +62,7 @@ public class EcsFormatter extends Formatter {
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
         EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
         EcsJsonSerializer.serializeThreadId(builder, record.getThreadID());
+        EcsJsonSerializer.serializeThreadName(builder, Thread.currentThread().getName().replaceAll("\\[", "_").replaceAll("]", "_"));
         EcsJsonSerializer.serializeLoggerName(builder, record.getLoggerName());
         if (includeOrigin && record.getSourceClassName() != null && record.getSourceMethodName() != null) {
             EcsJsonSerializer.serializeOrigin(builder, buildFileName(record.getSourceClassName()), record.getSourceMethodName(), -1);
