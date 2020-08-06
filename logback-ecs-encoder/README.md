@@ -1,5 +1,7 @@
 # ECS Logback Encoder
 
+The minimum required logback version is 1.2.
+
 ## Step 1: add dependency
 
 Latest version: [![Maven Central](https://img.shields.io/maven-central/v/co.elastic.logging/logback-ecs-encoder.svg)](https://search.maven.org/search?q=g:co.elastic.logging%20AND%20a:logback-ecs-encoder)
