@@ -33,6 +33,8 @@ import co.elastic.logging.EcsJsonSerializer;
 import co.elastic.logging.JsonUtils;
 import org.slf4j.Marker;
 
+import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -48,6 +50,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
     private ThrowableProxyConverter throwableProxyConverter;
     private boolean includeOrigin;
     private final List<Pair> additionalFields = new ArrayList<Pair>();
+    private OutputStream os;
 
     @Override
     public byte[] headerBytes() {
@@ -60,6 +63,20 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         throwableProxyConverter = new ThrowableProxyConverter();
         throwableProxyConverter.start();
         eventDataset = EcsJsonSerializer.computeEventDataset(eventDataset, serviceName);
+    }
+
+    // to support Logback 1.1
+    public void init(OutputStream os) {
+        this.os = os;
+    }
+
+    // to support Logback 1.1
+    public void doEncode(ILoggingEvent event) throws IOException {
+        os.write(encode(event));
+    }
+
+    // to support Logback 1.1
+    public void close() throws IOException {
     }
 
     @Override
