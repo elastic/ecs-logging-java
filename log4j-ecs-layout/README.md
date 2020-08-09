@@ -12,12 +12,6 @@ Add a dependency to your application
     <artifactId>log4j-ecs-layout</artifactId>
     <version>${ecs-logging-java.version}</version>
 </dependency>
-
-<dependency>
-    <groupId>co.elastic.logging</groupId>
-    <artifactId>ecs-logging-core</artifactId>
-    <version>${ecs-logging-java.version}</version>
- </dependency>
 ```
 
 log4j.xml
