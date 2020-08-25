@@ -355,6 +355,11 @@ public class EcsLayout extends AbstractStringLayout {
             return includeOrigin;
         }
 
+        @Override
+        public String getContentType() {
+            return "application/json";
+        }
+
         /**
          * Additional fields to set on each log event.
          *
