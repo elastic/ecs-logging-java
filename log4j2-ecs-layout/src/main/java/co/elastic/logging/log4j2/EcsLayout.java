@@ -123,6 +123,11 @@ public class EcsLayout extends AbstractStringLayout {
         helper.encode(text, destination);
     }
 
+    @Override
+    public String getContentType() {
+        return "application/json";
+    }
+
     private StringBuilder toText(LogEvent event, StringBuilder builder, boolean gcFree) {
         EcsJsonSerializer.serializeObjectStart(builder, event.getTimeMillis());
         EcsJsonSerializer.serializeLogLevel(builder, event.getLevel().toString());
