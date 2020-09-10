@@ -58,6 +58,9 @@ public final class JsonUtils {
     }
 
     public static void quoteAsString(CharSequence content, StringBuilder sb) {
+        if (content == null) {
+            sb.append("null");
+        }
         final int[] escCodes = sOutputEscapes128;
         final int escLen = escCodes.length;
         for (int i = 0, len = content.length(); i < len; ++i) {
