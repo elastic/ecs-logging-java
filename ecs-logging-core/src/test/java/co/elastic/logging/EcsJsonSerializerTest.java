@@ -24,6 +24,7 @@
  */
 package co.elastic.logging;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Test;
@@ -52,6 +53,13 @@ class EcsJsonSerializerTest {
         StringWriter stringWriter = new StringWriter();
         exception.printStackTrace(new PrintWriter(stringWriter));
         assertThat(jsonNode.get("error.stack_trace").textValue()).isEqualTo(stringWriter.toString());
+    }
+
+    @Test
+    void serializeNullDoesNotThrowAnException() throws JsonProcessingException {
+        StringBuilder stringBuilder = new StringBuilder();
+        EcsJsonSerializer.serializeFormattedMessage(stringBuilder, null);
+        assertThat(stringBuilder.toString()).isEqualTo("\"message\":\"null\", ");
     }
 
     @Test
