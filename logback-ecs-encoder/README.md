@@ -1,6 +1,6 @@
 # ECS Logback Encoder
 
-The minimum required logback version is 1.2.
+The minimum required logback version is 1.1.
 
 ## Step 1: add dependency
 

@@ -64,18 +64,26 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         throwableProxyConverter.start();
         eventDataset = EcsJsonSerializer.computeEventDataset(eventDataset, serviceName);
     }
-
-    // to support Logback 1.1
+    /**
+     * This method has been removed in logback 1.2.
+     * To make this lib backwards compatible with logback 1.1 we have implement this method.
+     */
     public void init(OutputStream os) {
         this.os = os;
     }
 
-    // to support Logback 1.1
+    /**
+     * This method has been removed in logback 1.2.
+     * To make this lib backwards compatible with logback 1.1 we have implement this method.
+     */
     public void doEncode(ILoggingEvent event) throws IOException {
         os.write(encode(event));
     }
 
-    // to support Logback 1.1
+    /**
+     * This method has been removed in logback 1.2.
+     * To make this lib backwards compatible with logback 1.1 we have implement this method.
+     */
     public void close() throws IOException {
     }
 
