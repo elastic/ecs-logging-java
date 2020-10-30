@@ -46,10 +46,10 @@ import org.apache.logging.log4j.core.util.KeyValuePair;
 import org.apache.logging.log4j.message.Message;
 import org.apache.logging.log4j.message.MultiformatMessage;
 import org.apache.logging.log4j.message.ObjectMessage;
-import org.apache.logging.log4j.util.MultiFormatStringBuilderFormattable;
 import org.apache.logging.log4j.util.StringBuilderFormattable;
 import org.apache.logging.log4j.util.TriConsumer;
 
+import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -59,7 +59,22 @@ import java.util.concurrent.ConcurrentMap;
 public class EcsLayout extends AbstractStringLayout {
 
     public static final Charset UTF_8 = Charset.forName("UTF-8");
+    public static final Class<?> MULTI_FORMAT_STRING_BUILDER_FORMATTABLE;
+    public static final Method FORMAT_TO;
     static final String[] JSON_FORMAT = {"JSON"};
+
+    static {
+        Method formatTo = null;
+        Class<?> clazz = null;
+        try {
+            clazz = Class.forName("org.apache.logging.log4j.util.MultiFormatStringBuilderFormattable");
+            formatTo = clazz
+                    .getMethod("formatTo", String[].class, StringBuilder.class);
+        } catch (ReflectiveOperationException ignore) {
+        }
+        FORMAT_TO = formatTo;
+        MULTI_FORMAT_STRING_BUILDER_FORMATTABLE = clazz;
+    }
 
     private final TriConsumer<String, Object, StringBuilder> WRITE_MDC = new TriConsumer<String, Object, StringBuilder>() {
         @Override
@@ -246,8 +261,11 @@ public class EcsLayout extends AbstractStringLayout {
 
     private static void serializeJsonMessage(StringBuilder builder, MultiformatMessage message) {
         final StringBuilder messageBuffer = EcsJsonSerializer.getMessageStringBuilder();
-        if (message instanceof MultiFormatStringBuilderFormattable) {
-            ((MultiFormatStringBuilderFormattable) message).formatTo(JSON_FORMAT, messageBuffer);
+        if (MULTI_FORMAT_STRING_BUILDER_FORMATTABLE.isInstance(message)) {
+            try {
+                FORMAT_TO.invoke(message, JSON_FORMAT, messageBuffer);
+            } catch (ReflectiveOperationException ignore) {
+            }
         } else {
             messageBuffer.append(message.getFormattedMessage(JSON_FORMAT));
         }
