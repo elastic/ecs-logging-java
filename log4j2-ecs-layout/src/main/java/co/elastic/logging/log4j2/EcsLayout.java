@@ -46,9 +46,11 @@ import org.apache.logging.log4j.core.util.KeyValuePair;
 import org.apache.logging.log4j.message.Message;
 import org.apache.logging.log4j.message.MultiformatMessage;
 import org.apache.logging.log4j.message.ObjectMessage;
+import org.apache.logging.log4j.status.StatusLogger;
 import org.apache.logging.log4j.util.StringBuilderFormattable;
 import org.apache.logging.log4j.util.TriConsumer;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.List;
@@ -70,7 +72,7 @@ public class EcsLayout extends AbstractStringLayout {
             clazz = Class.forName("org.apache.logging.log4j.util.MultiFormatStringBuilderFormattable");
             formatTo = clazz
                     .getMethod("formatTo", String[].class, StringBuilder.class);
-        } catch (ReflectiveOperationException ignore) {
+        } catch (Exception ignore) {
         }
         FORMAT_TO = formatTo;
         MULTI_FORMAT_STRING_BUILDER_FORMATTABLE = clazz;
@@ -264,7 +266,15 @@ public class EcsLayout extends AbstractStringLayout {
         if (MULTI_FORMAT_STRING_BUILDER_FORMATTABLE.isInstance(message)) {
             try {
                 FORMAT_TO.invoke(message, JSON_FORMAT, messageBuffer);
-            } catch (ReflectiveOperationException ignore) {
+            } catch (IllegalAccessException e) {
+                StatusLogger.getLogger().error(e);
+            } catch (InvocationTargetException e) {
+                Throwable cause = e.getCause();
+                if (cause instanceof RuntimeException) {
+                    throw (RuntimeException) cause;
+                } else {
+                    StatusLogger.getLogger().error(e);
+                }
             }
         } else {
             messageBuffer.append(message.getFormattedMessage(JSON_FORMAT));
