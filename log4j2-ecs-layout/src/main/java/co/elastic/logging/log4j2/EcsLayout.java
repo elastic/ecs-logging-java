@@ -132,6 +132,7 @@ public class EcsLayout extends AbstractStringLayout {
         EcsJsonSerializer.serializeObjectStart(builder, event.getTimeMillis());
         EcsJsonSerializer.serializeLogLevel(builder, event.getLevel().toString());
         serializeMessage(builder, gcFree, event.getMessage(), event.getThrown());
+        EcsJsonSerializer.serializeEcsVersion(builder);
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
         EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
