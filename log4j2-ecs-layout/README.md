@@ -1,6 +1,6 @@
 # Log4j2 ECS Layout
 
-The minimum required log4j2 version is 2.8.
+The minimum required log4j2 version is 2.7.
 
 ## Step 1: add dependency
 

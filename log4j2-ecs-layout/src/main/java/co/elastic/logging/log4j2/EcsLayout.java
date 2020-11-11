@@ -35,6 +35,7 @@ import org.apache.logging.log4j.core.config.Node;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.config.plugins.PluginBuilderAttribute;
 import org.apache.logging.log4j.core.config.plugins.PluginBuilderFactory;
+import org.apache.logging.log4j.core.config.plugins.PluginConfiguration;
 import org.apache.logging.log4j.core.config.plugins.PluginElement;
 import org.apache.logging.log4j.core.layout.AbstractStringLayout;
 import org.apache.logging.log4j.core.layout.ByteBufferDestination;
@@ -120,7 +121,7 @@ public class EcsLayout extends AbstractStringLayout {
 
     @PluginBuilderFactory
     public static EcsLayout.Builder newBuilder() {
-        return new EcsLayout.Builder().asBuilder();
+        return new EcsLayout.Builder();
     }
 
     private static boolean valueNeedsLookup(final String value) {
@@ -347,9 +348,10 @@ public class EcsLayout extends AbstractStringLayout {
         return supportsJson;
     }
 
-    public static class Builder extends AbstractStringLayout.Builder<EcsLayout.Builder>
-            implements org.apache.logging.log4j.core.util.Builder<EcsLayout> {
+    public static class Builder implements org.apache.logging.log4j.core.util.Builder<EcsLayout> {
 
+        @PluginConfiguration
+        private Configuration configuration;
         @PluginBuilderAttribute("serviceName")
         private String serviceName;
         @PluginBuilderAttribute("eventDataset")
@@ -364,8 +366,15 @@ public class EcsLayout extends AbstractStringLayout {
         private boolean includeOrigin = false;
 
         Builder() {
-            super();
-            setCharset(UTF_8);
+        }
+
+        public Configuration getConfiguration() {
+            return configuration;
+        }
+
+        public EcsLayout.Builder setConfiguration(final Configuration configuration) {
+            this.configuration = configuration;
+            return this;
         }
 
         public KeyValuePair[] getAdditionalFields() {
@@ -395,32 +404,32 @@ public class EcsLayout extends AbstractStringLayout {
          */
         public EcsLayout.Builder setAdditionalFields(final KeyValuePair[] additionalFields) {
             this.additionalFields = additionalFields.clone();
-            return asBuilder();
+            return this;
         }
 
         public EcsLayout.Builder setServiceName(final String serviceName) {
             this.serviceName = serviceName;
-            return asBuilder();
+            return this;
         }
 
         public EcsLayout.Builder setEventDataset(String eventDataset) {
             this.eventDataset = eventDataset;
-            return asBuilder();
+            return this;
         }
 
         public EcsLayout.Builder setIncludeMarkers(final boolean includeMarkers) {
             this.includeMarkers = includeMarkers;
-            return asBuilder();
+            return this;
         }
 
         public EcsLayout.Builder setIncludeOrigin(final boolean includeOrigin) {
             this.includeOrigin = includeOrigin;
-            return asBuilder();
+            return this;
         }
 
         public EcsLayout.Builder setStackTraceAsArray(boolean stackTraceAsArray) {
             this.stackTraceAsArray = stackTraceAsArray;
-            return asBuilder();
+            return this;
         }
 
         @Override
