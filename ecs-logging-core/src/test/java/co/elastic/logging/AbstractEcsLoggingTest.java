@@ -48,7 +48,7 @@ public abstract class AbstractEcsLoggingTest {
         assertThat(getLastLogLine().get("process.thread.name").textValue()).isEqualTo(Thread.currentThread().getName());
         assertThat(getLastLogLine().get("service.name").textValue()).isEqualTo("test");
         assertThat(Instant.parse(getLastLogLine().get("@timestamp").textValue())).isCloseTo(Instant.now(), within(1, ChronoUnit.MINUTES));
-        assertThat(getLastLogLine().get("log.level").textValue()).isEqualTo("DEBUG");
+        assertThat(getLastLogLine().get("log.level").textValue()).isIn("DEBUG", "FINE");
         assertThat(getLastLogLine().get("log.logger")).isNotNull();
         assertThat(getLastLogLine().get("event.dataset").textValue()).isEqualTo("testdataset.log");
     }

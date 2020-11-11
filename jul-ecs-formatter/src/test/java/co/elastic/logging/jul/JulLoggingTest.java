@@ -140,18 +140,7 @@ public class JulLoggingTest extends AbstractEcsLoggingTest {
                 .collect(Collectors.joining("\n", "", "\n"));
         assertThat(stackTrace).contains("at co.elastic.logging.jul.JulLoggingTest.testLogException");
     }
-    
-    @Test
-    void testMetadata() throws Exception {
-        debug("test");
-        assertThat(getLastLogLine().get("process.thread.id").longValue()).isEqualTo(Thread.currentThread().getId());
-        assertThat(getLastLogLine().get("service.name").textValue()).isEqualTo("test");
-        assertThat(Instant.parse(getLastLogLine().get("@timestamp").textValue())).isCloseTo(Instant.now(), within(1, ChronoUnit.MINUTES));
-        assertThat(getLastLogLine().get("log.level").textValue()).isEqualTo("FINE");
-        assertThat(getLastLogLine().get("log.logger")).isNotNull();
-        assertThat(getLastLogLine().get("event.dataset").textValue()).isEqualTo("testdataset.log");
-    }
-    
+
     @Test
     void testLogOrigin() throws Exception {
         debug("test");
