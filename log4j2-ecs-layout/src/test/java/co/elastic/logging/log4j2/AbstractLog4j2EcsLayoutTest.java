@@ -25,14 +25,12 @@
 package co.elastic.logging.log4j2;
 
 import co.elastic.logging.AbstractEcsLoggingTest;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import org.apache.logging.log4j.Marker;
 import org.apache.logging.log4j.MarkerManager;
 import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.core.Logger;
 import org.apache.logging.log4j.message.ObjectMessage;
-import org.apache.logging.log4j.message.StringMapMessage;
 import org.apache.logging.log4j.test.appender.ListAppender;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -77,20 +75,6 @@ abstract class AbstractLog4j2EcsLayoutTest extends AbstractEcsLoggingTest {
                 TextNode.valueOf("grandchild"));
     }
 
-    @Test
-    void testMapMessage() throws Exception {
-        root.info(new StringMapMessage().with("message", "foo").with("foo", "bar"));
-        JsonNode log = getLastLogLine();
-        assertThat(log.get("message").textValue()).isEqualTo("foo");
-        assertThat(log.get("foo").textValue()).isEqualTo("bar");
-    }
-
-    @Test
-    void testParameterizedStructuredMessage() throws Exception {
-        root.info(ParameterizedStructuredMessage.of("hello {}", "world").with("foo", "bar"));
-        assertThat(getLastLogLine().get("message").textValue()).isEqualTo("hello world");
-        assertThat(getLastLogLine().get("foo").textValue()).isEqualTo("bar");
-    }
 
     @Test
     void testCustomPatternConverter() throws Exception {
@@ -99,20 +83,11 @@ abstract class AbstractLog4j2EcsLayoutTest extends AbstractEcsLoggingTest {
     }
 
     @Test
-    void testJsonMessageObject() throws Exception {
-        root.info(new ObjectMessage(new TestClass("foo", 42, true)));
-
-        assertThat(getLastLogLine().get("foo").textValue()).isEqualTo("foo");
-        assertThat(getLastLogLine().get("bar").intValue()).isEqualTo(42);
-        assertThat(getLastLogLine().get("baz").booleanValue()).isEqualTo(true);
-    }
-
-    @Test
     void testJsonMessageArray() throws Exception {
         root.info(new ObjectMessage(List.of("foo", "bar")));
 
         assertThat(getLastLogLine().get("message").isArray()).isFalse();
-        assertThat(getLastLogLine().get("message").textValue()).isEqualTo("[\"foo\",\"bar\"]");
+        assertThat(getLastLogLine().get("message").textValue()).contains("foo", "bar");
     }
 
     @Test
@@ -136,45 +111,6 @@ abstract class AbstractLog4j2EcsLayoutTest extends AbstractEcsLoggingTest {
 
         assertThat(getLastLogLine().get("message").isBoolean()).isFalse();
         assertThat(getLastLogLine().get("message").textValue()).isEqualTo("true");
-    }
-
-    public static class TestClass {
-        String foo;
-        int bar;
-        boolean baz;
-
-        private TestClass() {
-        }
-
-        private TestClass(String foo, int bar, boolean baz) {
-            this.foo = foo;
-            this.bar = bar;
-            this.baz = baz;
-        }
-
-        public String getFoo() {
-            return foo;
-        }
-
-        public void setFoo(String foo) {
-            this.foo = foo;
-        }
-
-        public int getBar() {
-            return bar;
-        }
-
-        public void setBar(int bar) {
-            this.bar = bar;
-        }
-
-        public boolean isBaz() {
-            return baz;
-        }
-
-        public void setBaz(boolean baz) {
-            this.baz = baz;
-        }
     }
 
     @Override

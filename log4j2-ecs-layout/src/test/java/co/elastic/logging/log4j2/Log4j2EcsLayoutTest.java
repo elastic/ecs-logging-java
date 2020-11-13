@@ -39,7 +39,7 @@ import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
 
-class Log4j2EcsLayoutTest extends AbstractLog4j2EcsLayoutTest {
+abstract class Log4j2EcsLayoutTest extends AbstractLog4j2EcsLayoutTest {
     private static ConfigurationFactory configFactory = new BasicConfigurationFactory();
     private LoggerContext ctx;
 
@@ -91,7 +91,7 @@ class Log4j2EcsLayoutTest extends AbstractLog4j2EcsLayoutTest {
     @Override
     void tearDown() throws Exception {
         super.tearDown();
-        ctx.close();
+        ctx.stop();
     }
 
     @Override
