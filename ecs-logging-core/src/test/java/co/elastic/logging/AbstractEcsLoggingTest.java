@@ -11,9 +11,9 @@
  * the Apache License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -74,33 +74,47 @@ public abstract class AbstractEcsLoggingTest {
     }
 
     void validateLog(JsonNode logLine) {
-        Iterator<Map.Entry<String, JsonNode>> fields = spec.get("fields").fields();
+        Iterator<Map.Entry<String, JsonNode>> specFields = spec.get("fields").fields();
         Iterator<String> iterator = logLine.fieldNames();
         List<String> logFieldNames = new ArrayList<>();
         iterator.forEachRemaining(logFieldNames::add);
 
-        while (fields.hasNext()) {
-            Map.Entry<String, JsonNode> field = fields.next();
-            if (field.getValue().get("required").booleanValue()) {
-                assertThat(logLine.get(field.getKey())).isNotNull();
-            }
-            JsonNode fieldInLog = logLine.get(field.getKey());
+        while (specFields.hasNext()) {
+            Map.Entry<String, JsonNode> specField = specFields.next();
+            String specFieldName = specField.getKey();
+            JsonNode specForField = specField.getValue();
+            JsonNode fieldInLog = logLine.get(specFieldName);
+
+            validateRequiredField(logLine, specFieldName, specForField.get("required").booleanValue());
             if (fieldInLog != null) {
-                JsonNode index = field.getValue().get("index");
-                if (index != null) {
-                    assertThat(logFieldNames.get(index.intValue()))
-                            .describedAs(logLine.toString())
-                            .isEqualTo(field.getKey());
-                }
-                String type = field.getValue().get("type").textValue();
-                switch (type) {
-                    case "datetime":
-                        assertThatCode(() -> Instant.parse(fieldInLog.textValue())).doesNotThrowAnyException();
-                        break;
-                    case "string":
-                        assertThat(fieldInLog.isTextual()).isTrue();
-                }
+                validateIndex(logLine, logFieldNames, specFieldName, specForField.get("index"));
+                validateType(fieldInLog, specForField.get("type").textValue());
             }
+        }
+    }
+
+    private void validateRequiredField(JsonNode logLine, String specFieldName, boolean required) {
+        if (required) {
+            assertThat(logLine.get(specFieldName))
+                    .describedAs(logLine.toString())
+                    .isNotNull();
+        }
+    }
+
+    private void validateIndex(JsonNode logLine, List<String> logFieldNames, String specFieldName, JsonNode index) {
+        if (index != null) {
+            assertThat(logFieldNames.get(index.intValue()))
+                    .describedAs(logLine.toString())
+                    .isEqualTo(specFieldName);
+        }
+    }
+
+    private void validateType(JsonNode fieldInLog, String type) {
+        switch (type) {
+            case "datetime":
+                assertThatCode(() -> Instant.parse(fieldInLog.textValue())).doesNotThrowAnyException();
+            case "string":
+                assertThat(fieldInLog.isTextual()).isTrue();
         }
     }
 
