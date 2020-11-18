@@ -51,6 +51,7 @@ public abstract class AbstractEcsLoggingTest {
         assertThat(getLastLogLine().get("log.level").textValue()).isIn("DEBUG", "FINE");
         assertThat(getLastLogLine().get("log.logger")).isNotNull();
         assertThat(getLastLogLine().get("event.dataset").textValue()).isEqualTo("testdataset.log");
+        assertThat(getLastLogLine().get("ecs.version").textValue()).isEqualTo("1.2.0");
     }
 
     @Test

@@ -45,6 +45,7 @@ public class EcsLayout extends Layout {
         EcsJsonSerializer.serializeObjectStart(builder, event.timeStamp);
         EcsJsonSerializer.serializeLogLevel(builder, event.level.toString());
         EcsJsonSerializer.serializeFormattedMessage(builder, event.getRenderedMessage());
+        EcsJsonSerializer.serializeEcsVersion(builder);
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
         EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
