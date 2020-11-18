@@ -88,19 +88,19 @@ All you have to do is to use the `co.elastic.logging.logback.EcsEncoder` instead
 |`includeMarkers`
 |boolean
 |`false`
-|Log https://logging.apache.org/log4j/2.0/manual/markers.html[Markers] as https://www.elastic.co/guide/en/ecs/current/ecs-base.html[`tags`]
+|Log https://logging.apache.org/log4j/2.0/manual/markers.html[Markers] as {ecs-ref}/ecs-base.html[`tags`]
 
 |`stackTraceAsArray`
 |boolean
 |`false`
-|Serializes the https://www.elastic.co/guide/en/ecs/current/ecs-error.html[`error.stack_trace`] as a JSON array where each element is in a new line to improve readability.
+|Serializes the {ecs-ref}/ecs-error.html[`error.stack_trace`] as a JSON array where each element is in a new line to improve readability.
 Note that this requires a slightly more complex <<setup-stack-trace-as-array, Filebeat configuration>>.
 
 |`includeOrigin`
 |boolean
 |`false`
-|If `true`, adds the https://www.elastic.co/guide/en/ecs/current/ecs-log.html[`log.origin.file.name`],
- https://www.elastic.co/guide/en/ecs/current/ecs-log.html[`log.origin.file.line`] and https://www.elastic.co/guide/en/ecs/current/ecs-log.html[`log.origin.function`] fields.
+|If `true`, adds the {ecs-ref}/ecs-log.html[`log.origin.file.name`],
+ {ecs-ref}/ecs-log.html[`log.origin.file.line`] and {ecs-ref}/ecs-log.html[`log.origin.function`] fields.
  Note that you also have to set `includeLocation="true"` on your loggers and appenders if you are using the async ones.
 |===
 

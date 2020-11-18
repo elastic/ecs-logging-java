@@ -63,13 +63,11 @@ $WILDFLY_HOME/bin/jboss-cli.sh -c '/subsystem=logging/custom-formatter=ECS:add(m
 |`stackTraceAsArray`
 |boolean
 |`false`
-|Serializes the https://www.elastic.co/guide/en/ecs/current/ecs-error.html[`error.stack_trace`] as a JSON array where each element is in a new line to improve readability. Note that this requires a slightly more complex <<setup-stack-trace-as-array, Filebeat configuration>>.
+|Serializes the {ecs-ref}/ecs-error.html[`error.stack_trace`] as a JSON array where each element is in a new line to improve readability. Note that this requires a slightly more complex <<setup-stack-trace-as-array, Filebeat configuration>>.
 
 |`includeOrigin`
 |boolean
 |`false`
-|If `true`, adds the https://www.elastic.co/guide/en/ecs/current/ecs-log.html[`log.origin.file.name`],
- https://www.elastic.co/guide/en/ecs/current/ecs-log.html[`log.origin.file.line`] and https://www.elastic.co/guide/en/ecs/current/ecs-log.html[`log.origin.function`] fields.
+|If `true`, adds the {ecs-ref}/ecs-log.html[`log.origin.file.name`],
+ {ecs-ref}/ecs-log.html[`log.origin.file.line`] and {ecs-ref}/ecs-log.html[`log.origin.function`] fields.
 |===
-
-

@@ -15,7 +15,7 @@
 [[setup-step-2]]
 === Step 2: Enable APM log correlation (optional)
 If you are using the Elastic APM Java agent,
-set [`enable_log_correlation`](https://www.elastic.co/guide/en/apm/agent/java/current/config-logging.html#config-enable-log-correlation) to `true`.
+set {apm-java-ref}/current/config-logging.html#config-enable-log-correlation[`enable_log_correlation`] to `true`.
 
 [float]
 [[setup-step-3]]
@@ -25,7 +25,8 @@ set [`enable_log_correlation`](https://www.elastic.co/guide/en/apm/agent/java/cu
 [[setup-filebeat-config]]
 ==== With `filebeat.yml` configuration file
 
-```yaml
+[source,yml]
+----
 filebeat.inputs:
 - type: log
   paths: /path/to/logs.json
@@ -40,10 +41,9 @@ output.elasticsearch:
 # Example:
 #cloud.id: "staging:dXMtZWFzdC0xLmF3cy5mb3VuZC5pbyRjZWM2ZjI2MWE3NGJmMjRjZTMzYmI4ODExYjg0Mjk0ZiRjNmMyY2E2ZDA0MjI0OWFmMGNjN2Q3YTllOTYyNTc0Mw=="
 #cloud.auth: "elastic:YOUR_PASSWORD"
+----
 
-```
-
-For more information, check the [Filebeat documentation](https://www.elastic.co/guide/en/beats/filebeat/master/configuring-howto-filebeat.html)
+For more information, check the {filebeat-ref}/configuring-howto-filebeat.html[Filebeat documentation]
 
 [float]
 [[setup-stack-trace-as-array]]
@@ -53,7 +53,8 @@ Filebeat can normally only decode JSON if there is one JSON object per line.
 When `stackTraceAsArray` is enabled, there will be a new line for each stack trace element which improves readability.
 But when combining the multiline settings with a `decode_json_fields` we can also handle multi-line JSON.
 
-```yaml
+[source,yml]
+----
 filebeat.inputs:
   - type: log
     paths: /path/to/logs.json
@@ -75,4 +76,4 @@ processors:
         function process(event) {
             event.Put("error.stack_trace", event.Get("error.stack_trace").join("\n"));
         }
-```
+----
