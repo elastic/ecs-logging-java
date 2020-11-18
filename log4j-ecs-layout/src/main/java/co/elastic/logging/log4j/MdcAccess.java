@@ -28,7 +28,6 @@ import org.apache.log4j.MDC;
 import org.apache.log4j.pattern.LogEvent;
 import org.apache.log4j.spi.LoggingEvent;
 
-import java.lang.reflect.Method;
 import java.util.Collections;
 import java.util.Map;
 
@@ -38,14 +37,13 @@ public interface MdcAccess {
 
     class Resolver {
         public static MdcAccess resolve() {
-            MdcAccess access = ForLegacyLog4j.INSTANCE;
             try {
-                Method getProperties = LoggingEvent.class.getMethod("getProperties");
-                access = (MdcAccess) Class.forName("co.elastic.logging.log4j.MdcAccess$GetPropertiesCapable").getEnumConstants()[0];
+                LoggingEvent.class.getMethod("getProperties");
+                return (MdcAccess) Class.forName("co.elastic.logging.log4j.MdcAccess$GetPropertiesCapable").getEnumConstants()[0];
             } catch (Exception ignore) {
             } catch (LinkageError ignore) {
             }
-            return access;
+            return ForLegacyLog4j.INSTANCE;
         }
     }
 
