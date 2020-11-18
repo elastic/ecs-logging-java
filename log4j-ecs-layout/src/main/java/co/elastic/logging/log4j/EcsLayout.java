@@ -26,27 +26,13 @@ package co.elastic.logging.log4j;
 
 import co.elastic.logging.EcsJsonSerializer;
 import org.apache.log4j.Layout;
-import org.apache.log4j.MDC;
 import org.apache.log4j.spi.LocationInfo;
 import org.apache.log4j.spi.LoggingEvent;
 import org.apache.log4j.spi.ThrowableInformation;
 
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
-import java.util.Map;
-
 public class EcsLayout extends Layout {
 
-    private static final Method GET_PROPERTIES;
-
-    static {
-        Method getProperties = null;
-        try {
-            getProperties = LoggingEvent.class.getMethod("getProperties");
-        } catch (NoSuchMethodException ignore) {
-        }
-        GET_PROPERTIES = getProperties;
-    }
+    private static final MdcAccess MDC_ACCESS = MdcAccess.Resolver.resolve();
 
     private boolean stackTraceAsArray = false;
     private String serviceName;
@@ -63,22 +49,7 @@ public class EcsLayout extends Layout {
         EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
         EcsJsonSerializer.serializeLoggerName(builder, event.categoryName);
-        boolean syncAppender = Thread.currentThread().getName().equals(event.getThreadName());
-        if (syncAppender) {
-            // no need to create a copy of the mdc by calling event.getProperties()
-            EcsJsonSerializer.serializeMDC(builder, MDC.getContext());
-        } else if (GET_PROPERTIES == null) {
-            // slow path if async appender and old log4j version
-            try {
-                EcsJsonSerializer.serializeMDC(builder, (Map) GET_PROPERTIES.invoke(event));
-            } catch (IllegalAccessException ignore) {
-            } catch (InvocationTargetException e) {
-                Throwable cause = e.getCause();
-                if (cause instanceof RuntimeException) {
-                    throw (RuntimeException) cause;
-                }
-            }
-        }
+        EcsJsonSerializer.serializeMDC(builder, MDC_ACCESS.getMDC(event));
         EcsJsonSerializer.serializeTag(builder, event.getNDC());
         if (includeOrigin) {
             LocationInfo locationInformation = event.getLocationInformation();

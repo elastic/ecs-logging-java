@@ -46,7 +46,7 @@ interface MultiFormatHandler {
     }
 
     /**
-     * For log4j2 >= 2.10
+     * For log4j2 {@code >=} 2.10
      * Never reference directly in prod code so avoid linkage errors when {@link MultiFormatStringBuilderFormattable} is not available
      */
     enum MultiFormatStringBuilderFormattableAware implements MultiFormatHandler {
@@ -64,7 +64,7 @@ interface MultiFormatHandler {
     }
 
     /**
-     * Fallback for log4j2 < 2.10
+     * Fallback for log4j2 {@code <} 2.10
      */
     enum ForLegacyLog4j implements MultiFormatHandler {
         INSTANCE;
