@@ -13,7 +13,7 @@
 
     <properties>
         <parent.base.dir>${project.basedir}/..</parent.base.dir>
-        <maven-deploy-plugin.skip>false</maven-deploy-plugin.skip>
+        <maven-deploy-plugin.skip>true</maven-deploy-plugin.skip>
     </properties>
 
     <dependencies>
