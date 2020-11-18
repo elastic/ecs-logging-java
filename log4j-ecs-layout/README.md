@@ -1,6 +1,8 @@
 # Log4j ECS Layout
 🚧
 
+The minimum required logback version is 1.2.4.
+
 ## Step 1: add dependency
 Latest version: [![Maven Central](https://img.shields.io/maven-central/v/co.elastic.logging/log4j-ecs-layout.svg)](https://search.maven.org/search?q=g:co.elastic.logging%20AND%20a:log4j-ecs-layout)
 

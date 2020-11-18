@@ -14,6 +14,7 @@
         <module>jul-ecs-formatter</module>
         <module>jboss-logmanager-ecs-formatter</module>
         <module>log4j2-legacy-tests</module>
+        <module>log4j-legacy-tests</module>
     </modules>
     <packaging>pom</packaging>
     <inceptionYear>2019</inceptionYear>
@@ -125,7 +126,9 @@
                 </configuration>
             </plugin>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-deploy-plugin</artifactId>
+                <version>2.8.2</version>
                 <configuration>
                     <skip>${maven-deploy-plugin.skip}</skip>
                 </configuration>
