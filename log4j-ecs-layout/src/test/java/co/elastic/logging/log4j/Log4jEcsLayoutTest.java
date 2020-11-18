@@ -27,7 +27,10 @@ package co.elastic.logging.log4j;
 import co.elastic.logging.AbstractEcsLoggingTest;
 import co.elastic.logging.ParameterizedLogSupport;
 import com.fasterxml.jackson.databind.JsonNode;
-import org.apache.log4j.*;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.apache.log4j.MDC;
+import org.apache.log4j.NDC;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
@@ -58,7 +61,11 @@ class Log4jEcsLayoutTest extends AbstractEcsLoggingTest {
     @BeforeEach
     @AfterEach
     void tearDown() {
-        MDC.clear();
+        try {
+            // available since 1.2.16
+            MDC.class.getMethod("clear").invoke(null);
+        } catch (Exception ignore) {
+        }
         NDC.clear();
     }
 

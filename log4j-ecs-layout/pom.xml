@@ -14,6 +14,23 @@
         <parent.base.dir>${project.basedir}/..</parent.base.dir>
     </properties>
 
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.1.2</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>test-jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
@@ -23,6 +40,9 @@
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
+            <!-- min supported version
+            <version>1.2.4</version>
+            -->
             <version>1.2.17</version>
             <scope>provided</scope>
         </dependency>

@@ -157,7 +157,7 @@ public class EcsJsonSerializer {
     }
 
     public static void serializeMDC(StringBuilder builder, Map<String, ?> properties) {
-        if (!properties.isEmpty()) {
+        if (properties != null && !properties.isEmpty()) {
             for (Map.Entry<String, ?> entry : properties.entrySet()) {
                 builder.append('\"');
                 String key = entry.getKey();

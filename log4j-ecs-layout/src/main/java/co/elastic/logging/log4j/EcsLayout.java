@@ -32,6 +32,8 @@ import org.apache.log4j.spi.ThrowableInformation;
 
 public class EcsLayout extends Layout {
 
+    private static final MdcAccess MDC_ACCESS = MdcAccess.Resolver.resolve();
+
     private boolean stackTraceAsArray = false;
     private String serviceName;
     private boolean includeOrigin;
@@ -40,15 +42,15 @@ public class EcsLayout extends Layout {
     @Override
     public String format(LoggingEvent event) {
         StringBuilder builder = new StringBuilder();
-        EcsJsonSerializer.serializeObjectStart(builder, event.getTimeStamp());
-        EcsJsonSerializer.serializeLogLevel(builder, event.getLevel().toString());
+        EcsJsonSerializer.serializeObjectStart(builder, event.timeStamp);
+        EcsJsonSerializer.serializeLogLevel(builder, event.level.toString());
         EcsJsonSerializer.serializeFormattedMessage(builder, event.getRenderedMessage());
         EcsJsonSerializer.serializeEcsVersion(builder);
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
         EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
-        EcsJsonSerializer.serializeLoggerName(builder, event.getLoggerName());
-        EcsJsonSerializer.serializeMDC(builder, event.getProperties());
+        EcsJsonSerializer.serializeLoggerName(builder, event.categoryName);
+        EcsJsonSerializer.serializeMDC(builder, MDC_ACCESS.getMDC(event));
         EcsJsonSerializer.serializeTag(builder, event.getNDC());
         if (includeOrigin) {
             LocationInfo locationInformation = event.getLocationInformation();
