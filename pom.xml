@@ -13,6 +13,7 @@
         <module>logback-ecs-encoder</module>
         <module>jul-ecs-formatter</module>
         <module>jboss-logmanager-ecs-formatter</module>
+        <module>log4j2-legacy-tests</module>
     </modules>
     <packaging>pom</packaging>
     <inceptionYear>2019</inceptionYear>
@@ -54,7 +55,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <parent.base.dir>${project.basedir}</parent.base.dir>
-        <version.log4j>2.12.0</version.log4j>
+        <maven-deploy-plugin.skip>false</maven-deploy-plugin.skip>
     </properties>
 
     <distributionManagement>
@@ -121,6 +122,12 @@
                     <releaseProfiles>gpg</releaseProfiles>
                     <autoVersionSubmodules>true</autoVersionSubmodules>
                     <tagNameFormat>v@{project.version}</tagNameFormat>
+                </configuration>
+            </plugin>
+            <plugin>
+                <artifactId>maven-deploy-plugin</artifactId>
+                <configuration>
+                    <skip>${maven-deploy-plugin.skip}</skip>
                 </configuration>
             </plugin>
             <plugin>
