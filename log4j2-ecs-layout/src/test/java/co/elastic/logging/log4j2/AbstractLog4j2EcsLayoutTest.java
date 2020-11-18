@@ -53,13 +53,13 @@ abstract class AbstractLog4j2EcsLayoutTest extends AbstractEcsLoggingTest {
         putMdc("trace.id", "foo");
         putMdc("foo", "bar");
         debug("test");
-        assertThat(getLastLogLine().get("cluster.uuid").textValue()).isEqualTo("9fe9134b-20b0-465e-acf9-8cc09ac9053b");
-        assertThat(getLastLogLine().get("node.id").textValue()).isEqualTo("foo");
-        assertThat(getLastLogLine().get("empty")).isNull();
-        assertThat(getLastLogLine().get("emptyPattern")).isNull();
-        assertThat(getLastLogLine().get("clazz").textValue()).startsWith(getClass().getPackageName());
-        assertThat(getLastLogLine().get("404")).isNull();
-        assertThat(getLastLogLine().get("foo").textValue()).isEqualTo("bar");
+        assertThat(getAndValidateLastLogLine().get("cluster.uuid").textValue()).isEqualTo("9fe9134b-20b0-465e-acf9-8cc09ac9053b");
+        assertThat(getAndValidateLastLogLine().get("node.id").textValue()).isEqualTo("foo");
+        assertThat(getAndValidateLastLogLine().get("empty")).isNull();
+        assertThat(getAndValidateLastLogLine().get("emptyPattern")).isNull();
+        assertThat(getAndValidateLastLogLine().get("clazz").textValue()).startsWith(getClass().getPackageName());
+        assertThat(getAndValidateLastLogLine().get("404")).isNull();
+        assertThat(getAndValidateLastLogLine().get("foo").textValue()).isEqualTo("bar");
     }
 
     @Test
@@ -69,7 +69,7 @@ abstract class AbstractLog4j2EcsLayoutTest extends AbstractEcsLoggingTest {
         Marker grandchild = MarkerManager.getMarker("grandchild").setParents(child);
         root.debug(grandchild, "test");
 
-        assertThat(getLastLogLine().get("tags")).contains(
+        assertThat(getAndValidateLastLogLine().get("tags")).contains(
                 TextNode.valueOf("parent"),
                 TextNode.valueOf("child"),
                 TextNode.valueOf("grandchild"));
@@ -79,38 +79,38 @@ abstract class AbstractLog4j2EcsLayoutTest extends AbstractEcsLoggingTest {
     @Test
     void testCustomPatternConverter() throws Exception {
         debug("test");
-        assertThat(getLastLogLine().get("custom").textValue()).isEqualTo("foo");
+        assertThat(getAndValidateLastLogLine().get("custom").textValue()).isEqualTo("foo");
     }
 
     @Test
     void testJsonMessageArray() throws Exception {
         root.info(new ObjectMessage(List.of("foo", "bar")));
 
-        assertThat(getLastLogLine().get("message").isArray()).isFalse();
-        assertThat(getLastLogLine().get("message").textValue()).contains("foo", "bar");
+        assertThat(getAndValidateLastLogLine().get("message").isArray()).isFalse();
+        assertThat(getAndValidateLastLogLine().get("message").textValue()).contains("foo", "bar");
     }
 
     @Test
     void testJsonMessageString() throws Exception {
         root.info(new ObjectMessage("foo"));
 
-        assertThat(getLastLogLine().get("message").textValue()).isEqualTo("foo");
+        assertThat(getAndValidateLastLogLine().get("message").textValue()).isEqualTo("foo");
     }
 
     @Test
     void testJsonMessageNumber() throws Exception {
         root.info(new ObjectMessage(42));
 
-        assertThat(getLastLogLine().get("message").isNumber()).isFalse();
-        assertThat(getLastLogLine().get("message").textValue()).isEqualTo("42");
+        assertThat(getAndValidateLastLogLine().get("message").isNumber()).isFalse();
+        assertThat(getAndValidateLastLogLine().get("message").textValue()).isEqualTo("42");
     }
 
     @Test
     void testJsonMessageBoolean() throws Exception {
         root.info(new ObjectMessage(true));
 
-        assertThat(getLastLogLine().get("message").isBoolean()).isFalse();
-        assertThat(getLastLogLine().get("message").textValue()).isEqualTo("true");
+        assertThat(getAndValidateLastLogLine().get("message").isBoolean()).isFalse();
+        assertThat(getAndValidateLastLogLine().get("message").textValue()).isEqualTo("true");
     }
 
     @Override
