@@ -32,14 +32,13 @@ filebeat.inputs:
   json.keys_under_root: true
   json.overwrite_keys: true
 
-# no further processing required, logs can directly be sent to Elasticsearch
-output.elasticsearch:
-  hosts: ["https://localhost:9200"]
+# no further processing required, logs can directly be sent to Elastic Cloud
+cloud.id: "staging:dXMtZWFzdC0xLmF3cy5mb3VuZC5pbyRjZWM2ZjI2MWE3NGJmMjRjZTMzYmI4ODExYjg0Mjk0ZiRjNmMyY2E2ZDA0MjI0OWFmMGNjN2Q3YTllOTYyNTc0Mw=="
+cloud.auth: "elastic:YOUR_PASSWORD"
 
-# Or to Elastic cloud
-# Example:
-#cloud.id: "staging:dXMtZWFzdC0xLmF3cy5mb3VuZC5pbyRjZWM2ZjI2MWE3NGJmMjRjZTMzYmI4ODExYjg0Mjk0ZiRjNmMyY2E2ZDA0MjI0OWFmMGNjN2Q3YTllOTYyNTc0Mw=="
-#cloud.auth: "elastic:YOUR_PASSWORD"
+# Or to your local Elasticsearch cluster
+#output.elasticsearch:
+#  hosts: ["https://localhost:9200"]
 ----
 
 For more information, check the {filebeat-ref}/configuring-howto-filebeat.html[Filebeat documentation].
