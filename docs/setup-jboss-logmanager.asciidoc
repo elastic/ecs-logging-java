@@ -1,15 +1,15 @@
 [[setup-jboss-logmanager]]
 == ECS formatter for JBoss Log Manager
 
-Formatter for JBoss Log Manager which produce ECS-compatible records.
-Useful for applications which use JBoss Log Manager as primary logging framework (e.g. WildFly).
+A formatter for JBoss Log Manager which produces ECS-compatible records.
+Useful for applications that use JBoss Log Manager as their primary logging framework, like WildFly.
 
 [float]
 === Step 1: add dependency
 
 Latest version: https://search.maven.org/search?q=g:co.elastic.logging%20AND%20a:jboss-logmanager-ecs-formatter[image:https://img.shields.io/maven-central/v/co.elastic.logging/jboss-logmanager-ecs-formatter.svg[Maven Central]]
 
-Add a dependency to your application
+Add a dependency to your application:
 [source,xml]
 ----
 <dependency>
@@ -19,7 +19,7 @@ Add a dependency to your application
 </dependency>
 ----
 
-If you are not using a dependency management tool, like maven, you have to add both, `jboss-logmanager-ecs-formatter` and `ecs-logging-core` jars manually to the classpath.
+If you are not using a dependency management tool, like maven, you have to manually add both `jboss-logmanager-ecs-formatter` and `ecs-logging-core` jars to the classpath.
 
 [float]
 === Step 2: use the `EcsFormatter`
@@ -27,16 +27,16 @@ If you are not using a dependency management tool, like maven, you have to add b
 Specify `co.elastic.logging.jboss.logmanager.EcsFormatter` as `formatter` for the required log handler.
 
 [float]
-=== Example (WildFly)
+==== Example (WildFly)
 
-Create a jboss-logmanager-ecs-formatter` module
+Create a `jboss-logmanager-ecs-formatter` module:
 
 [source,bash]
 ----
 $WILDFLY_HOME/bin/jboss-cli.sh -c 'module add --name=co.elastic.logging.jboss-logmanager-ecs-formatter --resources=jboss-logmanager-ecs-formatter-${ecs-logging-java.version}.jar:/tmp/ecs-logging-core-${ecs-logging-java.version}.jar --dependencies=org.jboss.logmanager'
 ----
 
-Add the formatter to a handler in the logging subsystem
+Add the formatter to a handler in the logging subsystem:
 
 [source,bash]
 ----

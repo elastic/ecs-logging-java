@@ -8,7 +8,7 @@ The minimum required log4j2 version is 2.6.
 
 Latest version: https://search.maven.org/search?q=g:co.elastic.logging%20AND%20a:log4j2-ecs-layout:[image:https://img.shields.io/maven-central/v/co.elastic.logging/log4j2-ecs-layout.svg[Maven Central]]
 
-Add a dependency to your application
+Add a dependency to your application:
 [source,xml]
 ----
 <dependency>
@@ -18,9 +18,9 @@ Add a dependency to your application
 </dependency>
 ----
 
-If you are not using a dependency management tool, like maven, you have to add both,
-`log4j2-ecs-layout` and `ecs-logging-core` jars manually to the classpath.
-For example to the `$CATALINA_HOME/lib` directory.
+If you are not using a dependency management tool, like maven, you have to manually add both
+`log4j2-ecs-layout` and `ecs-logging-core` jars to the classpath.
+For example, to the `$CATALINA_HOME/lib` directory.
 
 [float]
 === Step 2: use the `EcsLayout`
@@ -95,7 +95,7 @@ To include any custom field in the output, use following syntax:
   </EcsLayout>
 ----
 
-Custom fields are included in the order they are declared. The values support [lookups](https://logging.apache.org/log4j/2.x/manual/lookups.html).
+Custom fields are included in the order they are declared. The values support https://logging.apache.org/log4j/2.x/manual/lookups.html[lookups].
 
 [float]
 === Structured logging
@@ -122,16 +122,16 @@ logger.info(new ObjectMessage(myObject));
 The `myObject` variable refers to a custom object which can be serialized by a Jackson `ObjectMapper`.
 
 Using either will merge the object at the top-level (not nested under `message`) of the log event if it is a JSON object.
-If it's a string, number boolean or an array, it will be converted into a string and added as the `message` property.
-The conversion is done in order to avoid mapping conflicts as `message` is typed as a string in the Elasticsearch mapping.
+If it's a string, number boolean, or array, it will be converted into a string and added as the `message` property.
+This conversion avoids mapping conflicts as `message` is typed as a string in the Elasticsearch mapping.
 
 [float]
 ==== Tips
-It's recommended to use existing [ECS fields]({ecs-ref}/ecs-field-reference.html).
+We recommend using existing {ecs-ref}/ecs-field-reference.html[ECS fields].
 
 If there is no appropriate ECS field,
 consider prefixing your fields with `labels.`, as in `labels.foo`, for simple key/value pairs.
-For nested structures consider prefixing with `custom.` to make sure you won't get conflicts if ECS later adds the same fields but with a different mapping.
+For nested structures, consider prefixing with `custom.`. This approach protects against conflicts in case ECS later adds the same fields but with a different mapping.
 
 [float]
 ==== Gotchas

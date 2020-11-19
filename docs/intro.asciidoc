@@ -1,10 +1,10 @@
 [[intro]]
 == Introduction
 
-Centralized logging for Java applications with the Elastic stack made easy
+Centralized logging for Java applications with the Elastic stack made easy.
 
 
-NOTE: this library is in a **beta** version and backwards-incompatible changes might be introduced in future releases while the major version is zero (0.x.x).
+NOTE: This library is in **beta**. Backward-incompatible changes might be introduced in future releases while the major version is zero (0.x.x).
 
 [role="screenshot"]
 image:https://user-images.githubusercontent.com/2163464/62682932-9cac3600-b9bd-11e9-9cc3-39e907280f8e.png[]
@@ -13,14 +13,12 @@ image:https://user-images.githubusercontent.com/2163464/62682932-9cac3600-b9bd-1
 === What is ECS?
 
 Elastic Common Schema (ECS) defines a common set of fields for ingesting data into Elasticsearch.
-For more information about ECS, visit the [ECS Reference Documentation]({ecs-ref}/ecs-reference.html).
+For more information about ECS, visit the {ecs-ref}/ecs-reference.html[ECS Reference Documentation].
 
 [float]
 === What is ECS logging?
 
-This library helps to log ECS-compatible JSON into a file
-
-Example:
+This library helps to log ECS-compatible JSON into a file. For example:
 [source,json]
 ----
 {"@timestamp":"2019-08-06T12:09:12.375Z", "log.level": "INFO", "message":"Tomcat started on port(s): 8080 (http) with context path ''", "service.name":"spring-petclinic","process.thread.name":"restartedMain","log.logger":"org.springframework.boot.web.embedded.tomcat.TomcatWebServer"}
@@ -40,21 +38,19 @@ Example:
 [float]
 === Why ECS logging?
 
-* No parsing of the log file required
+* No parsing of the log file required.
 +
-Logging in ECS-compatible JSON has the advantage that you don't need to set up a logstash/ingest node pipeline to parse logs using grok.
-* No external dependencies
-* Highly efficient by manually serializing JSON
-* Low/Zero allocations (reduces GC pauses)
+ECS-compatible JSON doesn't require the use of Logstash or grok parsing via an ingest node pipeline. 
+* No external dependencies.
+* Highly efficient by manually serializing JSON.
+* Low/Zero allocations (reduces GC pauses).
 +
-The log4j2 `EcsLayout` does not allocate any memory (unless the log event contains an `Exception`)
-* Decently human-readable JSON structure
+The log4j2 `EcsLayout` does not allocate any memory (unless the log event contains an `Exception`).
+* Decently human-readable JSON structure.
 +
 The first three fields are always `@timestamp`, `log.level` and `message`.
 It's also possible to format stack traces so that each element is rendered in a new line.
-* Use the Kibana {observability-guide}/monitor-logs.html[Logs app] without additional configuration
-+
-As this library adheres to {ecs-ref}/ecs-reference.html[ECS], the Logs UI knows which fields to show
+* Use the Kibana {observability-guide}/monitor-logs.html[Logs app] without additional configuration.
 * Using a common schema across different services and teams makes it possible create reusable dashboards and avoids {ref}/mapping.html#mapping-limit-settings[mapping explosions].
 
 [float]
@@ -62,7 +58,6 @@ As this library adheres to {ecs-ref}/ecs-reference.html[ECS], the Logs UI knows 
 
 If you are using the {apm-java-ref}/index.html[Elastic APM Java agent],
 you can leverage the {apm-java-ref}/config-logging.html#config-enable-log-correlation[log correlation feature] without any additional configuration.
-
 This lets you jump from the {kibana-ref}/spans.html[Span timeline in the APM UI] to the {observability-guide}/monitor-logs.html[Logs app],
 showing only the logs which belong to the corresponding request.
 Vice versa, you can also jump from a log line in the Logs UI to the Span Timeline of the APM UI.
@@ -70,7 +65,7 @@ Vice versa, you can also jump from a log line in the Logs UI to the Span Timelin
 [float]
 ==== Additional advantages when using in combination with Filebeat
 
-We recommend using this library to log into a JSON log file and let Filebeat send the logs to Elasticsearch
+We recommend using this library to log into a JSON log file and using Filebeat to send the logs to Elasticsearch. Here are a few benefits to this approach.
 
 * Resilient in case of outages +
 {filebeat-ref}/how-filebeat-works.html#at-least-once-delivery[Guaranteed at-least-once delivery]
@@ -90,7 +85,7 @@ Leverage Filebeat's default ECS-compatible {filebeat-ref}/configuration-template
 === Mapping
 
 |===
-|ECS field | Log4j2 API  |
+|ECS field | Log4j2 API
 |{ecs-ref}/ecs-base.html[`@timestamp`]
 |https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getTimeMillis()[`LogEvent#getTimeMillis()`]
 
@@ -125,10 +120,10 @@ Leverage Filebeat's default ECS-compatible {filebeat-ref}/configuration-template
 |https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getThreadName()[`LogEvent#getThreadName()`]
 
 |Each MDC entry is a top-level field footnote:[
-It's recommended to use existing {ecs-ref}/ecs-field-reference.html[ECS fields] for MDC values.
+We recommend using existing {ecs-ref}/ecs-field-reference.html[ECS fields] for MDC values.
 If there is no appropriate ECS field,
 consider prefixing your fields with `labels.`, as in `labels.foo`, for simple key/value pairs.
-For nested structures consider prefixing with `custom.` to make sure you won't get conflicts if ECS later adds the same fields but with a different mapping.
+For nested structures, consider prefixing with `custom.`. This approach protects against conflicts in case ECS later adds the same fields but with a different mapping.
 ]
 |https://logging.apache.org/log4j/log4j-2.3/log4j-core/apidocs/org/apache/logging/log4j/core/LogEvent.html#getContextMap()[`LogEvent#getContextMap()`]
 

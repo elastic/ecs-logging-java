@@ -21,9 +21,8 @@ set {apm-java-ref}/current/config-logging.html#config-enable-log-correlation[`en
 [[setup-step-3]]
 === Step 3: Filebeat configuration
 
-[float]
-[[setup-filebeat-config]]
-==== With `filebeat.yml` configuration file
+
+Configure your `filebeat.inputs` as follows:
 
 [source,yml]
 ----
@@ -43,7 +42,7 @@ output.elasticsearch:
 #cloud.auth: "elastic:YOUR_PASSWORD"
 ----
 
-For more information, check the {filebeat-ref}/configuring-howto-filebeat.html[Filebeat documentation]
+For more information, check the {filebeat-ref}/configuring-howto-filebeat.html[Filebeat documentation].
 
 [float]
 [[setup-stack-trace-as-array]]

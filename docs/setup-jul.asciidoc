@@ -1,15 +1,15 @@
 [[setup-jul]]
 == ECS formatter for JUL
 
-Formatter for JUL (java.util.logging) which produce ECS-compatible records.
-Useful for applications which use JUL as primary logging framework (e.g. Apache Tomcat).
+A formatter for JUL (`java.util.logging`) which produces ECS-compatible records.
+Useful for applications that use JUL as primary logging framework, like Apache Tomcat.
 
 [float]
 === Step 1: add dependency
 
 Latest version: https://search.maven.org/search?q=g:co.elastic.logging%20AND%20a:jul-ecs-formatter[image:https://img.shields.io/maven-central/v/co.elastic.logging/jul-ecs-formatter.svg[Maven Central]]
 
-Add a dependency to your application
+Add a dependency to your application:
 [source,xml]
 ----
 <dependency>
@@ -19,10 +19,10 @@ Add a dependency to your application
 </dependency>
 ----
 
-If you are not using a dependency management tool, like maven, you have to add both, `jul-ecs-formatter` and `ecs-logging-core` jars manually to the classpath. For example to the `$CATALINA_HOME/lib` directory.
+If you are not using a dependency management tool, like maven, you have to manually add both `jul-ecs-formatter` and `ecs-logging-core` jars to the classpath. For example, to the `$CATALINA_HOME/lib` directory.
 
 [float]
-=== Step 2: use the `EcsFormatter`
+==== Step 2: use the `EcsFormatter`
 
 Specify `co.elastic.logging.jul.EcsFormatter` as `formatter` for the required log handler.
 
