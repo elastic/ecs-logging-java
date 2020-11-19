@@ -1,5 +1,5 @@
 [[setup-log4j2]]
-== Log4j2 ECS Layout
+=== Log4j2 ECS Layout
 
 The minimum required log4j2 version is 2.6.
 

@@ -1,5 +1,5 @@
 [[setup-logback]]
-==  ECS Logback Encoder
+=== ECS Logback Encoder
 
 The minimum required logback version is 1.1.
 

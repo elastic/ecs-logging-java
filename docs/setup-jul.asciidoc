@@ -1,5 +1,5 @@
 [[setup-jul]]
-== ECS formatter for JUL
+=== ECS formatter for JUL
 
 A formatter for JUL (`java.util.logging`) which produces ECS-compatible records.
 Useful for applications that use JUL as primary logging framework, like Apache Tomcat.

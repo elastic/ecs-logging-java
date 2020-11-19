@@ -1,5 +1,5 @@
 [[setup-jboss-logmanager]]
-== ECS formatter for JBoss Log Manager
+=== ECS formatter for JBoss Log Manager
 
 A formatter for JBoss Log Manager which produces ECS-compatible records.
 Useful for applications that use JBoss Log Manager as their primary logging framework, like WildFly.

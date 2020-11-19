@@ -1,5 +1,5 @@
 [[setup]]
-== Getting Started
+== Get Started
 
 [float]
 [[setup-step-1]]
