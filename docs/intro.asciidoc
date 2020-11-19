@@ -67,19 +67,34 @@ Vice versa, you can also jump from a log line in the Logs UI to the Span Timelin
 
 We recommend using this library to log into a JSON log file and using Filebeat to send the logs to Elasticsearch. Here are a few benefits to this approach.
 
-* Resilient in case of outages +
+*Resilient in case of outages*::
++
+--
 {filebeat-ref}/how-filebeat-works.html#at-least-once-delivery[Guaranteed at-least-once delivery]
-without buffering within the application, thus no risk of `OutOfMemoryError`s or lost events.
+without buffering within the application, thus no risk of `OutOfMemoryError` s or lost events.
 There's also the option to use either the JSON logs or plain-text logs as a fallback.
-* Loose coupling +
+--
+
+*Loose coupling*::
++
+--
 The application does not need to know the details of the logging backend (URI, credentials, etc.).
 You can also leverage alternative {filebeat-ref}/configuring-output.html[Filebeat outputs],
 like Logstash, Kafka or Redis.
-* Index Lifecycle management +
+--
+
+*Index Lifecycle management*::
++
+--
 Leverage Filebeat's default {filebeat-ref}/master/ilm.html[index lifemanagement settings].
 This is much more efficient than using daily indices.
-* Efficient Elasticsearch mappings +
+--
+
+*Efficient Elasticsearch mappings*::
++
+--
 Leverage Filebeat's default ECS-compatible {filebeat-ref}/configuration-template.html[index template]
+--
 
 [float]
 === Mapping
