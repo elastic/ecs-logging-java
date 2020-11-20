@@ -18,7 +18,8 @@ For more information about ECS, visit the {ecs-ref}/ecs-reference.html[ECS Refer
 [float]
 === What is ECS logging?
 
-This library helps to log ECS-compatible JSON into a file. For example:
+ECS loggers are formatter/encoder plugins for your favorite logging library.
+They make it easy to format your logs into ECS-compatible JSON. For example:
 [source,json]
 ----
 {"@timestamp":"2019-08-06T12:09:12.375Z", "log.level": "INFO", "message":"Tomcat started on port(s): 8080 (http) with context path ''", "service.name":"spring-petclinic","process.thread.name":"restartedMain","log.logger":"org.springframework.boot.web.embedded.tomcat.TomcatWebServer"}
@@ -38,29 +39,50 @@ This library helps to log ECS-compatible JSON into a file. For example:
 [float]
 === Why ECS logging?
 
-* No parsing of the log file required.
+*No parsing of the log file required*::
 +
-ECS-compatible JSON doesn't require the use of Logstash or grok parsing via an ingest node pipeline. 
-* No external dependencies.
-* Highly efficient by manually serializing JSON.
-* Low/Zero allocations (reduces GC pauses).
+--
+ECS-compatible JSON doesn't require the use of Logstash or grok parsing via an ingest node pipeline.
+--
+
+*No external dependencies*::
 +
-The log4j2 `EcsLayout` does not allocate any memory (unless the log event contains an `Exception`).
-* Decently human-readable JSON structure.
+--
+By not using any external dependencies such as JSON serializers,
+the library is incredibly lightweight.
+--
+
+*Highly efficient*::
 +
+--
+The log4j2 `EcsLayout` does not allocate any memory (unless the log event contains an `Exception`) which reduces GC pressure.
+This is achieved by manually serializing JSON so that no intermediate JSON or map representation of a log event is needed.
+--
+
+*Decently human-readable JSON structure*::
++
+--
 The first three fields are always `@timestamp`, `log.level` and `message`.
 It's also possible to format stack traces so that each element is rendered in a new line.
-* Use the Kibana {observability-guide}/monitor-logs.html[Logs app] without additional configuration.
-* Using a common schema across different services and teams makes it possible create reusable dashboards and avoids {ref}/mapping.html#mapping-limit-settings[mapping explosions].
+--
 
-[float]
-==== APM Log correlation
+*Enjoy the benefits of a common schema*::
++
+--
+Use the Kibana {observability-guide}/monitor-logs.html[Logs app] without additional configuration.
 
+Using a common schema across different services and teams makes it possible create reusable dashboards and avoids {ref}/mapping.html#mapping-limit-settings[mapping explosions].
+--
+
+*APM Log correlation*::
++
+--
 If you are using the {apm-java-ref}/index.html[Elastic APM Java agent],
 you can leverage the {apm-java-ref}/config-logging.html#config-enable-log-correlation[log correlation feature] without any additional configuration.
 This lets you jump from the {kibana-ref}/spans.html[Span timeline in the APM UI] to the {observability-guide}/monitor-logs.html[Logs app],
 showing only the logs which belong to the corresponding request.
 Vice versa, you can also jump from a log line in the Logs UI to the Span Timeline of the APM UI.
+--
 
 [float]
 ==== Additional advantages when using in combination with Filebeat
