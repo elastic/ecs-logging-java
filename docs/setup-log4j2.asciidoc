@@ -66,7 +66,7 @@ Instead of the usual `<PatternLayout/>`, use `<EcsLayout serviceName="my-app"/>`
 |`${serviceName}.log`
 |Sets the `event.dataset` field used by the machine learning job of the Logs app to look for anomalies in the log rate.
 
-|includeMarkers`
+|`includeMarkers`
 |boolean
 |`false`
 |Log https://logging.apache.org/log4j/2.0/manual/markers.html[Markers] as {ecs-ref}/ecs-base.html[`tags`]

@@ -80,7 +80,7 @@ All you have to do is to use the `co.elastic.logging.logback.EcsEncoder` instead
 |
 |Sets the `service.name` field so you can filter your logs by a particular service
 
-|`eventDataset
+|`eventDataset`
 |String
 |`${serviceName}.log`
 |Sets the `event.dataset` field used by the machine learning job of the Logs app to look for anomalies in the log rate.
