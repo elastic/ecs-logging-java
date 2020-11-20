@@ -6,7 +6,7 @@ The minimum required logback version is 1.1.
 [float]
 === Step 1: add dependency
 
-Latest version: [![Maven Central](https://img.shields.io/maven-central/v/co.elastic.logging/logback-ecs-encoder.svg)](https://search.maven.org/search?q=g:co.elastic.logging%20AND%20a:logback-ecs-encoder)
+Latest version: https://search.maven.org/search?q=g:co.elastic.logging%20AND%20a:logback-ecs-encoder[image:https://img.shields.io/maven-central/v/co.elastic.logging/logback-ecs-encoder.svg[Maven Central]]
 
 Add a dependency to your application
 [source,xml]
@@ -48,7 +48,7 @@ For example to the `$CATALINA_HOME/lib` directory.
 
 You also need to configure the following properties to your `application.properties`:
 
-[source]
+[source,properties]
 ----
 spring.application.name=my-application
 # for Spring Boot 2.2.x+
