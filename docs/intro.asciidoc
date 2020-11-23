@@ -108,7 +108,7 @@ like Logstash, Kafka or Redis.
 *Index Lifecycle management*::
 +
 --
-Leverage Filebeat's default {filebeat-ref}/master/ilm.html[index lifemanagement settings].
+Leverage Filebeat's default {filebeat-ref}/ilm.html[index lifecycle management settings].
 This is much more efficient than using daily indices.
 --
 
