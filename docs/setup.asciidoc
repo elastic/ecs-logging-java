@@ -1,0 +1,93 @@
+[[setup]]
+== Get Started
+
+include::./tab-widgets/code.asciidoc[]
+
+[float]
+[[setup-step-1]]
+=== Step 1: Configure application logging
+
+The following logging frameworks are supported:
+
+* Logback (default for Spring Boot)
+* Log4j2
+* Log4j
+* `java.util.logging` (JUL)
+* JBoss Log Manager
+
+[float]
+==== Add the dependency
+
+include::./tab-widgets/add-dependency-widget.asciidoc[]
+
+[float]
+==== Use the ECS encoder/formatter/layout
+
+include::./tab-widgets/ecs-encoder-widget.asciidoc[]
+
+[float]
+[[setup-step-2]]
+=== Step 2: Enable APM log correlation (optional)
+If you are using the Elastic APM Java agent,
+set {apm-java-ref}/current/config-logging.html#config-enable-log-correlation[`enable_log_correlation`] to `true`.
+
+
+
+
+[float]
+[[setup-step-3]]
+=== Step 3: Configure Filebeat
+
+Configure your `filebeat.inputs` as follows:
+
+[source,yml]
+----
+filebeat.inputs:
+- type: log
+  paths: /path/to/logs.json
+  json.keys_under_root: true
+  json.overwrite_keys: true
+
+# no further processing required, logs can directly be sent to Elastic Cloud
+cloud.id: "staging:dXMtZWFzdC0xLmF3cy5mb3VuZC5pbyRjZWM2ZjI2MWE3NGJmMjRjZTMzYmI4ODExYjg0Mjk0ZiRjNmMyY2E2ZDA0MjI0OWFmMGNjN2Q3YTllOTYyNTc0Mw=="
+cloud.auth: "elastic:YOUR_PASSWORD"
+
+# Or to your local Elasticsearch cluster
+#output.elasticsearch:
+#  hosts: ["https://localhost:9200"]
+----
+
+For more information, check the {filebeat-ref}/configuring-howto-filebeat.html[Filebeat documentation].
+
+[float]
+[[setup-stack-trace-as-array]]
+==== When `stackTraceAsArray` is enabled
+
+Filebeat can normally only decode JSON if there is one JSON object per line.
+When `stackTraceAsArray` is enabled, there will be a new line for each stack trace element which improves readability.
+But when combining the multiline settings with a `decode_json_fields` we can also handle multi-line JSON:
+
+[source,yml]
+----
+filebeat.inputs:
+  - type: log
+    paths: /path/to/logs.json
+    multiline.pattern: '^{'
+    multiline.negate: true
+    multiline.match: after
+processors:
+  - decode_json_fields:
+      fields: message
+      target: ""
+      overwrite_keys: true
+  # flattens the array to a single string
+  - script:
+      when:
+        has_fields: ['error.stack_trace']
+      lang: javascript
+      id: my_filter
+      source: >
+        function process(event) {
+            event.Put("error.stack_trace", event.Get("error.stack_trace").join("\n"));
+        }
+----

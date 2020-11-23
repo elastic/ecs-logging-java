@@ -1,0 +1,94 @@
+++++
+<div class="tabs" data-tab-group="os">
+  <div role="tablist" aria-label="ecs-encoder">
+    <button role="tab"
+            aria-selected="true"
+            aria-controls="logback-tab-ecs-encoder"
+            id="logback-ecs-encoder">
+      Logback
+    </button>
+    <button role="tab"
+            aria-selected="false"
+            aria-controls="log4j2-tab-ecs-encoder"
+            id="log4j2-ecs-encoder"
+            tabindex="-1">
+      Log4j2
+    </button>
+    <button role="tab"
+            aria-selected="false"
+            aria-controls="log4j-tab-ecs-encoder"
+            id="log4j-ecs-encoder"
+            tabindex="-1">
+      Log4j
+    </button>
+    <button role="tab"
+            aria-selected="false"
+            aria-controls="jul-tab-ecs-encoder"
+            id="jul-ecs-encoder"
+            tabindex="-1">
+      JUL
+    </button>
+    <button role="tab"
+            aria-selected="false"
+            aria-controls="jboss-tab-ecs-encoder"
+            id="jboss-ecs-encoder"
+            tabindex="-1">
+      JBoss
+    </button>
+  </div>
+  <div tabindex="0"
+       role="tabpanel"
+       id="logback-tab-ecs-encoder"
+       aria-labelledby="logback-ecs-encoder">
+++++
+
+include::ecs-encoder.asciidoc[tag=logback]
+
+++++
+  </div>
+  <div tabindex="0"
+       role="tabpanel"
+       id="log4j2-tab-ecs-encoder"
+       aria-labelledby="log4j2-ecs-encoder"
+       hidden="">
+++++
+
+include::ecs-encoder.asciidoc[tag=log4j2]
+
+++++
+  </div>
+  <div tabindex="0"
+       role="tabpanel"
+       id="log4j-tab-ecs-encoder"
+       aria-labelledby="log4j-ecs-encoder"
+       hidden="">
+++++
+
+include::ecs-encoder.asciidoc[tag=log4j]
+
+++++
+  </div>
+  <div tabindex="0"
+       role="tabpanel"
+       id="jul-tab-ecs-encoder"
+       aria-labelledby="jul-ecs-encoder"
+       hidden="">
+++++
+
+include::ecs-encoder.asciidoc[tag=jul]
+
+++++
+  </div>
+  <div tabindex="0"
+       role="tabpanel"
+       id="jboss-tab-ecs-encoder"
+       aria-labelledby="jboss-ecs-encoder"
+       hidden="">
+++++
+
+include::ecs-encoder.asciidoc[tag=jboss]
+
+++++
+  </div>
+</div>
+++++
