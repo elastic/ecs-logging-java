@@ -22,7 +22,7 @@ Please note that we reserve GitHub tickets for confirmed bugs and enhancement re
 
 ## Documentation
 
-Docs are located on [elastic.co](https://www.elastic.co/guide/en/ecs-logging/java).
+Docs are located on [elastic.co](https://www.elastic.co/guide/en/ecs-logging/java/current/index.html).
 
 ## License
 

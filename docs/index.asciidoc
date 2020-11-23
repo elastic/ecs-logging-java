@@ -3,7 +3,7 @@ include::{asciidoc-dir}/../../shared/attributes.asciidoc[]
 
 ifdef::env-github[]
 NOTE: For the best reading experience,
-please view this documentation at https://www.elastic.co/guide/en/ecs-logging/java[elastic.co]
+please view this documentation at https://www.elastic.co/guide/en/ecs-logging/java/current/index.html[elastic.co]
 endif::[]
 
 = ECS Logging Java Reference
