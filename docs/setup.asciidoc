@@ -21,7 +21,7 @@ The following logging frameworks are supported:
 include::./tab-widgets/add-dependency-widget.asciidoc[]
 
 [float]
-==== Use the `ecsEncoder`
+==== Use the ECS encoder/formatter/layout
 
 include::./tab-widgets/ecs-encoder-widget.asciidoc[]
 
