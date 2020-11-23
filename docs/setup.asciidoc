@@ -29,10 +29,7 @@ include::./tab-widgets/ecs-encoder-widget.asciidoc[]
 [[setup-step-2]]
 === Step 2: Enable APM log correlation (optional)
 If you are using the Elastic APM Java agent,
-set {apm-java-ref}/current/config-logging.html#config-enable-log-correlation[`enable_log_correlation`] to `true`.
-
-
-
+set {apm-java-ref}/config-logging.html#config-enable-log-correlation[`enable_log_correlation`] to `true`.
 
 [float]
 [[setup-step-3]]

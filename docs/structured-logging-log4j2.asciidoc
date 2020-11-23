@@ -1,3 +1,4 @@
+[structured-logging-log4j2]
 == Structured logging with log4j2
 
 By leveraging log4j2's `MapMessage` or even by implementing your own `MultiformatMessage` with JSON support,
@@ -56,7 +57,7 @@ In recent Elasticsearch versions, the following JSON structures would result in 
 }
 ----
 
-The property `foo` would be mapped to the {ref}/current/object.html[Object datatype].
+The property `foo` would be mapped to the {ref}/object.html[Object datatype].
 
 This means that you can't index a document where `foo` would be a different datatype, as in shown in the following example:
 
