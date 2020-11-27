@@ -26,6 +26,7 @@ package co.elastic.logging;
 
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 
@@ -280,6 +281,21 @@ public class EcsJsonSerializer {
             return serviceName + ".log";
         }
         return eventDataset;
+    }
+
+    public static void serializeAdditionalFields(StringBuilder builder, List<Pair> additionalFields) {
+        if (!additionalFields.isEmpty()) {
+            for (int i = 0, size = additionalFields.size(); i < size; i++) {
+                Pair additionalField = additionalFields.get(i);
+                if (additionalField.getKey() != null) {
+                    builder.append('\"');
+                    JsonUtils.quoteAsString(additionalField.getKey(), builder);
+                    builder.append("\":\"");
+                    JsonUtils.quoteAsString(additionalField.getValue(), builder);
+                    builder.append("\",");
+                }
+            }
+        }
     }
 
     private static class StringBuilderWriter extends Writer {

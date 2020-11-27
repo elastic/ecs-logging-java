@@ -30,7 +30,7 @@ import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.classic.spi.ThrowableProxy;
 import ch.qos.logback.core.encoder.EncoderBase;
 import co.elastic.logging.EcsJsonSerializer;
-import co.elastic.logging.JsonUtils;
+import co.elastic.logging.Pair;
 import org.slf4j.Marker;
 
 import java.io.IOException;
@@ -99,7 +99,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
         EcsJsonSerializer.serializeLoggerName(builder, event.getLoggerName());
-        serializeAdditionalFields(builder);
+        EcsJsonSerializer.serializeAdditionalFields(builder, additionalFields);
         EcsJsonSerializer.serializeMDC(builder, event.getMDCPropertyMap());
         if (includeOrigin) {
             StackTraceElement[] callerData = event.getCallerData();
@@ -116,21 +116,6 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         EcsJsonSerializer.serializeObjectEnd(builder);
         // all these allocations kinda hurt
         return builder.toString().getBytes(UTF_8);
-    }
-
-    private void serializeAdditionalFields(StringBuilder builder) {
-        if (!additionalFields.isEmpty()) {
-            for (int i = 0, size = additionalFields.size(); i < size; i++) {
-                Pair additionalField = additionalFields.get(i);
-                if (additionalField.getKey() != null) {
-                    builder.append('\"');
-                    JsonUtils.quoteAsString(additionalField.getKey(), builder);
-                    builder.append("\":\"");
-                    JsonUtils.quoteAsString(additionalField.getValue(), builder);
-                    builder.append("\",");
-                }
-            }
-        }
     }
 
     private void serializeMarkers(ILoggingEvent event, StringBuilder builder) {
@@ -181,32 +166,4 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         this.eventDataset = eventDataset;
     }
 
-    public static class Pair {
-        private String key;
-        private String value = "";
-
-        public Pair() {
-        }
-
-        public Pair(String key, String value) {
-            this.key = key;
-            this.value = value;
-        }
-
-        public String getKey() {
-            return key;
-        }
-
-        public void setKey(String key) {
-            this.key = key;
-        }
-
-        public String getValue() {
-            return value;
-        }
-
-        public void setValue(String value) {
-            this.value = value;
-        }
-    }
 }

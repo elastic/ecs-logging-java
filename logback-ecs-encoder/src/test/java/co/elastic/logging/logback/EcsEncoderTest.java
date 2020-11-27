@@ -25,6 +25,7 @@
 package co.elastic.logging.logback;
 
 import ch.qos.logback.classic.LoggerContext;
+import co.elastic.logging.Pair;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.BeforeEach;
 
@@ -46,8 +47,8 @@ class EcsEncoderTest extends AbstractEcsEncoderTest {
         ecsEncoder.setIncludeMarkers(true);
         ecsEncoder.setStackTraceAsArray(true);
         ecsEncoder.setIncludeOrigin(true);
-        ecsEncoder.addAdditionalField(new EcsEncoder.Pair("foo", "bar"));
-        ecsEncoder.addAdditionalField(new EcsEncoder.Pair("baz", "qux"));
+        ecsEncoder.addAdditionalField(new Pair("foo", "bar"));
+        ecsEncoder.addAdditionalField(new Pair("baz", "qux"));
         ecsEncoder.setEventDataset("testdataset.log");
         ecsEncoder.start();
         appender.setEncoder(ecsEncoder);

@@ -73,7 +73,7 @@ Note that this requires a slightly more complex <<setup-stack-trace-as-array, Fi
 |`false`
 |If `true`, adds the {ecs-ref}/ecs-log.html[`log.origin.file.name`],
  {ecs-ref}/ecs-log.html[`log.origin.file.line`] and {ecs-ref}/ecs-log.html[`log.origin.function`] fields.
- Note that you also have to set `includeLocation="true"` on your loggers and appenders if you are using the async ones.
+ Note that you also have to set `<includeCallerData>true</includeCallerData>` on your appenders if you are using the async ones.
 |===
 
 To include any custom field in the output, use following syntax:
@@ -178,15 +178,15 @@ For example:
 <log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
     <appender name="LogToConsole" class="org.apache.log4j.ConsoleAppender">
         <param name="Target" value="System.out"/>
-            <layout class="co.elastic.logging.log4j.EcsLayout">
-                <param name="serviceName" value="my-app"/>
-            </layout>
+        <layout class="co.elastic.logging.log4j.EcsLayout">
+            <param name="serviceName" value="my-app"/>
+        </layout>
     </appender>
     <appender name="LogToFile" class="org.apache.log4j.RollingFileAppender">
         <param name="File" value="logs/app.log"/>
-            <layout class="co.elastic.logging.log4j.EcsLayout">
-                <param name="serviceName" value="my-app"/>
-            </layout>
+        <layout class="co.elastic.logging.log4j.EcsLayout">
+            <param name="serviceName" value="my-app"/>
+        </layout>
     </appender>
     <root>
         <priority value="INFO"/>
@@ -195,6 +195,48 @@ For example:
     </root>
 </log4j:configuration>
 ----
+
+
+**Layout Parameters**
+
+|===
+|Parameter name   |Type   |Default |Description
+
+|`serviceName`
+|String
+|
+|Sets the `service.name` field so you can filter your logs by a particular service
+
+|`eventDataset`
+|String
+|`${serviceName}.log`
+|Sets the `event.dataset` field used by the machine learning job of the Logs app to look for anomalies in the log rate.
+
+|`stackTraceAsArray`
+|boolean
+|`false`
+|Serializes the {ecs-ref}/ecs-error.html[`error.stack_trace`] as a JSON array where each element is in a new line to improve readability.
+Note that this requires a slightly more complex <<setup-stack-trace-as-array, Filebeat configuration>>.
+
+|`includeOrigin`
+|boolean
+|`false`
+|If `true`, adds the {ecs-ref}/ecs-log.html[`log.origin.file.name`],
+{ecs-ref}/ecs-log.html[`log.origin.file.line`] and {ecs-ref}/ecs-log.html[`log.origin.function`] fields.
+Note that you also have to set `<param name="LocationInfo" value="true"/>Info` if you are using `AsyncAppender`.
+|===
+
+To include any custom field in the output, use following syntax:
+
+[source,xml]
+----
+<layout class="co.elastic.logging.log4j.EcsLayout">
+   <param name="additionalField" value="additionalField1=value1"/>
+   <param name="additionalField" value="additionalField2=value2"/>
+</layout>
+----
+
+Custom fields are included in the order they are declared.
 // end::log4j[]
 
 // tag::jul[]

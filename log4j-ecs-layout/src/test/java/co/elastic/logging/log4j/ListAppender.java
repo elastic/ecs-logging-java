@@ -30,7 +30,7 @@ import org.apache.log4j.spi.LoggingEvent;
 import java.util.ArrayList;
 import java.util.List;
 
-class ListAppender extends AppenderSkeleton {
+public class ListAppender extends AppenderSkeleton {
     private final List<String> logEvents = new ArrayList<String>();
 
     @Override
