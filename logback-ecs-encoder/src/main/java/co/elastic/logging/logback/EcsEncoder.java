@@ -30,7 +30,7 @@ import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.classic.spi.ThrowableProxy;
 import ch.qos.logback.core.encoder.EncoderBase;
 import co.elastic.logging.EcsJsonSerializer;
-import co.elastic.logging.Pair;
+import co.elastic.logging.AdditionalField;
 import org.slf4j.Marker;
 
 import java.io.IOException;
@@ -49,7 +49,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
     private boolean includeMarkers = false;
     private ThrowableProxyConverter throwableProxyConverter;
     private boolean includeOrigin;
-    private final List<Pair> additionalFields = new ArrayList<Pair>();
+    private final List<AdditionalField> additionalFields = new ArrayList<AdditionalField>();
     private OutputStream os;
 
     @Override
@@ -158,7 +158,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         this.includeOrigin = includeOrigin;
     }
 
-    public void addAdditionalField(Pair pair) {
+    public void addAdditionalField(AdditionalField pair) {
         this.additionalFields.add(pair);
     }
 

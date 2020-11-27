@@ -283,10 +283,10 @@ public class EcsJsonSerializer {
         return eventDataset;
     }
 
-    public static void serializeAdditionalFields(StringBuilder builder, List<Pair> additionalFields) {
+    public static void serializeAdditionalFields(StringBuilder builder, List<AdditionalField> additionalFields) {
         if (!additionalFields.isEmpty()) {
             for (int i = 0, size = additionalFields.size(); i < size; i++) {
-                Pair additionalField = additionalFields.get(i);
+                AdditionalField additionalField = additionalFields.get(i);
                 if (additionalField.getKey() != null) {
                     builder.append('\"');
                     JsonUtils.quoteAsString(additionalField.getKey(), builder);

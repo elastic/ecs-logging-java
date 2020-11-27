@@ -7,8 +7,8 @@
             <param name="eventDataset" value="testdataset.log"/>
             <param name="stackTraceAsArray" value="true"/>
             <param name="includeOrigin" value="true"/>
-            <param name="additionalField" value="additionalField1=value1"/>
-            <param name="additionalField" value="additionalField2=value2"/>
+            <param name="additionalField" value="key1=value1"/>
+            <param name="additionalField" value="key2=value2"/>
         </layout>
     </appender>
     <root>

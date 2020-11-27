@@ -68,6 +68,14 @@ public abstract class AbstractEcsLoggingTest {
     }
 
     @Test
+    final void testAdditionalFields() throws Exception {
+        debug("test");
+        assertThat(getAndValidateLastLogLine().get("key1").textValue()).isEqualTo("value1");
+        assertThat(getAndValidateLastLogLine().get("key2").textValue()).isEqualTo("value2");
+        validateLog(getAndValidateLastLogLine());
+    }
+
+    @Test
     void testSimpleLog() throws Exception {
         debug("test");
         assertThat(getAndValidateLastLogLine().get("message").textValue()).isEqualTo("test");

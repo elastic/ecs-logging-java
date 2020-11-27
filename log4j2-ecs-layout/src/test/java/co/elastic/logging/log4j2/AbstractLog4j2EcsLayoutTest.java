@@ -49,7 +49,7 @@ abstract class AbstractLog4j2EcsLayoutTest extends AbstractEcsLoggingTest {
     }
 
     @Test
-    void testAdditionalFields() throws Exception {
+    void testAdditionalFieldsWithLookup() throws Exception {
         putMdc("trace.id", "foo");
         putMdc("foo", "bar");
         debug("test");

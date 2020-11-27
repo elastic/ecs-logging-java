@@ -63,13 +63,6 @@ class Log4jEcsLayoutIntegrationTest extends AbstractEcsLoggingTest {
         appender.getLogEvents().clear();
     }
 
-    @Test
-    void testAdditionalField() throws Exception {
-        debug("test");
-        assertThat(getAndValidateLastLogLine().get("additionalField1").textValue()).isEqualTo("value1");
-        assertThat(getAndValidateLastLogLine().get("additionalField2").textValue()).isEqualTo("value2");
-    }
-
     @Override
     public boolean putMdc(String key, String value) {
         MDC.put(key, value);
