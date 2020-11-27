@@ -223,7 +223,7 @@ Note that this requires a slightly more complex <<setup-stack-trace-as-array, Fi
 |`false`
 |If `true`, adds the {ecs-ref}/ecs-log.html[`log.origin.file.name`],
 {ecs-ref}/ecs-log.html[`log.origin.file.line`] and {ecs-ref}/ecs-log.html[`log.origin.function`] fields.
-Note that you also have to set `<param name="LocationInfo" value="true"/>Info` if you are using `AsyncAppender`.
+Note that you also have to set `<param name="LocationInfo" value="true"/>` if you are using `AsyncAppender`.
 |===
 
 To include any custom field in the output, use following syntax:
