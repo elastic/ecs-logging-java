@@ -11,9 +11,9 @@
  * the Apache License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -22,35 +22,51 @@
  * under the License.
  * #L%
  */
-package co.elastic.logging.jboss.logmanager;
+package co.elastic.logging.log4j;
 
 import co.elastic.logging.AbstractEcsLoggingTest;
 import co.elastic.logging.ParameterizedLogSupport;
 import com.fasterxml.jackson.databind.JsonNode;
-import org.jboss.logmanager.Level;
-import org.jboss.logmanager.Logger;
-import org.jboss.logmanager.JBossLogmanagerLoggerProducer;
-import org.jboss.logmanager.MDC;
-import org.jboss.logmanager.NDC;
+import org.apache.log4j.LogManager;
+import org.apache.log4j.Logger;
+import org.apache.log4j.MDC;
+import org.apache.log4j.NDC;
+import org.apache.log4j.spi.LoggerFactory;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.Assumptions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.logging.LogRecord;
-import java.util.logging.StreamHandler;
 
-class JBossLogManagerTest extends AbstractEcsLoggingTest {
+import static org.assertj.core.api.Assertions.assertThat;
 
-    private final EcsFormatter formatter = new EcsFormatter();
+class Log4jEcsLayoutIntegrationTest extends AbstractEcsLoggingTest {
 
-    private final ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    private Logger logger;
+    private ListAppender appender;
 
-    private final Logger logger = JBossLogmanagerLoggerProducer.getLogger("JBossLogManagerTest");
+    @BeforeEach
+    void setUp() {
+        logger = LogManager.getLogger(getClass());
+        appender = (ListAppender) logger.getParent().getAppender("List");
+    }
+
+    @AfterEach
+    void tearDown() {
+        try {
+            // available since 1.2.16
+            MDC.class.getMethod("clear").invoke(null);
+        } catch (Exception ignore) {
+        }
+        NDC.clear();
+        appender.getLogEvents().clear();
+    }
 
     @Override
     public boolean putMdc(String key, String value) {
         MDC.put(key, value);
+        Assumptions.assumeTrue(value.equals(MDC.get(key)));
         return true;
     }
 
@@ -62,59 +78,27 @@ class JBossLogManagerTest extends AbstractEcsLoggingTest {
 
     @Override
     public void debug(String message) {
-        logger.log(Level.DEBUG, message);
+        logger.debug(message);
     }
 
     @Override
     public ParameterizedLogSupport getParameterizedLogSettings() {
-        return ParameterizedLogSupport.NUMBER_AND_BRACKETS;
+        return ParameterizedLogSupport.NOT_SUPPORTED;
     }
 
     @Override
     public void debug(String message, Object... logParams) {
-        logger.log(Level.DEBUG, message, logParams);
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public void error(String message, Throwable t) {
-        logger.log(Level.ERROR, message, t);
+        logger.error(message, t);
     }
 
     @Override
     public JsonNode getLastLogLine() throws IOException {
-        return objectMapper.readTree(byteArrayOutputStream.toString());
+        return objectMapper.readTree(appender.getLogEvents().get(0));
     }
 
-    @BeforeEach
-    void setUp() {
-        formatter.setIncludeOrigin(true);
-        formatter.setStackTraceAsArray(true);
-        formatter.setServiceName("test");
-        formatter.setEventDataset("testdataset.log");
-        formatter.setAdditionalFields("key1=value1,key2=value2");
-
-        logger.setLevel(Level.ALL);
-        logger.addHandler(new StreamHandler(byteArrayOutputStream, formatter) {
-
-            @Override
-            public boolean isLoggable(LogRecord record) {
-                return true;
-            }
-
-            @Override
-            public void publish(LogRecord record) {
-                super.publish(record);
-                flush();
-            }
-        });
-
-        MDC.clear();
-        NDC.clear();
-    }
-
-    @AfterEach
-    void tearDown() {
-        MDC.clear();
-        NDC.clear();
-    }
 }

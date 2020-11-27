@@ -39,7 +39,7 @@ public class EcsFormatterTest {
 
     private final EcsFormatter formatter = new EcsFormatter();
 
-    private final LogRecord record = new LogRecord(Level.INFO, "Example Meesage");
+    private final LogRecord record = new LogRecord(Level.INFO, "Example Message");
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach

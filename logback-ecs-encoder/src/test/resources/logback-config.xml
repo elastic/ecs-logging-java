@@ -9,12 +9,12 @@
             <topLevelLabel>top_level</topLevelLabel>
             <eventDataset>testdataset.log</eventDataset>
             <additionalField>
-                <key>foo</key>
-                <value>bar</value>
+                <key>key1</key>
+                <value>value1</value>
             </additionalField>
             <additionalField>
-                <key>baz</key>
-                <value>qux</value>
+                <key>key2</key>
+                <value>value2</value>
             </additionalField>
         </encoder>
     </appender>

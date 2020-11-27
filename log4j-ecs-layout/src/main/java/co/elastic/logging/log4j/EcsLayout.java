@@ -25,10 +25,14 @@
 package co.elastic.logging.log4j;
 
 import co.elastic.logging.EcsJsonSerializer;
+import co.elastic.logging.AdditionalField;
 import org.apache.log4j.Layout;
 import org.apache.log4j.spi.LocationInfo;
 import org.apache.log4j.spi.LoggingEvent;
 import org.apache.log4j.spi.ThrowableInformation;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class EcsLayout extends Layout {
 
@@ -38,6 +42,7 @@ public class EcsLayout extends Layout {
     private String serviceName;
     private boolean includeOrigin;
     private String eventDataset;
+    private List<AdditionalField> additionalFields = new ArrayList<AdditionalField>();
 
     @Override
     public String format(LoggingEvent event) {
@@ -50,6 +55,7 @@ public class EcsLayout extends Layout {
         EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
         EcsJsonSerializer.serializeLoggerName(builder, event.categoryName);
+        EcsJsonSerializer.serializeAdditionalFields(builder, additionalFields);
         EcsJsonSerializer.serializeMDC(builder, MDC_ACCESS.getMDC(event));
         EcsJsonSerializer.serializeTag(builder, event.getNDC());
         if (includeOrigin) {
@@ -103,5 +109,9 @@ public class EcsLayout extends Layout {
 
     public void setEventDataset(String eventDataset) {
         this.eventDataset = eventDataset;
+    }
+
+    public void setAdditionalField(String additionalField) {
+        this.additionalFields.add(AdditionalField.of(additionalField));
     }
 }

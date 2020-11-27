@@ -54,13 +54,6 @@ abstract class AbstractEcsEncoderTest extends AbstractEcsLoggingTest {
     }
 
     @Test
-    void testAdditionalFields() throws Exception {
-        debug("test");
-        assertThat(getAndValidateLastLogLine().get("foo").textValue()).isEqualTo("bar");
-        assertThat(getAndValidateLastLogLine().get("baz").textValue()).isEqualTo("qux");
-    }
-
-    @Test
     void testMarker() throws Exception {
         Marker parent = MarkerFactory.getMarker("parent");
         Marker child = MarkerFactory.getMarker("child");

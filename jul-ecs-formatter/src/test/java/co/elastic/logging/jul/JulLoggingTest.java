@@ -116,6 +116,7 @@ public class JulLoggingTest extends AbstractEcsLoggingTest {
         formatter.setStackTraceAsArray(true);
         formatter.setServiceName("test");
         formatter.setEventDataset("testdataset.log");
+        formatter.setAdditionalFields("key1=value1,key2=value2");
         
         Handler handler = new InMemoryStreamHandler(out, formatter);
         handler.setLevel(Level.ALL);

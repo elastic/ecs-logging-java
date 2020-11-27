@@ -24,10 +24,13 @@
  */
 package co.elastic.logging.jul;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.logging.Formatter;
 import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 
+import co.elastic.logging.AdditionalField;
 import co.elastic.logging.EcsJsonSerializer;
 
 public class EcsFormatter extends Formatter {
@@ -39,6 +42,7 @@ public class EcsFormatter extends Formatter {
     private String serviceName;
     private boolean includeOrigin;
     private String eventDataset;
+    private List<AdditionalField> additionalFields = Collections.emptyList();
 
     /**
      * Default constructor. Will read configuration from LogManager properties.
@@ -59,6 +63,7 @@ public class EcsFormatter extends Formatter {
         EcsJsonSerializer.serializeLogLevel(builder, record.getLevel().getName());
         EcsJsonSerializer.serializeFormattedMessage(builder, super.formatMessage(record));
         EcsJsonSerializer.serializeEcsVersion(builder);
+        EcsJsonSerializer.serializeAdditionalFields(builder, additionalFields);
         EcsJsonSerializer.serializeMDC(builder, mdcSupplier.getMDC());
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
         EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
@@ -95,6 +100,10 @@ public class EcsFormatter extends Formatter {
         this.eventDataset = eventDataset;
     }
 
+    public void setAdditionalFields(String additionalFields) {
+        this.additionalFields = AdditionalField.parse(additionalFields);
+    }
+
     private String getProperty(final String name, final String defaultValue) {
         String value = LogManager.getLogManager().getProperty(name);
         if (value == null) {
@@ -104,7 +113,7 @@ public class EcsFormatter extends Formatter {
         }
         return value;
     }
-    
+
     private String buildFileName(String className) {
         String result = UNKNOWN_FILE;
         if (className != null) {
@@ -119,5 +128,4 @@ public class EcsFormatter extends Formatter {
         }
         return result;
     }
-
 }
