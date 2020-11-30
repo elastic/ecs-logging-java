@@ -1,0 +1,103 @@
+// tag::logback[]
+The minimum required logback version is 1.1.
+
+Download the latest version of Elastic logging: https://search.maven.org/search?q=g:co.elastic.logging%20AND%20a:logback-ecs-encoder[image:https://img.shields.io/maven-central/v/co.elastic.logging/logback-ecs-encoder.svg[Maven Central]]
+
+Add a dependency to your application:
+[source,xml]
+----
+<dependency>
+    <groupId>co.elastic.logging</groupId>
+    <artifactId>logback-ecs-encoder</artifactId>
+    <version>${ecs-logging-java.version}</version>
+</dependency>
+----
+
+If you are not using a dependency management tool, like maven, you have to manually add both
+`logback-ecs-encoder` and `ecs-logging-core` jars to the classpath.
+For example to the `$CATALINA_HOME/lib` directory.
+// end::logback[]
+
+// tag::log4j2[]
+The minimum required log4j2 version is 2.6.
+
+Download the latest version of Elastic logging: https://search.maven.org/search?q=g:co.elastic.logging%20AND%20a:log4j2-ecs-layout:[image:https://img.shields.io/maven-central/v/co.elastic.logging/log4j2-ecs-layout.svg[Maven Central]]
+
+Add a dependency to your application:
+[source,xml]
+----
+<dependency>
+    <groupId>co.elastic.logging</groupId>
+    <artifactId>log4j2-ecs-layout</artifactId>
+    <version>${ecs-logging-java.version}</version>
+</dependency>
+----
+
+If you are not using a dependency management tool, like maven, you have to manually add both
+`log4j2-ecs-layout` and `ecs-logging-core` jars to the classpath.
+For example, to the `$CATALINA_HOME/lib` directory.
+// end::log4j2[]
+
+// tag::log4j[]
+The minimum required log4j version is 1.2.4.
+
+Download the latest version of Elastic logging: https://search.maven.org/search?q=g:co.elastic.logging%20AND%20a:log4j-ecs-layout[image:https://img.shields.io/maven-central/v/co.elastic.logging/log4j-ecs-layout.svg[Maven Central]]
+
+Add a dependency to your application:
+
+[source,xml]
+----
+<dependency>
+    <groupId>co.elastic.logging</groupId>
+    <artifactId>log4j-ecs-layout</artifactId>
+    <version>${ecs-logging-java.version}</version>
+</dependency>
+----
+
+If you are not using a dependency management tool, like maven, you have to manually add both
+`log4j-ecs-layout` and `ecs-logging-core` jars to the classpath.
+For example, to the `$CATALINA_HOME/lib` directory.
+// end::log4j[]
+
+// tag::jul[]
+A formatter for JUL (`java.util.logging`) which produces ECS-compatible records.
+Useful for applications that use JUL as primary logging framework, like Apache Tomcat.
+
+Download the latest version of Elastic logging: https://search.maven.org/search?q=g:co.elastic.logging%20AND%20a:jul-ecs-formatter[image:https://img.shields.io/maven-central/v/co.elastic.logging/jul-ecs-formatter.svg[Maven Central]]
+
+Add a dependency to your application:
+[source,xml]
+----
+<dependency>
+    <groupId>co.elastic.logging</groupId>
+    <artifactId>jul-ecs-formatter</artifactId>
+    <version>${ecs-logging-java.version}</version>
+</dependency>
+----
+
+If you are not using a dependency management tool, like maven, you have to manually add both
+`jul-ecs-formatter` and `ecs-logging-core` jars to the classpath.
+For example, to the `$CATALINA_HOME/lib` directory.
+
+// end::jul[]
+
+// tag::jboss[]
+A formatter for JBoss Log Manager which produces ECS-compatible records.
+Useful for applications that use JBoss Log Manager as their primary logging framework, like WildFly.
+
+Download the latest version of Elastic logging: https://search.maven.org/search?q=g:co.elastic.logging%20AND%20a:jboss-logmanager-ecs-formatter[image:https://img.shields.io/maven-central/v/co.elastic.logging/jboss-logmanager-ecs-formatter.svg[Maven Central]]
+
+Add a dependency to your application:
+[source,xml]
+----
+<dependency>
+    <groupId>co.elastic.logging</groupId>
+    <artifactId>jboss-logmanager-ecs-formatter</artifactId>
+    <version>${ecs-logging-java.version}</version>
+</dependency>
+----
+
+If you are not using a dependency management tool, like maven, you have to manually add both
+`jboss-logmanager-ecs-formatter` and `ecs-logging-core` jars to the classpath.
+
+// end::jboss[]

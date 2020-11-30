@@ -24,14 +24,16 @@
  */
 package co.elastic.logging.jul;
 
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.assertj.core.api.Assertions.within;
+import co.elastic.logging.AbstractEcsLoggingTest;
+import co.elastic.logging.ParameterizedLogSupport;
+import com.fasterxml.jackson.databind.JsonNode;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.slf4j.MDC;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -41,14 +43,7 @@ import java.util.logging.StreamHandler;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
-import co.elastic.logging.ParameterizedLogSupport;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
-import com.fasterxml.jackson.databind.JsonNode;
-
-import co.elastic.logging.AbstractEcsLoggingTest;
-import org.slf4j.MDC;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class JulLoggingTest extends AbstractEcsLoggingTest {
 
@@ -121,6 +116,7 @@ public class JulLoggingTest extends AbstractEcsLoggingTest {
         formatter.setStackTraceAsArray(true);
         formatter.setServiceName("test");
         formatter.setEventDataset("testdataset.log");
+        formatter.setAdditionalFields("key1=value1,key2=value2");
         
         Handler handler = new InMemoryStreamHandler(out, formatter);
         handler.setLevel(Level.ALL);
@@ -132,31 +128,20 @@ public class JulLoggingTest extends AbstractEcsLoggingTest {
     @Test
     void testLogException() throws Exception {
         error("test", new RuntimeException("test"));
-        assertThat(getLastLogLine().get("log.level").textValue()).isEqualTo("SEVERE");
-        assertThat(getLastLogLine().get("error.message").textValue()).isEqualTo("test");
-        assertThat(getLastLogLine().get("error.type").textValue()).isEqualTo(RuntimeException.class.getName());
-        String stackTrace = StreamSupport.stream(getLastLogLine().get("error.stack_trace").spliterator(), false)
+        assertThat(getAndValidateLastLogLine().get("log.level").textValue()).isEqualTo("SEVERE");
+        assertThat(getAndValidateLastLogLine().get("error.message").textValue()).isEqualTo("test");
+        assertThat(getAndValidateLastLogLine().get("error.type").textValue()).isEqualTo(RuntimeException.class.getName());
+        String stackTrace = StreamSupport.stream(getAndValidateLastLogLine().get("error.stack_trace").spliterator(), false)
                 .map(JsonNode::textValue)
                 .collect(Collectors.joining("\n", "", "\n"));
         assertThat(stackTrace).contains("at co.elastic.logging.jul.JulLoggingTest.testLogException");
     }
-    
-    @Test
-    void testMetadata() throws Exception {
-        debug("test");
-        assertThat(getLastLogLine().get("process.thread.id").longValue()).isEqualTo(Thread.currentThread().getId());
-        assertThat(getLastLogLine().get("service.name").textValue()).isEqualTo("test");
-        assertThat(Instant.parse(getLastLogLine().get("@timestamp").textValue())).isCloseTo(Instant.now(), within(1, ChronoUnit.MINUTES));
-        assertThat(getLastLogLine().get("log.level").textValue()).isEqualTo("FINE");
-        assertThat(getLastLogLine().get("log.logger")).isNotNull();
-        assertThat(getLastLogLine().get("event.dataset").textValue()).isEqualTo("testdataset.log");
-    }
-    
+
     @Test
     void testLogOrigin() throws Exception {
         debug("test");
-        assertThat(getLastLogLine().get("log.origin").get("file.name").textValue()).endsWith(".java");
-        assertThat(getLastLogLine().get("log.origin").get("function").textValue()).isEqualTo("debug");
+        assertThat(getAndValidateLastLogLine().get("log.origin").get("file.name").textValue()).endsWith(".java");
+        assertThat(getAndValidateLastLogLine().get("log.origin").get("function").textValue()).isEqualTo("debug");
         //No file.line for JUL
     }
 

@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+    <appender name="List" class="co.elastic.logging.log4j.ListAppender">
+        <layout class="co.elastic.logging.log4j.EcsLayout">
+            <param name="serviceName" value="test"/>
+            <param name="eventDataset" value="testdataset.log"/>
+            <param name="stackTraceAsArray" value="true"/>
+            <param name="includeOrigin" value="true"/>
+            <param name="additionalField" value="key1=value1"/>
+            <param name="additionalField" value="key2=value2"/>
+        </layout>
+    </appender>
+    <root>
+        <priority value="DEBUG"/>
+        <appender-ref ref="List"/>
+    </root>
+</log4j:configuration>

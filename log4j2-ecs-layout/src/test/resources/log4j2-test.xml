@@ -13,6 +13,8 @@
                 <KeyValuePair key="clazz" value="%C"/>
                 <KeyValuePair key="custom" value="%custom"/>
                 <KeyValuePair key="emptyPattern" value="%notEmpty{%invalidPattern}"/>
+                <KeyValuePair key="key1" value="value1"/>
+                <KeyValuePair key="key2" value="value2"/>
             </EcsLayout>
         </List>
     </Appenders>

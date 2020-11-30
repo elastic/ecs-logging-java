@@ -39,7 +39,7 @@ import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
 
-class Log4j2EcsLayoutTest extends AbstractLog4j2EcsLayoutTest {
+abstract class Log4j2EcsLayoutTest extends AbstractLog4j2EcsLayoutTest {
     private static ConfigurationFactory configFactory = new BasicConfigurationFactory();
     private LoggerContext ctx;
 
@@ -78,6 +78,8 @@ class Log4j2EcsLayoutTest extends AbstractLog4j2EcsLayoutTest {
                         new KeyValuePair("clazz", "%C"),
                         new KeyValuePair("custom", "%custom"),
                         new KeyValuePair("emptyPattern", "%notEmpty{%invalidPattern}"),
+                        new KeyValuePair("key1", "value1"),
+                        new KeyValuePair("key2", "value2"),
                 })
                 .build();
 
@@ -91,7 +93,7 @@ class Log4j2EcsLayoutTest extends AbstractLog4j2EcsLayoutTest {
     @Override
     void tearDown() throws Exception {
         super.tearDown();
-        ctx.close();
+        ctx.stop();
     }
 
     @Override

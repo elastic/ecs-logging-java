@@ -1,0 +1,341 @@
+// tag::logback[]
+**Spring Boot applications**
+
+In `src/main/resources/logback-spring.xml`:
+
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <property name="LOG_FILE" value="${LOG_FILE:-${LOG_PATH:-${LOG_TEMP:-${java.io.tmpdir:-/tmp}}}/spring.log}"/>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+    <include resource="org/springframework/boot/logging/logback/file-appender.xml" />
+    <include resource="co/elastic/logging/logback/boot/ecs-file-appender.xml" />
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+        <appender-ref ref="ECS_JSON_FILE"/>
+        <appender-ref ref="FILE"/>
+    </root>
+</configuration>
+----
+
+You also need to configure the following properties to your `application.properties`:
+
+[source,properties]
+----
+spring.application.name=my-application
+# for Spring Boot 2.2.x+
+logging.file.name=/path/to/my-application.log
+# for older Spring Boot versions
+logging.file=/path/to/my-application.log
+----
+
+**Other applications**
+
+All you have to do is to use the `co.elastic.logging.logback.EcsEncoder` instead of the default pattern encoder in `logback.xml`
+
+[source,xml]
+----
+<encoder class="co.elastic.logging.logback.EcsEncoder">
+    <serviceName>my-application</serviceName>
+</encoder>
+----
+
+**Encoder Parameters**
+
+|===
+|Parameter name   |Type   |Default| Description
+
+|`serviceName`
+|String
+|
+|Sets the `service.name` field so you can filter your logs by a particular service
+
+|`eventDataset`
+|String
+|`${serviceName}.log`
+|Sets the `event.dataset` field used by the machine learning job of the Logs app to look for anomalies in the log rate.
+
+|`includeMarkers`
+|boolean
+|`false`
+|Log https://logging.apache.org/log4j/2.0/manual/markers.html[Markers] as {ecs-ref}/ecs-base.html[`tags`]
+
+|`stackTraceAsArray`
+|boolean
+|`false`
+|Serializes the {ecs-ref}/ecs-error.html[`error.stack_trace`] as a JSON array where each element is in a new line to improve readability.
+Note that this requires a slightly more complex <<setup-stack-trace-as-array, Filebeat configuration>>.
+
+|`includeOrigin`
+|boolean
+|`false`
+|If `true`, adds the {ecs-ref}/ecs-log.html[`log.origin.file.name`],
+ {ecs-ref}/ecs-log.html[`log.origin.file.line`] and {ecs-ref}/ecs-log.html[`log.origin.function`] fields.
+ Note that you also have to set `<includeCallerData>true</includeCallerData>` on your appenders if you are using the async ones.
+|===
+
+To include any custom field in the output, use following syntax:
+
+[source,xml]
+----
+<additionalField>
+    <key>key1</key>
+    <value>value1</value>
+</additionalField>
+<additionalField>
+    <key>key2</key>
+    <value>value2</value>
+</additionalField>
+----
+
+// end::logback[]
+
+// tag::log4j2[]
+Instead of the usual `<PatternLayout/>`, use `<EcsLayout serviceName="my-app"/>`.
+For example:
+
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="DEBUG">
+    <Appenders>
+        <Console name="LogToConsole" target="SYSTEM_OUT">
+            <EcsLayout serviceName="my-app"/>
+        </Console>
+        <File name="LogToFile" fileName="logs/app.log">
+            <EcsLayout serviceName="my-app"/>
+        </File>
+    </Appenders>
+    <Loggers>
+        <Root level="info">
+            <AppenderRef ref="LogToFile"/>
+            <AppenderRef ref="LogToConsole"/>
+        </Root>
+    </Loggers>
+</Configuration>
+----
+
+**Layout Parameters**
+
+|===
+|Parameter name   |Type   |Default |Description
+
+|`serviceName`
+|String
+|
+|Sets the `service.name` field so you can filter your logs by a particular service
+
+|`eventDataset`
+|String
+|`${serviceName}.log`
+|Sets the `event.dataset` field used by the machine learning job of the Logs app to look for anomalies in the log rate.
+
+|`includeMarkers`
+|boolean
+|`false`
+|Log https://logging.apache.org/log4j/2.0/manual/markers.html[Markers] as {ecs-ref}/ecs-base.html[`tags`]
+
+|`stackTraceAsArray`
+|boolean
+|`false`
+|Serializes the {ecs-ref}/ecs-error.html[`error.stack_trace`] as a JSON array where each element is in a new line to improve readability.
+ Note that this requires a slightly more complex <<setup-stack-trace-as-array, Filebeat configuration>>.
+
+|`includeOrigin`
+|boolean
+|`false`
+|If `true`, adds the {ecs-ref}/ecs-log.html[`log.origin.file.name`],
+ {ecs-ref}/ecs-log.html[`log.origin.file.line`] and {ecs-ref}/ecs-log.html[`log.origin.function`] fields.
+ Note that you also have to set `includeLocation="true"` on your loggers and appenders if you are using the async ones.
+|===
+
+To include any custom field in the output, use following syntax:
+
+[source,xml]
+----
+  <EcsLayout>
+    <KeyValuePair key="key1" value="constant value"/>
+    <KeyValuePair key="key2" value="$${ctx:key}"/>
+  </EcsLayout>
+----
+
+Custom fields are included in the order they are declared. The values support https://logging.apache.org/log4j/2.x/manual/lookups.html[lookups].
+
+
+
+// end::log4j2[]
+
+// tag::log4j[]
+Instead of the usual layout class `"org.apache.log4j.PatternLayout"`, use `"co.elastic.logging.log4j.EcsLayout"`.
+For example:
+
+[source,xml]
+----
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+<log4j:configuration xmlns:log4j="http://jakarta.apache.org/log4j/">
+    <appender name="LogToConsole" class="org.apache.log4j.ConsoleAppender">
+        <param name="Target" value="System.out"/>
+        <layout class="co.elastic.logging.log4j.EcsLayout">
+            <param name="serviceName" value="my-app"/>
+        </layout>
+    </appender>
+    <appender name="LogToFile" class="org.apache.log4j.RollingFileAppender">
+        <param name="File" value="logs/app.log"/>
+        <layout class="co.elastic.logging.log4j.EcsLayout">
+            <param name="serviceName" value="my-app"/>
+        </layout>
+    </appender>
+    <root>
+        <priority value="INFO"/>
+        <appender-ref ref="LogToFile"/>
+        <appender-ref ref="LogToConsole"/>
+    </root>
+</log4j:configuration>
+----
+
+
+**Layout Parameters**
+
+|===
+|Parameter name   |Type   |Default |Description
+
+|`serviceName`
+|String
+|
+|Sets the `service.name` field so you can filter your logs by a particular service
+
+|`eventDataset`
+|String
+|`${serviceName}.log`
+|Sets the `event.dataset` field used by the machine learning job of the Logs app to look for anomalies in the log rate.
+
+|`stackTraceAsArray`
+|boolean
+|`false`
+|Serializes the {ecs-ref}/ecs-error.html[`error.stack_trace`] as a JSON array where each element is in a new line to improve readability.
+Note that this requires a slightly more complex <<setup-stack-trace-as-array, Filebeat configuration>>.
+
+|`includeOrigin`
+|boolean
+|`false`
+|If `true`, adds the {ecs-ref}/ecs-log.html[`log.origin.file.name`],
+{ecs-ref}/ecs-log.html[`log.origin.file.line`] and {ecs-ref}/ecs-log.html[`log.origin.function`] fields.
+Note that you also have to set `<param name="LocationInfo" value="true"/>` if you are using `AsyncAppender`.
+|===
+
+To include any custom field in the output, use following syntax:
+
+[source,xml]
+----
+<layout class="co.elastic.logging.log4j.EcsLayout">
+   <param name="additionalField" value="key1=value1"/>
+   <param name="additionalField" value="key2=value2"/>
+</layout>
+----
+
+Custom fields are included in the order they are declared.
+// end::log4j[]
+
+// tag::jul[]
+Specify `co.elastic.logging.jul.EcsFormatter` as `formatter` for the required log handler.
+
+For example, in `$CATALINA_HOME/conf/logging.properties`:
+
+[source, properties]
+----
+java.util.logging.ConsoleHandler.level = FINE
+java.util.logging.ConsoleHandler.formatter = co.elastic.logging.jul.EcsFormatter
+co.elastic.logging.jul.EcsFormatter.serviceName=my-app
+----
+
+**Layout Parameters**
+
+|===
+|Parameter name   |Type   |Default |Description
+
+|`serviceName`
+|String
+|
+|Sets the `service.name` field so you can filter your logs by a particular service
+
+|`eventDataset`
+|String
+|`${serviceName}.log`
+|Sets the `event.dataset` field used by the machine learning job of the Logs app to look for anomalies in the log rate.
+
+|`stackTraceAsArray`
+|boolean
+|`false`
+|Serializes the {ecs-ref}/ecs-error.html[`error.stack_trace`] as a JSON array where each element is in a new line to improve readability. Note that this requires a slightly more complex [Filebeat configuration](../README.md#when-stacktraceasarray-is-enabled).
+
+|`includeOrigin`
+|boolean
+|`false`
+|If `true`, adds the {ecs-ref}/ecs-log.html[`log.origin.file.name`],
+ {ecs-ref}/ecs-log.html[`log.origin.file.line`] and {ecs-ref}/ecs-log.html[`log.origin.function`] fields.
+ Note that JUL does not stores line number and `log.origin.file.line` will have '1' value.
+
+|`additionalFields`
+|String
+|
+|Adds additional static fields to all log events.
+ The fields are specified as comma-separated key-value pairs.
+ Example: `co.elastic.logging.jul.EcsFormatter.additionalFields=key1=value1,key2=value2`.
+|===
+// end::jul[]
+
+// tag::jboss[]
+Specify `co.elastic.logging.jboss.logmanager.EcsFormatter` as `formatter` for the required log handler.
+
+For example, with Wildfly, create a `jboss-logmanager-ecs-formatter` module:
+
+[source,bash]
+----
+$WILDFLY_HOME/bin/jboss-cli.sh -c 'module add --name=co.elastic.logging.jboss-logmanager-ecs-formatter --resources=jboss-logmanager-ecs-formatter-${ecs-logging-java.version}.jar:/tmp/ecs-logging-core-${ecs-logging-java.version}.jar --dependencies=org.jboss.logmanager'
+----
+
+Add the formatter to a handler in the logging subsystem:
+
+[source,bash]
+----
+$WILDFLY_HOME/bin/jboss-cli.sh -c '/subsystem=logging/custom-formatter=ECS:add(module=co.elastic.logging.jboss-logmanager-ecs-formatter, class=co.elastic.logging.jboss.logmanager.EcsFormatter, properties={serviceName=my-app}),\
+                                   /subsystem=logging/console-handler=CONSOLE:write-attribute(name=named-formatter,value=ECS)'
+----
+
+**Layout Parameters**
+
+|===
+|Parameter name   |Type   |Default |Description
+
+|`serviceName`
+|String
+|
+|Sets the `service.name` field so you can filter your logs by a particular service
+
+|`eventDataset`
+|String
+|`${serviceName}.log`
+|Sets the `event.dataset` field used by the machine learning job of the Logs app to look for anomalies in the log rate.
+
+|`stackTraceAsArray`
+|boolean
+|`false`
+|Serializes the {ecs-ref}/ecs-error.html[`error.stack_trace`] as a JSON array where each element is in a new line to improve readability. Note that this requires a slightly more complex <<setup-stack-trace-as-array, Filebeat configuration>>.
+
+|`includeOrigin`
+|boolean
+|`false`
+|If `true`, adds the {ecs-ref}/ecs-log.html[`log.origin.file.name`],
+ {ecs-ref}/ecs-log.html[`log.origin.file.line`] and {ecs-ref}/ecs-log.html[`log.origin.function`] fields.
+
+|`additionalFields`
+|String
+|
+|Adds additional static fields to all log events.
+ The fields are specified as comma-separated key-value pairs.
+ Example: `additionalFields=key1=value1,key2=value2`.
+|===
+// end::jboss[]

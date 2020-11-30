@@ -25,14 +25,20 @@
 package co.elastic.logging.jboss.logmanager;
 
 import co.elastic.logging.EcsJsonSerializer;
+import co.elastic.logging.AdditionalField;
 import org.jboss.logmanager.ExtFormatter;
 import org.jboss.logmanager.ExtLogRecord;
 import org.jboss.logmanager.LogManager;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 
 public class EcsFormatter extends ExtFormatter {
 
     private String serviceName;
     private String eventDataset;
+    private List<AdditionalField> additionalFields = Collections.emptyList();
     private boolean includeOrigin;
     private boolean stackTraceAsArray;
 
@@ -50,10 +56,12 @@ public class EcsFormatter extends ExtFormatter {
         EcsJsonSerializer.serializeObjectStart(builder, record.getMillis());
         EcsJsonSerializer.serializeLogLevel(builder, record.getLevel().getName());
         EcsJsonSerializer.serializeFormattedMessage(builder, record.getFormattedMessage());
+        EcsJsonSerializer.serializeEcsVersion(builder);
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
         EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
         EcsJsonSerializer.serializeThreadName(builder, record.getThreadName());
         EcsJsonSerializer.serializeLoggerName(builder, record.getLoggerName());
+        EcsJsonSerializer.serializeAdditionalFields(builder, additionalFields);
         EcsJsonSerializer.serializeMDC(builder, record.getMdcCopy());
         String ndc = record.getNdc();
         if (ndc != null && !ndc.isEmpty()) {
@@ -89,6 +97,10 @@ public class EcsFormatter extends ExtFormatter {
 
     public void setEventDataset(String eventDataset) {
         this.eventDataset = eventDataset;
+    }
+
+    public void setAdditionalFields(String additionalFields) {
+        this.additionalFields = AdditionalField.parse(additionalFields);
     }
 
     private String getProperty(final String name, final String defaultValue) {

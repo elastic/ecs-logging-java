@@ -24,6 +24,7 @@
  */
 package co.elastic.logging;
 
+import java.util.List;
 import java.util.Map;
 
 public class EcsJsonSerializer {
@@ -40,6 +41,10 @@ public class EcsJsonSerializer {
         builder.append("\"@timestamp\":\"");
         TIMESTAMP_SERIALIZER.serializeEpochTimestampAsIsoDateTime(builder, timeMillis);
         builder.append("\", ");
+    }
+
+    public static void serializeEcsVersion(StringBuilder builder) {
+        builder.append("\"ecs.version\": \"1.2.0\",");
     }
 
     public static void serializeObjectEnd(StringBuilder builder) {
@@ -148,7 +153,7 @@ public class EcsJsonSerializer {
     }
 
     public static void serializeMDC(StringBuilder builder, Map<String, ?> properties) {
-        if (!properties.isEmpty()) {
+        if (properties != null && !properties.isEmpty()) {
             for (Map.Entry<String, ?> entry : properties.entrySet()) {
                 builder.append('\"');
                 String key = entry.getKey();
@@ -213,5 +218,20 @@ public class EcsJsonSerializer {
             return serviceName + ".log";
         }
         return eventDataset;
+    }
+
+    public static void serializeAdditionalFields(StringBuilder builder, List<AdditionalField> additionalFields) {
+        if (!additionalFields.isEmpty()) {
+            for (int i = 0, size = additionalFields.size(); i < size; i++) {
+                AdditionalField additionalField = additionalFields.get(i);
+                if (additionalField.getKey() != null) {
+                    builder.append('\"');
+                    JsonUtils.quoteAsString(additionalField.getKey(), builder);
+                    builder.append("\":\"");
+                    JsonUtils.quoteAsString(additionalField.getValue(), builder);
+                    builder.append("\",");
+                }
+            }
+        }
     }
 }

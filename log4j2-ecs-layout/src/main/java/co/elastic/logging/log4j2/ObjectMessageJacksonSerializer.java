@@ -37,24 +37,22 @@ interface ObjectMessageJacksonSerializer {
 
     void formatTo(StringBuilder buffer, ObjectMessage objectMessage);
 
-    enum Resolver {
-        INSTANCE;
+    class Resolver {
 
-        ObjectMessageJacksonSerializer resolve() {
-            ObjectMessageJacksonSerializer localDelegate = null;
+        static ObjectMessageJacksonSerializer resolve() {
             try {
                 // safely discovers if Jackson is available
                 Class.forName("com.fasterxml.jackson.databind.ObjectMapper");
                 // this method has been introduced in 2.7
                 Class.forName("org.apache.logging.log4j.message.ObjectMessage").getMethod("getParameter");
                 // avoid initializing ObjectMessageSerializer$WithJackson if Jackson is not on the classpath to avoid linkage errors
-                return  (ObjectMessageJacksonSerializer) Class.forName("co.elastic.logging.log4j2.ObjectMessageJacksonSerializer$Available").getEnumConstants()[0];
+                return (ObjectMessageJacksonSerializer) Class.forName("co.elastic.logging.log4j2.ObjectMessageJacksonSerializer$Available").getEnumConstants()[0];
             } catch (Exception e) {
-                return null;
             } catch (LinkageError e) {
                 // we should not cause linkage errors but just in case...
-                return null;
             }
+            return null;
+
         }
     }
 

@@ -28,6 +28,7 @@ package co.elastic.logging.log4j2;
 import co.elastic.logging.EcsJsonSerializer;
 import co.elastic.logging.JsonUtils;
 import org.apache.logging.log4j.Marker;
+import org.apache.logging.log4j.ThreadContext;
 import org.apache.logging.log4j.core.Layout;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.core.config.Configuration;
@@ -35,6 +36,7 @@ import org.apache.logging.log4j.core.config.Node;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
 import org.apache.logging.log4j.core.config.plugins.PluginBuilderAttribute;
 import org.apache.logging.log4j.core.config.plugins.PluginBuilderFactory;
+import org.apache.logging.log4j.core.config.plugins.PluginConfiguration;
 import org.apache.logging.log4j.core.config.plugins.PluginElement;
 import org.apache.logging.log4j.core.layout.AbstractStringLayout;
 import org.apache.logging.log4j.core.layout.ByteBufferDestination;
@@ -46,11 +48,10 @@ import org.apache.logging.log4j.core.util.KeyValuePair;
 import org.apache.logging.log4j.message.Message;
 import org.apache.logging.log4j.message.MultiformatMessage;
 import org.apache.logging.log4j.message.ObjectMessage;
-import org.apache.logging.log4j.util.MultiFormatStringBuilderFormattable;
 import org.apache.logging.log4j.util.StringBuilderFormattable;
-import org.apache.logging.log4j.util.TriConsumer;
 
 import java.nio.charset.Charset;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
@@ -59,18 +60,9 @@ import java.util.concurrent.ConcurrentMap;
 public class EcsLayout extends AbstractStringLayout {
 
     public static final Charset UTF_8 = Charset.forName("UTF-8");
-    static final String[] JSON_FORMAT = {"JSON"};
-
-    private final TriConsumer<String, Object, StringBuilder> WRITE_MDC = new TriConsumer<String, Object, StringBuilder>() {
-        @Override
-        public void accept(final String key, final Object value, final StringBuilder stringBuilder) {
-            stringBuilder.append('\"');
-            JsonUtils.quoteAsString(key, stringBuilder);
-            stringBuilder.append("\":\"");
-            JsonUtils.quoteAsString(EcsJsonSerializer.toNullSafeString(String.valueOf(value)), stringBuilder);
-            stringBuilder.append("\",");
-        }
-    };
+    private static final ObjectMessageJacksonSerializer JACKSON_SERIALIZER = ObjectMessageJacksonSerializer.Resolver.resolve();
+    private static final MdcSerializer MDC_SERIALIZER = MdcSerializer.Resolver.resolve();
+    private static final MultiFormatHandler MULTI_FORMAT_HANDLER = MultiFormatHandler.Resolver.resolve();
 
     private final KeyValuePair[] additionalFields;
     private final PatternFormatter[][] fieldValuePatternFormatter;
@@ -80,7 +72,6 @@ public class EcsLayout extends AbstractStringLayout {
     private final boolean includeMarkers;
     private final boolean includeOrigin;
     private final ConcurrentMap<Class<? extends MultiformatMessage>, Boolean> supportsJson = new ConcurrentHashMap<Class<? extends MultiformatMessage>, Boolean>();
-    private final ObjectMessageJacksonSerializer objectMessageJacksonSerializer = ObjectMessageJacksonSerializer.Resolver.INSTANCE.resolve();
 
     private EcsLayout(Configuration config, String serviceName, String eventDataset, boolean includeMarkers, KeyValuePair[] additionalFields, boolean includeOrigin, boolean stackTraceAsArray) {
         super(config, UTF_8, null, null);
@@ -103,7 +94,7 @@ public class EcsLayout extends AbstractStringLayout {
 
     @PluginBuilderFactory
     public static EcsLayout.Builder newBuilder() {
-        return new EcsLayout.Builder().asBuilder();
+        return new EcsLayout.Builder();
     }
 
     private static boolean valueNeedsLookup(final String value) {
@@ -132,6 +123,7 @@ public class EcsLayout extends AbstractStringLayout {
         EcsJsonSerializer.serializeObjectStart(builder, event.getTimeMillis());
         EcsJsonSerializer.serializeLogLevel(builder, event.getLevel().toString());
         serializeMessage(builder, gcFree, event.getMessage(), event.getThrown());
+        EcsJsonSerializer.serializeEcsVersion(builder);
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
         EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
@@ -148,40 +140,38 @@ public class EcsLayout extends AbstractStringLayout {
 
     private void serializeAdditionalFieldsAndMDC(LogEvent event, StringBuilder builder) {
         final int length = additionalFields.length;
-        if (!event.getContextData().isEmpty() || length > 0) {
-            if (length > 0) {
-                final StrSubstitutor strSubstitutor = getConfiguration().getStrSubstitutor();
-                for (int i = 0; i < length; i++) {
-                    KeyValuePair additionalField = additionalFields[i];
-                    PatternFormatter[] formatters = fieldValuePatternFormatter[i];
-                    CharSequence value = null;
-                    if (formatters != null) {
-                        StringBuilder buffer = EcsJsonSerializer.getMessageStringBuilder();
-                        formatPattern(event, formatters, buffer);
-                        if (buffer.length() > 0) {
-                            value = buffer;
-                        }
-                    } else if (valueNeedsLookup(additionalField.getValue())) {
-                        StringBuilder lookupValue = EcsJsonSerializer.getMessageStringBuilder();
-                        lookupValue.append(additionalField.getValue());
-                        if (strSubstitutor.replaceIn(event, lookupValue)) {
-                            value = lookupValue;
-                        }
-                    } else {
-                        value = additionalField.getValue();
+        if (length > 0) {
+            final StrSubstitutor strSubstitutor = getConfiguration().getStrSubstitutor();
+            for (int i = 0; i < length; i++) {
+                KeyValuePair additionalField = additionalFields[i];
+                PatternFormatter[] formatters = fieldValuePatternFormatter[i];
+                CharSequence value = null;
+                if (formatters != null) {
+                    StringBuilder buffer = EcsJsonSerializer.getMessageStringBuilder();
+                    formatPattern(event, formatters, buffer);
+                    if (buffer.length() > 0) {
+                        value = buffer;
                     }
+                } else if (valueNeedsLookup(additionalField.getValue())) {
+                    StringBuilder lookupValue = EcsJsonSerializer.getMessageStringBuilder();
+                    lookupValue.append(additionalField.getValue());
+                    if (strSubstitutor.replaceIn(event, lookupValue)) {
+                        value = lookupValue;
+                    }
+                } else {
+                    value = additionalField.getValue();
+                }
 
-                    if (value != null) {
-                        builder.append('\"');
-                        JsonUtils.quoteAsString(additionalField.getKey(), builder);
-                        builder.append("\":\"");
-                        JsonUtils.quoteAsString(EcsJsonSerializer.toNullSafeString(value), builder);
-                        builder.append("\",");
-                    }
+                if (value != null) {
+                    builder.append('\"');
+                    JsonUtils.quoteAsString(additionalField.getKey(), builder);
+                    builder.append("\":\"");
+                    JsonUtils.quoteAsString(EcsJsonSerializer.toNullSafeString(value), builder);
+                    builder.append("\",");
                 }
             }
-            event.getContextData().forEach(WRITE_MDC, builder);
         }
+        MDC_SERIALIZER.serializeMdc(event, builder);
     }
 
     private static void formatPattern(LogEvent event, PatternFormatter[] formatters, StringBuilder buffer) {
@@ -192,7 +182,13 @@ public class EcsLayout extends AbstractStringLayout {
     }
 
     private void serializeTags(LogEvent event, StringBuilder builder) {
-        List<String> contextStack = event.getContextStack().asList();
+        ThreadContext.ContextStack stack = event.getContextStack();
+        List<String> contextStack;
+        if (stack == null) {
+            contextStack = Collections.emptyList();
+        } else {
+            contextStack = stack.asList();
+        }
         Marker marker = event.getMarker();
         boolean hasTags = !contextStack.isEmpty() || (includeMarkers && marker != null);
         if (hasTags) {
@@ -235,9 +231,9 @@ public class EcsLayout extends AbstractStringLayout {
             } else {
                 serializeSimpleMessage(builder, gcFree, message, thrown);
             }
-        } else if (objectMessageJacksonSerializer != null && message instanceof ObjectMessage) {
+        } else if (JACKSON_SERIALIZER != null && message instanceof ObjectMessage) {
             final StringBuilder jsonBuffer = EcsJsonSerializer.getMessageStringBuilder();
-            objectMessageJacksonSerializer.formatTo(jsonBuffer, (ObjectMessage) message);
+            JACKSON_SERIALIZER.formatTo(jsonBuffer, (ObjectMessage) message);
             addJson(builder, jsonBuffer);
         } else {
             serializeSimpleMessage(builder, gcFree, message, thrown);
@@ -246,11 +242,7 @@ public class EcsLayout extends AbstractStringLayout {
 
     private static void serializeJsonMessage(StringBuilder builder, MultiformatMessage message) {
         final StringBuilder messageBuffer = EcsJsonSerializer.getMessageStringBuilder();
-        if (message instanceof MultiFormatStringBuilderFormattable) {
-            ((MultiFormatStringBuilderFormattable) message).formatTo(JSON_FORMAT, messageBuffer);
-        } else {
-            messageBuffer.append(message.getFormattedMessage(JSON_FORMAT));
-        }
+        MULTI_FORMAT_HANDLER.formatJsonTo(message, messageBuffer);
         addJson(builder, messageBuffer);
     }
 
@@ -283,7 +275,7 @@ public class EcsLayout extends AbstractStringLayout {
                 ((StringBuilderFormattable) message).formatTo(messageBuffer);
                 JsonUtils.quoteAsString(messageBuffer, builder);
             } finally {
-                trimToMaxSize(messageBuffer);
+                trimToMaxSizeCopy(messageBuffer);
             }
         } else {
             JsonUtils.quoteAsString(EcsJsonSerializer.toNullSafeString(message.getFormattedMessage()), builder);
@@ -291,12 +283,19 @@ public class EcsLayout extends AbstractStringLayout {
         builder.append("\", ");
     }
 
+    static void trimToMaxSizeCopy(final StringBuilder stringBuilder) {
+        if (stringBuilder.length() > MAX_STRING_BUILDER_SIZE) {
+            stringBuilder.setLength(MAX_STRING_BUILDER_SIZE);
+            stringBuilder.trimToSize();
+        }
+    }
+
     private static boolean isObject(StringBuilder messageBuffer) {
-        return messageBuffer.length() > 1 && messageBuffer.charAt(0) == '{' && messageBuffer.charAt(messageBuffer.length() -1) == '}';
+        return messageBuffer.length() > 1 && messageBuffer.charAt(0) == '{' && messageBuffer.charAt(messageBuffer.length() - 1) == '}';
     }
 
     private static boolean isString(StringBuilder messageBuffer) {
-        return messageBuffer.length() > 1 && messageBuffer.charAt(0) == '"' && messageBuffer.charAt(messageBuffer.length() -1) == '"';
+        return messageBuffer.length() > 1 && messageBuffer.charAt(0) == '"' && messageBuffer.charAt(messageBuffer.length() - 1) == '"';
     }
 
     private static void moveToRoot(StringBuilder messageBuffer) {
@@ -319,9 +318,10 @@ public class EcsLayout extends AbstractStringLayout {
         return supportsJson;
     }
 
-    public static class Builder extends AbstractStringLayout.Builder<EcsLayout.Builder>
-            implements org.apache.logging.log4j.core.util.Builder<EcsLayout> {
+    public static class Builder implements org.apache.logging.log4j.core.util.Builder<EcsLayout> {
 
+        @PluginConfiguration
+        private Configuration configuration;
         @PluginBuilderAttribute("serviceName")
         private String serviceName;
         @PluginBuilderAttribute("eventDataset")
@@ -336,8 +336,15 @@ public class EcsLayout extends AbstractStringLayout {
         private boolean includeOrigin = false;
 
         Builder() {
-            super();
-            setCharset(UTF_8);
+        }
+
+        public Configuration getConfiguration() {
+            return configuration;
+        }
+
+        public EcsLayout.Builder setConfiguration(final Configuration configuration) {
+            this.configuration = configuration;
+            return this;
         }
 
         public KeyValuePair[] getAdditionalFields() {
@@ -367,32 +374,32 @@ public class EcsLayout extends AbstractStringLayout {
          */
         public EcsLayout.Builder setAdditionalFields(final KeyValuePair[] additionalFields) {
             this.additionalFields = additionalFields.clone();
-            return asBuilder();
+            return this;
         }
 
         public EcsLayout.Builder setServiceName(final String serviceName) {
             this.serviceName = serviceName;
-            return asBuilder();
+            return this;
         }
 
         public EcsLayout.Builder setEventDataset(String eventDataset) {
             this.eventDataset = eventDataset;
-            return asBuilder();
+            return this;
         }
 
         public EcsLayout.Builder setIncludeMarkers(final boolean includeMarkers) {
             this.includeMarkers = includeMarkers;
-            return asBuilder();
+            return this;
         }
 
         public EcsLayout.Builder setIncludeOrigin(final boolean includeOrigin) {
             this.includeOrigin = includeOrigin;
-            return asBuilder();
+            return this;
         }
 
         public EcsLayout.Builder setStackTraceAsArray(boolean stackTraceAsArray) {
             this.stackTraceAsArray = stackTraceAsArray;
-            return asBuilder();
+            return this;
         }
 
         @Override
