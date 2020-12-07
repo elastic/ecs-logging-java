@@ -96,6 +96,9 @@ public abstract class AbstractEcsLoggingTest {
             validateRequiredField(logLine, specFieldName, specForField.get("required").booleanValue());
             if (fieldInLog != null) {
                 validateIndex(logLine, logFieldNames, specFieldName, specForField.get("index"));
+                if (specForField.has("nesting_allowed") && !specForField.get("nesting_allowed").asBoolean(true)) {
+                    assertThat(logLine.at(specFieldName)).isNull();
+                }
                 validateType(fieldInLog, specForField.get("type").textValue());
             }
         }

@@ -13,9 +13,10 @@ Add a dependency to your application:
 </dependency>
 ----
 
-If you are not using a dependency management tool, like maven, you have to manually add both
+NOTE: If you are not using a dependency management tool, like maven, you have to manually add both
 `logback-ecs-encoder` and `ecs-logging-core` jars to the classpath.
 For example to the `$CATALINA_HOME/lib` directory.
+Other than that, there are no required dependencies.
 // end::logback[]
 
 // tag::log4j2[]
@@ -33,9 +34,10 @@ Add a dependency to your application:
 </dependency>
 ----
 
-If you are not using a dependency management tool, like maven, you have to manually add both
+NOTE: If you are not using a dependency management tool, like maven, you have to manually add both
 `log4j2-ecs-layout` and `ecs-logging-core` jars to the classpath.
 For example, to the `$CATALINA_HOME/lib` directory.
+Other than that, there are no required dependencies.
 // end::log4j2[]
 
 // tag::log4j[]
@@ -54,9 +56,10 @@ Add a dependency to your application:
 </dependency>
 ----
 
-If you are not using a dependency management tool, like maven, you have to manually add both
+NOTE: If you are not using a dependency management tool, like maven, you have to manually add both
 `log4j-ecs-layout` and `ecs-logging-core` jars to the classpath.
 For example, to the `$CATALINA_HOME/lib` directory.
+Other than that, there are no required dependencies.
 // end::log4j[]
 
 // tag::jul[]
@@ -75,9 +78,10 @@ Add a dependency to your application:
 </dependency>
 ----
 
-If you are not using a dependency management tool, like maven, you have to manually add both
+NOTE: If you are not using a dependency management tool, like maven, you have to manually add both
 `jul-ecs-formatter` and `ecs-logging-core` jars to the classpath.
 For example, to the `$CATALINA_HOME/lib` directory.
+Other than that, there are no required dependencies.
 
 // end::jul[]
 
@@ -97,7 +101,7 @@ Add a dependency to your application:
 </dependency>
 ----
 
-If you are not using a dependency management tool, like maven, you have to manually add both
+NOTE: If you are not using a dependency management tool, like maven, you have to manually add both
 `jboss-logmanager-ecs-formatter` and `ecs-logging-core` jars to the classpath.
-
+Other than that, there are no required dependencies.
 // end::jboss[]
