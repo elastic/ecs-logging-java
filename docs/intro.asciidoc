@@ -1,11 +1,12 @@
 [[intro]]
 == Introduction
 
-NOTE: This library is in **beta**. Backward-incompatible changes might be introduced in future releases while the major version is zero (0.x.x).
+ECS loggers are formatter/encoder plugins for your favorite logging libraries.
+They make it easy to format your logs into ECS-compatible JSON.
+Ready to jump in? See the <<setup,get started>> guide.
 
-// Introduction content is shared.
-// Updates should be made in the ecs-logging repo
-include::{ecs-repo-dir}/intro.asciidoc[]
+TIP: Want to learn more about ECS, ECS logging, and other available language plugins?
+See LINK_TO_ECS_LOGGING_DOCS.
 
 [float]
 === Mapping
