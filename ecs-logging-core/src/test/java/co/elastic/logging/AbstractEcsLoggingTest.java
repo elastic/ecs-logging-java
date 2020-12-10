@@ -96,9 +96,6 @@ public abstract class AbstractEcsLoggingTest {
             validateRequiredField(logLine, specFieldName, specForField.get("required").booleanValue());
             if (fieldInLog != null) {
                 validateIndex(logLine, logFieldNames, specFieldName, specForField.get("index"));
-                if (specForField.has("nesting_allowed") && !specForField.get("nesting_allowed").asBoolean(true)) {
-                    assertThat(logLine.at(specFieldName)).isNull();
-                }
                 validateType(fieldInLog, specForField.get("type").textValue());
             }
         }
@@ -125,7 +122,9 @@ public abstract class AbstractEcsLoggingTest {
             case "datetime":
                 assertThatCode(() -> Instant.parse(fieldInLog.textValue())).doesNotThrowAnyException();
             case "string":
-                assertThat(fieldInLog.isTextual()).isTrue();
+                assertThat(fieldInLog.isTextual())
+                        .describedAs("%s is not a %s", fieldInLog, type)
+                        .isTrue();
         }
     }
 
@@ -180,13 +179,11 @@ public abstract class AbstractEcsLoggingTest {
     @Test
     void testLogException() throws Exception {
         error("test", new RuntimeException("test"));
-        assertThat(getAndValidateLastLogLine().get("log.level").textValue()).isEqualTo("ERROR");
-        assertThat(getAndValidateLastLogLine().get("error.message").textValue()).isEqualTo("test");
-        assertThat(getAndValidateLastLogLine().get("error.type").textValue()).isEqualTo(RuntimeException.class.getName());
-        String stackTrace = StreamSupport.stream(getAndValidateLastLogLine().get("error.stack_trace").spliterator(), false)
-                .map(JsonNode::textValue)
-                .collect(Collectors.joining("\n", "", "\n"));
-        assertThat(stackTrace).contains("at co.elastic.logging.AbstractEcsLoggingTest.testLogException");
+        JsonNode log = getAndValidateLastLogLine();
+        assertThat(log.get("log.level").textValue()).isIn("ERROR", "SEVERE");
+        assertThat(log.get("error.message").textValue()).isEqualTo("test");
+        assertThat(log.get("error.type").textValue()).isEqualTo(RuntimeException.class.getName());
+        assertThat(log.get("error.stack_trace").textValue()).contains("at co.elastic.logging.AbstractEcsLoggingTest.testLogException");
     }
 
     @Test
