@@ -1,5 +1,5 @@
 [[setup]]
-== Get Started
+== Get started
 
 include::./tab-widgets/code.asciidoc[]
 
@@ -35,26 +35,7 @@ set {apm-java-ref}/config-logging.html#config-enable-log-correlation[`enable_log
 [[setup-step-3]]
 === Step 3: Configure Filebeat
 
-Configure your `filebeat.inputs` as follows:
-
-[source,yml]
-----
-filebeat.inputs:
-- type: log
-  paths: /path/to/logs.json
-  json.keys_under_root: true
-  json.overwrite_keys: true
-
-# no further processing required, logs can directly be sent to Elastic Cloud
-cloud.id: "staging:dXMtZWFzdC0xLmF3cy5mb3VuZC5pbyRjZWM2ZjI2MWE3NGJmMjRjZTMzYmI4ODExYjg0Mjk0ZiRjNmMyY2E2ZDA0MjI0OWFmMGNjN2Q3YTllOTYyNTc0Mw=="
-cloud.auth: "elastic:YOUR_PASSWORD"
-
-# Or to your local Elasticsearch cluster
-#output.elasticsearch:
-#  hosts: ["https://localhost:9200"]
-----
-
-For more information, check the {filebeat-ref}/configuring-howto-filebeat.html[Filebeat documentation].
+include::{ecs-repo-dir}/setup.asciidoc[tag=configure-filebeat]
 
 [float]
 [[setup-stack-trace-as-array]]
