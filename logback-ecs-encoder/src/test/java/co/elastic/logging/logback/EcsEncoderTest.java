@@ -45,7 +45,6 @@ class EcsEncoderTest extends AbstractEcsEncoderTest {
         EcsEncoder ecsEncoder = new EcsEncoder();
         ecsEncoder.setServiceName("test");
         ecsEncoder.setIncludeMarkers(true);
-        ecsEncoder.setStackTraceAsArray(true);
         ecsEncoder.setIncludeOrigin(true);
         ecsEncoder.addAdditionalField(new AdditionalField("key1", "value1"));
         ecsEncoder.addAdditionalField(new AdditionalField("key2", "value2"));

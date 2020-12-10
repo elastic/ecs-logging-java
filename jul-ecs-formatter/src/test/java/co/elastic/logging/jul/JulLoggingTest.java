@@ -113,7 +113,6 @@ public class JulLoggingTest extends AbstractEcsLoggingTest {
         clearHandlers();
         
         formatter.setIncludeOrigin(true);
-        formatter.setStackTraceAsArray(true);
         formatter.setServiceName("test");
         formatter.setEventDataset("testdataset.log");
         formatter.setAdditionalFields("key1=value1,key2=value2");
@@ -123,18 +122,6 @@ public class JulLoggingTest extends AbstractEcsLoggingTest {
         
         logger.addHandler(handler);
         logger.setLevel(Level.ALL);
-    }
-
-    @Test
-    void testLogException() throws Exception {
-        error("test", new RuntimeException("test"));
-        assertThat(getAndValidateLastLogLine().get("log.level").textValue()).isEqualTo("SEVERE");
-        assertThat(getAndValidateLastLogLine().get("error.message").textValue()).isEqualTo("test");
-        assertThat(getAndValidateLastLogLine().get("error.type").textValue()).isEqualTo(RuntimeException.class.getName());
-        String stackTrace = StreamSupport.stream(getAndValidateLastLogLine().get("error.stack_trace").spliterator(), false)
-                .map(JsonNode::textValue)
-                .collect(Collectors.joining("\n", "", "\n"));
-        assertThat(stackTrace).contains("at co.elastic.logging.jul.JulLoggingTest.testLogException");
     }
 
     @Test
