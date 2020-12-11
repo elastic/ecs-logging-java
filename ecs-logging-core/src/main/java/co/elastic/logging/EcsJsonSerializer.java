@@ -142,18 +142,22 @@ public class EcsJsonSerializer {
     }
 
     public static void serializeOrigin(StringBuilder builder, String fileName, String methodName, int lineNumber) {
-        builder.append("\"log.origin\":{");
-        builder.append("\"file.name\":\"");
+        builder.append("\"log\":{");
+        builder.append("\"origin\":{");
+        builder.append("\"file\":{");
+        builder.append("\"name\":\"");
         JsonUtils.quoteAsString(fileName, builder);
-        builder.append("\",");
-        builder.append("\"function\":\"");
-        JsonUtils.quoteAsString(methodName, builder);
         builder.append('"');
         if (lineNumber >= 0) {
             builder.append(',');
-            builder.append("\"file.line\":");
+            builder.append("\"line\":");
             builder.append(lineNumber);
         }
+        builder.append("},");
+        builder.append("\"function\":\"");
+        JsonUtils.quoteAsString(methodName, builder);
+        builder.append('"');
+        builder.append("}");
         builder.append("},");
     }
 
