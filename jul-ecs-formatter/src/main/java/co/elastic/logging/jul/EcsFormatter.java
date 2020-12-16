@@ -54,6 +54,7 @@ public class EcsFormatter extends Formatter {
                 .getBoolean(getProperty("co.elastic.logging.jul.EcsFormatter.stackTraceAsArray", "false"));
         eventDataset = getProperty("co.elastic.logging.jul.EcsFormatter.eventDataset", null);
         eventDataset = EcsJsonSerializer.computeEventDataset(eventDataset, serviceName);
+        setAdditionalFields(getProperty("co.elastic.logging.jul.EcsFormatter.additionalFields", null));
     }
 
     @Override

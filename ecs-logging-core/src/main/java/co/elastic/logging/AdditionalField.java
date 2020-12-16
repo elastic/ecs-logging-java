@@ -25,6 +25,7 @@
 package co.elastic.logging;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class AdditionalField {
@@ -40,6 +41,9 @@ public class AdditionalField {
     }
 
     public static List<AdditionalField> parse(String additionalFields) {
+        if (additionalFields == null) {
+            return Collections.emptyList();
+        }
         String[] split = additionalFields.split(",");
         ArrayList<AdditionalField> result = new ArrayList<AdditionalField>(split.length);
         for (String additionalField : split) {
