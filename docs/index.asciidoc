@@ -1,5 +1,7 @@
-include::{asciidoc-dir}/../../shared/versions/stack/current.asciidoc[]
-include::{asciidoc-dir}/../../shared/attributes.asciidoc[]
+:ecs-repo-dir:  {ecs-logging-root}/docs/
+
+include::{docs-root}/shared/versions/stack/current.asciidoc[]
+include::{docs-root}/shared/attributes.asciidoc[]
 
 ifdef::env-github[]
 NOTE: For the best reading experience,
