@@ -37,8 +37,6 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
@@ -92,20 +90,30 @@ public abstract class AbstractEcsLoggingTest {
             String specFieldName = specField.getKey();
             JsonNode specForField = specField.getValue();
             JsonNode fieldInLog = logLine.get(specFieldName);
+            if (fieldInLog == null) {
+                fieldInLog = logLine.at("/" + specFieldName.replace('.', '/'));
+            }
 
-            validateRequiredField(logLine, specFieldName, specForField.get("required").booleanValue());
-            if (fieldInLog != null) {
+            validateRequiredField(logLine, specFieldName, fieldInLog, specForField.get("required").booleanValue());
+            if (!fieldInLog.isMissingNode()) {
                 validateIndex(logLine, logFieldNames, specFieldName, specForField.get("index"));
                 validateType(fieldInLog, specForField.get("type").textValue());
+                validateNesting(logLine, specFieldName, specForField.has("top_level_field") && specForField.get("top_level_field").asBoolean(false));
             }
         }
     }
 
-    private void validateRequiredField(JsonNode logLine, String specFieldName, boolean required) {
+    private void validateNesting(JsonNode logLine, String specFieldName, boolean topLevelField) {
+        if (topLevelField) {
+            assertThat(logLine.at("/" + specFieldName.replace('.', '/')).isMissingNode()).isTrue();
+        }
+    }
+
+    private void validateRequiredField(JsonNode logLine, String specFieldName, JsonNode fieldInLog, boolean required) {
         if (required) {
-            assertThat(logLine.get(specFieldName))
-                    .describedAs(logLine.toString())
-                    .isNotNull();
+            assertThat(fieldInLog.isMissingNode())
+                    .describedAs("Expected %s to be non-null: %s", specFieldName, logLine)
+                    .isFalse();
         }
     }
 
@@ -196,9 +204,9 @@ public abstract class AbstractEcsLoggingTest {
     @Test
     void testLogOrigin() throws Exception {
         debug("test");
-        assertThat(getAndValidateLastLogLine().at("/log.origin.file.name").textValue()).endsWith(".java");
-        assertThat(getAndValidateLastLogLine().at("/log.origin.function").textValue()).isEqualTo("debug");
-        assertThat(getAndValidateLastLogLine().at("/log.origin.file.line").intValue()).isPositive();
+        assertThat(getAndValidateLastLogLine().at("/log/origin/file/name").textValue()).endsWith(".java");
+        assertThat(getAndValidateLastLogLine().at("/log/origin/function").textValue()).isEqualTo("debug");
+        assertThat(getAndValidateLastLogLine().at("/log/origin/file/line").intValue()).isPositive();
     }
 
     public boolean putMdc(String key, String value) {
