@@ -15,8 +15,15 @@
       "type": "string",
       "required": true,
       "index": 1,
-      "nesting_allowed": false,
-      "url": "https://www.elastic.co/guide/en/ecs/current/ecs-log.html"
+      "top_level_field": true,
+      "url": "https://www.elastic.co/guide/en/ecs/current/ecs-log.html",
+      "comment": [
+        "This field SHOULD NOT be a nested object field but at the top level with a dot in the property name.",
+        "This is to make the JSON logs more human-readable.",
+        "Loggers MAY indent the log level so that the `message` field always starts at the exact same offset,",
+        "no matter the number of characters the log level has.",
+        "For example: `'DEBUG'` (5 chars) will not be indented, whereas ` 'WARN'` (4 chars) will be indented by one space character."
+      ]
     },
     "message": {
       "type": "string",

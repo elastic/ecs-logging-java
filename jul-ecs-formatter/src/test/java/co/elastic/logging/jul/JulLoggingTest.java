@@ -40,8 +40,6 @@ import java.util.logging.Level;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.logging.StreamHandler;
-import java.util.stream.Collectors;
-import java.util.stream.StreamSupport;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -127,8 +125,8 @@ public class JulLoggingTest extends AbstractEcsLoggingTest {
     @Test
     void testLogOrigin() throws Exception {
         debug("test");
-        assertThat(getAndValidateLastLogLine().get("log.origin").get("file.name").textValue()).endsWith(".java");
-        assertThat(getAndValidateLastLogLine().get("log.origin").get("function").textValue()).isEqualTo("debug");
+        assertThat(getAndValidateLastLogLine().at("/log/origin/file/name").textValue()).endsWith(".java");
+        assertThat(getAndValidateLastLogLine().at("/log/origin/function").textValue()).isEqualTo("debug");
         //No file.line for JUL
     }
 

@@ -24,16 +24,16 @@
  */
 package co.elastic.logging.jul;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class EcsFormatterTest {
 
@@ -57,8 +57,8 @@ public class EcsFormatterTest {
 
         final String result = formatter.format(record);
 
-        assertThat(objectMapper.readTree(result).get("log.origin").get("file.name").textValue()).isEqualTo("ExampleClass.java");
-        assertThat(objectMapper.readTree(result).get("log.origin").get("function").textValue()).isEqualTo("exampleMethod");
+        assertThat(objectMapper.readTree(result).at("/log/origin/file/name").textValue()).isEqualTo("ExampleClass.java");
+        assertThat(objectMapper.readTree(result).at("/log/origin/function").textValue()).isEqualTo("exampleMethod");
     }
 
     @Test
@@ -91,8 +91,8 @@ public class EcsFormatterTest {
         record.setSourceClassName("test.ExampleClass$InnerClass");
 
         JsonNode result = objectMapper.readTree(formatter.format(record));
-        assertThat(result.get("log.origin").get("file.name").textValue()).isEqualTo("ExampleClass.java");
-        assertThat(result.get("log.origin").get("function").textValue()).isEqualTo("exampleMethod");
+        assertThat(result.at("/log/origin/file/name").textValue()).isEqualTo("ExampleClass.java");
+        assertThat(result.at("/log/origin/function").textValue()).isEqualTo("exampleMethod");
     }
 
     @Test
@@ -101,8 +101,8 @@ public class EcsFormatterTest {
         record.setSourceClassName("$test.ExampleClass");
 
         JsonNode result = objectMapper.readTree(formatter.format(record));
-        assertThat(result.get("log.origin").get("file.name").textValue()).isEqualTo("<Unknown>");
-        assertThat(result.get("log.origin").get("function").textValue()).isEqualTo("exampleMethod");
+        assertThat(result.at("/log/origin/file/name").textValue()).isEqualTo("<Unknown>");
+        assertThat(result.at("/log/origin/function").textValue()).isEqualTo("exampleMethod");
     }
 
 }
