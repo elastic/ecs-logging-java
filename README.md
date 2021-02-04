@@ -5,12 +5,6 @@
 
 Centralized logging for Java applications with the Elastic stack made easy
 
----
-
-**Please note** This library is in **beta**. Backward-incompatible changes might be introduced in future releases while the major version is zero (0.x.x).
-
----
-
 ## Release announcements
 
 To get notified about new releases, watch this repository for `Releases only`.
