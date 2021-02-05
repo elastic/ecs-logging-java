@@ -1,135 +1,139 @@
 {
-  "version": 1.0,
-  "url": "https://www.elastic.co/guide/en/ecs/current/index.html",
-  "ecs": {
-    "version": "1.x"
-  },
-  "fields": {
-    "@timestamp": {
-      "type": "datetime",
-      "required": true,
-      "index": 0,
-      "url": "https://www.elastic.co/guide/en/ecs/current/ecs-base.html"
+    "version": 1.0,
+    "url": "https://www.elastic.co/guide/en/ecs/current/index.html",
+    "ecs": {
+        "version": "1.x"
     },
-    "log.level": {
-      "type": "string",
-      "required": true,
-      "index": 1,
-      "top_level_field": true,
-      "url": "https://www.elastic.co/guide/en/ecs/current/ecs-log.html",
-      "comment": [
-        "This field SHOULD NOT be a nested object field but at the top level with a dot in the property name.",
-        "This is to make the JSON logs more human-readable.",
-        "Loggers MAY indent the log level so that the `message` field always starts at the exact same offset,",
-        "no matter the number of characters the log level has.",
-        "For example: `'DEBUG'` (5 chars) will not be indented, whereas ` 'WARN'` (4 chars) will be indented by one space character."
-      ]
-    },
-    "message": {
-      "type": "string",
-      "required": true,
-      "index": 2,
-      "url": "https://www.elastic.co/guide/en/ecs/current/ecs-base.html"
-    },
-    "ecs.version": {
-      "type": "string",
-      "required": true,
-      "url": "https://www.elastic.co/guide/en/ecs/current/ecs-ecs.html"
-    },
-    "labels": {
-      "type": "object",
-      "required": false,
-      "url": "https://www.elastic.co/guide/en/ecs/current/ecs-base.html",
-      "sanitization": {
-        "key": {
-          "replacements": [".", "*", "\\"],
-          "substitute": "_"
+    "fields": {
+        "@timestamp": {
+            "type": "datetime",
+            "required": true,
+            "index": 0,
+            "url": "https://www.elastic.co/guide/en/ecs/current/ecs-base.html",
+            "comment": [
+                "Field order, as specified by 'index', is RECOMMENDED.",
+                "ECS loggers must implement field order unless the logging framework makes that impossible."
+            ]
+        },
+        "log.level": {
+            "type": "string",
+            "required": true,
+            "index": 1,
+            "top_level_field": true,
+            "url": "https://www.elastic.co/guide/en/ecs/current/ecs-log.html",
+            "comment": [
+                "This field SHOULD NOT be a nested object field but at the top level with a dot in the property name.",
+                "This is to make the JSON logs more human-readable.",
+                "Loggers MAY indent the log level so that the `message` field always starts at the exact same offset,",
+                "no matter the number of characters the log level has.",
+                "For example: `'DEBUG'` (5 chars) will not be indented, whereas ` 'WARN'` (4 chars) will be indented by one space character."
+            ]
+        },
+        "message": {
+            "type": "string",
+            "required": true,
+            "index": 2,
+            "url": "https://www.elastic.co/guide/en/ecs/current/ecs-base.html"
+        },
+        "ecs.version": {
+            "type": "string",
+            "required": true,
+            "url": "https://www.elastic.co/guide/en/ecs/current/ecs-ecs.html"
+        },
+        "labels": {
+            "type": "object",
+            "required": false,
+            "url": "https://www.elastic.co/guide/en/ecs/current/ecs-base.html",
+            "sanitization": {
+                "key": {
+                    "replacements": [".", "*", "\\"],
+                    "substitute": "_"
+                }
+            }
+        },
+        "trace.id": {
+            "type": "string",
+            "required": false,
+            "url": "https://www.elastic.co/guide/en/ecs/current/ecs-tracing.html",
+            "comment": "When APM agents add this field to the context, ecs loggers should pick it up and add it to the log event."
+        },
+        "transaction.id": {
+            "type": "string",
+            "required": false,
+            "url": "https://www.elastic.co/guide/en/ecs/current/ecs-tracing.html",
+            "comment": "When APM agents add this field to the context, ecs loggers should pick it up and add it to the log event."
+        },
+        "service.name": {
+            "type": "string",
+            "required": false,
+            "url": "https://www.elastic.co/guide/en/ecs/current/ecs-service.html",
+            "comment": [
+                "Configurable by users.",
+                "When an APM agent is active, they should auto-configure it if not already set."
+            ]
+        },
+        "event.dataset": {
+            "type": "string",
+            "required": false,
+            "url": "https://www.elastic.co/guide/en/ecs/current/ecs-event.html",
+            "default": "${service.name}.log OR ${service.name}.${appender.name}",
+            "comment": [
+                "Configurable by users.",
+                "If the user manually configures the service name,",
+                "the logging library should set `event.dataset=${service.name}.log` if not explicitly configured otherwise.",
+                "",
+                "When agents auto-configure the app to use an ECS logger,",
+                "they should set `event.dataset=${service.name}.${appender.name}` if the appender name is available in the logging library.",
+                "Otherwise, agents should also set `event.dataset=${service.name}.log`",
+                "",
+                "The field helps to filter for different log streams from the same pod, for example and is required for log anomaly detection."
+            ]
+        },
+        "process.thread.name": {
+            "type": "string",
+            "required": false,
+            "url": "https://www.elastic.co/guide/en/ecs/current/ecs-process.html"
+        },
+        "log.logger": {
+            "type": "string",
+            "required": false,
+            "url": "https://www.elastic.co/guide/en/ecs/current/ecs-log.html"
+        },
+        "log.origin.file.line": {
+            "type": "integer",
+            "required": false,
+            "url": "https://www.elastic.co/guide/en/ecs/current/ecs-log.html",
+            "comment": "Should be opt-in as it requires the logging library to capture a stack trace for each log event."
+        },
+        "log.origin.file.name": {
+            "type": "string",
+            "required": false,
+            "url": "https://www.elastic.co/guide/en/ecs/current/ecs-log.html",
+            "comment": "Should be opt-in as it requires the logging library to capture a stack trace for each log event."
+        },
+        "log.origin.function": {
+            "type": "string",
+            "required": false,
+            "url": "https://www.elastic.co/guide/en/ecs/current/ecs-log.html",
+            "comment": "Should be opt-in as it requires the logging library to capture a stack trace for each log event."
+        },
+        "error.type": {
+            "type": "string",
+            "required": false,
+            "url": "https://www.elastic.co/guide/en/ecs/current/ecs-error.html",
+            "comment": "The exception type or class, such as `java.lang.IllegalArgumentException`."
+        },
+        "error.message": {
+            "type": "string",
+            "required": false,
+            "url": "https://www.elastic.co/guide/en/ecs/current/ecs-error.html",
+            "comment": "The message of the exception."
+        },
+        "error.stack_trace": {
+            "type": "string",
+            "required": false,
+            "url": "https://www.elastic.co/guide/en/ecs/current/ecs-error.html",
+            "comment": "The stack trace of the exception as plain text."
         }
-      }
-    },
-    "trace.id": {
-      "type": "string",
-      "required": false,
-      "url": "https://www.elastic.co/guide/en/ecs/current/ecs-tracing.html",
-      "comment": "When APM agents add this field to the context, ecs loggers should pick it up and add it to the log event."
-    },
-    "transaction.id": {
-      "type": "string",
-      "required": false,
-      "url": "https://www.elastic.co/guide/en/ecs/current/ecs-tracing.html",
-      "comment": "When APM agents add this field to the context, ecs loggers should pick it up and add it to the log event."
-    },
-    "service.name": {
-      "type": "string",
-      "required": false,
-      "url": "https://www.elastic.co/guide/en/ecs/current/ecs-service.html",
-      "comment": [
-        "Configurable by users.",
-        "When an APM agent is active, they should auto-configure it if not already set."
-      ]
-    },
-    "event.dataset": {
-      "type": "string",
-      "required": false,
-      "url": "https://www.elastic.co/guide/en/ecs/current/ecs-event.html",
-      "default": "${service.name}.log OR ${service.name}.${appender.name}",
-      "comment": [
-        "Configurable by users.",
-        "If the user manually configures the service name,",
-        "the logging library should set `event.dataset=${service.name}.log` if not explicitly configured otherwise.",
-        "",
-        "When agents auto-configure the app to use an ECS logger,",
-        "they should set `event.dataset=${service.name}.${appender.name}` if the appender name is available in the logging library.",
-        "Otherwise, agents should also set `event.dataset=${service.name}.log`",
-        "",
-        "The field helps to filter for different log streams from the same pod, for example and is required for log anomaly detection."
-      ]
-    },
-    "process.thread.name": {
-      "type": "string",
-      "required": false,
-      "url": "https://www.elastic.co/guide/en/ecs/current/ecs-process.html"
-    },
-    "log.logger": {
-      "type": "string",
-      "required": false,
-      "url": "https://www.elastic.co/guide/en/ecs/current/ecs-log.html"
-    },
-    "log.origin.file.line": {
-      "type": "integer",
-      "required": false,
-      "url": "https://www.elastic.co/guide/en/ecs/current/ecs-log.html",
-      "comment": "Should be opt-in as it requires the logging library to capture a stack trace for each log event."
-    },
-    "log.origin.file.name": {
-      "type": "string",
-      "required": false,
-      "url": "https://www.elastic.co/guide/en/ecs/current/ecs-log.html",
-      "comment": "Should be opt-in as it requires the logging library to capture a stack trace for each log event."
-    },
-    "log.origin.function": {
-      "type": "string",
-      "required": false,
-      "url": "https://www.elastic.co/guide/en/ecs/current/ecs-log.html",
-      "comment": "Should be opt-in as it requires the logging library to capture a stack trace for each log event."
-    },
-    "error.type": {
-      "type": "string",
-      "required": false,
-      "url": "https://www.elastic.co/guide/en/ecs/current/ecs-error.html",
-      "comment": "The exception type or class, such as `java.lang.IllegalArgumentException`."
-    },
-    "error.message": {
-      "type": "string",
-      "required": false,
-      "url": "https://www.elastic.co/guide/en/ecs/current/ecs-error.html",
-      "comment": "The message of the exception."
-    },
-    "error.stack_trace": {
-      "type": "string",
-      "required": false,
-      "url": "https://www.elastic.co/guide/en/ecs/current/ecs-error.html",
-      "comment": "The stack trace of the exception as plain text."
     }
-  }
 }
