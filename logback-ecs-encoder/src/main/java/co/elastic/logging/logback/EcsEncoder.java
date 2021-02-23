@@ -75,9 +75,14 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
     /**
      * This method has been removed in logback 1.2.
      * To make this lib backwards compatible with logback 1.1 we have implement this method.
+     * However, since we compile with 1.2.x, this method is not compiled as an interface method, which means that there won't be type
+     * erasure. Therefore, we must use a {@link Object} argument for it to be compatible with 1.1.x.
      */
-    public void doEncode(ILoggingEvent event) throws IOException {
-        os.write(encode(event));
+    public void doEncode(Object event) throws IOException {
+        os.write(encode((ILoggingEvent) event));
+        // on logback 1.1.x versions this encoder always works as if immediateFlush == true. In later versions, flushing is only handled by
+        // the appender rather than the encoder
+        os.flush();
     }
 
     /**

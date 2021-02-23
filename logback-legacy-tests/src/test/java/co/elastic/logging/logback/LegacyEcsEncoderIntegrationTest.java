@@ -24,28 +24,6 @@
  */
 package co.elastic.logging.logback;
 
-import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.util.ContextInitializer;
-import ch.qos.logback.core.joran.spi.JoranException;
-import com.fasterxml.jackson.databind.JsonNode;
-import org.junit.jupiter.api.BeforeEach;
+class LegacyEcsEncoderIntegrationTest extends EcsEncoderIntegrationTest {
 
-import java.io.IOException;
-
-public class EcsEncoderIntegrationTest extends AbstractEcsEncoderTest {
-    private OutputStreamAppender appender;
-
-    @BeforeEach
-    void setUp() throws JoranException {
-        LoggerContext context = new LoggerContext();
-        ContextInitializer contextInitializer = new ContextInitializer(context);
-        contextInitializer.configureByResource(this.getClass().getResource("/logback-config.xml"));
-        logger = context.getLogger("root");
-        appender = (OutputStreamAppender) logger.getAppender("out");
-    }
-
-    @Override
-    public JsonNode getLastLogLine() throws IOException {
-        return objectMapper.readTree(appender.getBytes());
-    }
 }
