@@ -22,10 +22,8 @@
  * under the License.
  * #L%
  */
-package logback;
+package co.elastic.logging.logback;
 
-import co.elastic.logging.logback.EcsEncoderIntegrationTest;
-
-class LegacyEcsEncoderIntegrationTest extends EcsEncoderIntegrationTest {
+class LegacyEcsEncoderTest extends EcsEncoderTest {
 
 }
