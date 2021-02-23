@@ -31,7 +31,7 @@ import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
 
-class EcsEncoderTest extends AbstractEcsEncoderTest {
+public class EcsEncoderTest extends AbstractEcsEncoderTest {
 
     private OutputStreamAppender appender;
 

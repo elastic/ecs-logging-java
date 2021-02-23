@@ -32,7 +32,7 @@ import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
 
-class EcsEncoderIntegrationTest extends AbstractEcsEncoderTest {
+public class EcsEncoderIntegrationTest extends AbstractEcsEncoderTest {
     private OutputStreamAppender appender;
 
     @BeforeEach

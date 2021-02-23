@@ -7,47 +7,38 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>logback-ecs-encoder</artifactId>
-    <name>${project.groupId}:${project.artifactId}</name>
+    <artifactId>logback-legacy-tests</artifactId>
 
     <properties>
         <parent.base.dir>${project.basedir}/..</parent.base.dir>
+        <maven-deploy-plugin.skip>true</maven-deploy-plugin.skip>
     </properties>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.1.2</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>test-jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
 
     <dependencies>
         <dependency>
             <groupId>${project.groupId}</groupId>
             <artifactId>ecs-logging-core</artifactId>
             <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>logback-ecs-encoder</artifactId>
+            <version>${project.version}</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>logback-ecs-encoder</artifactId>
+            <version>${project.version}</version>
+            <type>test-jar</type>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>ch.qos.logback</groupId>
             <artifactId>logback-classic</artifactId>
-            <version>1.2.3</version>
-            <scope>provided</scope>
-        </dependency>
-        <dependency>
-            <groupId>${project.groupId}</groupId>
-            <artifactId>ecs-logging-core</artifactId>
-            <version>${project.version}</version>
-            <type>test-jar</type>
+            <version>1.1.0</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
