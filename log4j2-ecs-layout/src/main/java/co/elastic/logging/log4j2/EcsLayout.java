@@ -25,6 +25,7 @@
 package co.elastic.logging.log4j2;
 
 
+import co.elastic.logging.DataStreamFieldSanitizer;
 import co.elastic.logging.EcsJsonSerializer;
 import co.elastic.logging.JsonUtils;
 import org.apache.logging.log4j.Marker;
@@ -68,20 +69,22 @@ public class EcsLayout extends AbstractStringLayout {
     private final PatternFormatter[][] fieldValuePatternFormatter;
     private final boolean stackTraceAsArray;
     private final String serviceName;
-    private final String eventDataset;
+    private final String dataset;
+    private final String dataStreamNamespace;
     private final boolean includeMarkers;
     private final boolean includeOrigin;
     private final ConcurrentMap<Class<? extends MultiformatMessage>, Boolean> supportsJson = new ConcurrentHashMap<Class<? extends MultiformatMessage>, Boolean>();
 
-    private EcsLayout(Configuration config, String serviceName, String eventDataset, boolean includeMarkers, KeyValuePair[] additionalFields, boolean includeOrigin, boolean stackTraceAsArray) {
+    private EcsLayout(Configuration config, String serviceName, String dataset, boolean includeMarkers, KeyValuePair[] additionalFields, boolean includeOrigin, boolean stackTraceAsArray, String dataStreamNamespace) {
         super(config, UTF_8, null, null);
         this.serviceName = serviceName;
-        this.eventDataset = eventDataset;
+        this.dataset = dataset;
         this.includeMarkers = includeMarkers;
         this.includeOrigin = includeOrigin;
         this.stackTraceAsArray = stackTraceAsArray;
         this.additionalFields = additionalFields;
         fieldValuePatternFormatter = new PatternFormatter[additionalFields.length][];
+        this.dataStreamNamespace = dataStreamNamespace;
         for (int i = 0; i < additionalFields.length; i++) {
             KeyValuePair additionalField = additionalFields[i];
             if (additionalField.getValue().contains("%")) {
@@ -125,7 +128,8 @@ public class EcsLayout extends AbstractStringLayout {
         serializeMessage(builder, gcFree, event.getMessage(), event.getThrown());
         EcsJsonSerializer.serializeEcsVersion(builder);
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
-        EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
+        EcsJsonSerializer.serializeDataset(builder, dataset);
+        EcsJsonSerializer.serializeNamespace(builder, dataStreamNamespace);
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
         EcsJsonSerializer.serializeLoggerName(builder, event.getLoggerName());
         serializeAdditionalFieldsAndMDC(event, builder);
@@ -326,6 +330,10 @@ public class EcsLayout extends AbstractStringLayout {
         private String serviceName;
         @PluginBuilderAttribute("eventDataset")
         private String eventDataset;
+        @PluginBuilderAttribute("dataStreamDataset")
+        private String dataStreamDataset;
+        @PluginBuilderAttribute("dataStreamNamespace")
+        private String dataStreamNamespace;
         @PluginBuilderAttribute("includeMarkers")
         private boolean includeMarkers = false;
         @PluginBuilderAttribute("stackTraceAsArray")
@@ -387,6 +395,16 @@ public class EcsLayout extends AbstractStringLayout {
             return this;
         }
 
+        public EcsLayout.Builder setDataStreamDataset(String dataStreamDataset) {
+            this.dataStreamDataset = dataStreamDataset;
+            return this;
+        }
+
+        public EcsLayout.Builder setDataStreamNamespace(String dataStreamNamespace) {
+            this.dataStreamNamespace = dataStreamNamespace;
+            return this;
+        }
+
         public EcsLayout.Builder setIncludeMarkers(final boolean includeMarkers) {
             this.includeMarkers = includeMarkers;
             return this;
@@ -404,7 +422,9 @@ public class EcsLayout extends AbstractStringLayout {
 
         @Override
         public EcsLayout build() {
-            return new EcsLayout(getConfiguration(), serviceName, EcsJsonSerializer.computeEventDataset(eventDataset, serviceName), includeMarkers, additionalFields, includeOrigin, stackTraceAsArray);
+            String dataset = EcsJsonSerializer.computeDataset(dataStreamDataset != null ? dataStreamDataset : eventDataset, serviceName);
+            return new EcsLayout(getConfiguration(), serviceName, dataset, includeMarkers,
+                    additionalFields, includeOrigin, stackTraceAsArray, DataStreamFieldSanitizer.sanitizeDataStreamNamespace(dataStreamNamespace));
         }
 
         public boolean isStackTraceAsArray() {

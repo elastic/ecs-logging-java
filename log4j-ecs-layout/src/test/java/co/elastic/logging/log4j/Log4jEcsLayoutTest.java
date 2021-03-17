@@ -53,6 +53,7 @@ class Log4jEcsLayoutTest extends AbstractEcsLoggingTest {
         ecsLayout.setServiceName("test");
         ecsLayout.setIncludeOrigin(true);
         ecsLayout.setEventDataset("testdataset.log");
+        ecsLayout.setDataStreamNamespace("custom*namespace");
         ecsLayout.activateOptions();
         ecsLayout.setAdditionalField("key1=value1");
         ecsLayout.setAdditionalField("key2=value2");

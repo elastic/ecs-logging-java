@@ -91,9 +91,16 @@ public class EcsJsonSerializer {
         }
     }
 
-    public static void serializeEventDataset(StringBuilder builder, String eventDataset) {
+    public static void serializeDataset(StringBuilder builder, String eventDataset) {
         if (eventDataset != null) {
             builder.append("\"event.dataset\":\"").append(eventDataset).append("\",");
+            builder.append("\"data_stream.dataset\":\"").append(eventDataset).append("\",");
+        }
+    }
+
+    public static void serializeNamespace(StringBuilder builder, String namespace) {
+        if (namespace != null) {
+            builder.append("\"data_stream.namespace\":\"").append(namespace).append("\",");
         }
     }
 
@@ -276,11 +283,11 @@ public class EcsJsonSerializer {
         return result;
     }
 
-    public static String computeEventDataset(String eventDataset, String serviceName) {
-        if (eventDataset == null && serviceName != null && !serviceName.isEmpty()) {
+    public static String computeDataset(String dataset, String serviceName) {
+        if (dataset == null && serviceName != null && !serviceName.isEmpty()) {
             return serviceName + ".log";
         }
-        return eventDataset;
+        return DataStreamFieldSanitizer.sanitizeDataStreamDataset(dataset);
     }
 
     public static void serializeAdditionalFields(StringBuilder builder, List<AdditionalField> additionalFields) {

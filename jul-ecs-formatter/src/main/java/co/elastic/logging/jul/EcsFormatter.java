@@ -31,6 +31,7 @@ import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 
 import co.elastic.logging.AdditionalField;
+import co.elastic.logging.DataStreamFieldSanitizer;
 import co.elastic.logging.EcsJsonSerializer;
 
 public class EcsFormatter extends Formatter {
@@ -41,19 +42,24 @@ public class EcsFormatter extends Formatter {
     private boolean stackTraceAsArray;
     private String serviceName;
     private boolean includeOrigin;
-    private String eventDataset;
+    private String dataset;
+    private String dataStreamNamespace;
     private List<AdditionalField> additionalFields = Collections.emptyList();
 
     /**
      * Default constructor. Will read configuration from LogManager properties.
      */
     public EcsFormatter() {
-        serviceName = getProperty("co.elastic.logging.jul.EcsFormatter.serviceName", null);
+        setServiceName(getProperty("co.elastic.logging.jul.EcsFormatter.serviceName", null));
         includeOrigin = Boolean.getBoolean(getProperty("co.elastic.logging.jul.EcsFormatter.includeOrigin", "false"));
         stackTraceAsArray = Boolean
                 .getBoolean(getProperty("co.elastic.logging.jul.EcsFormatter.stackTraceAsArray", "false"));
-        eventDataset = getProperty("co.elastic.logging.jul.EcsFormatter.eventDataset", null);
-        eventDataset = EcsJsonSerializer.computeEventDataset(eventDataset, serviceName);
+        String dataset = getProperty("co.elastic.logging.jul.EcsFormatter.dataStreamDataset", null);
+        if (dataset == null) {
+            dataset = getProperty("co.elastic.logging.jul.EcsFormatter.eventDataset", null);
+        }
+        setDataset(dataset);
+        setDataStreamNamespace(getProperty("co.elastic.logging.jul.EcsFormatter.dataStreamNamespace", null));
     }
 
     @Override
@@ -66,7 +72,8 @@ public class EcsFormatter extends Formatter {
         EcsJsonSerializer.serializeAdditionalFields(builder, additionalFields);
         EcsJsonSerializer.serializeMDC(builder, mdcSupplier.getMDC());
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
-        EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
+        EcsJsonSerializer.serializeDataset(builder, dataset);
+        EcsJsonSerializer.serializeNamespace(builder, dataStreamNamespace);
         if (Thread.currentThread().getId() == record.getThreadID()) {
             EcsJsonSerializer.serializeThreadName(builder, Thread.currentThread().getName());
         } else {
@@ -90,6 +97,7 @@ public class EcsFormatter extends Formatter {
 
     protected void setServiceName(final String serviceName) {
         this.serviceName = serviceName;
+        setDataset(EcsJsonSerializer.computeDataset(dataset, serviceName));
     }
 
     protected void setStackTraceAsArray(final boolean stackTraceAsArray) {
@@ -97,7 +105,21 @@ public class EcsFormatter extends Formatter {
     }
     
     public void setEventDataset(String eventDataset) {
-        this.eventDataset = eventDataset;
+        setDataset(eventDataset);
+    }
+
+    public void setDataStreamDataset(String eventDataset) {
+        setDataset(eventDataset);
+    }
+
+    private void setDataset(String dataset) {
+        if (dataset != null) {
+            this.dataset = DataStreamFieldSanitizer.sanitizeDataStreamDataset(dataset);
+        }
+    }
+
+    public void setDataStreamNamespace(String dataStreamNamespace) {
+        this.dataStreamNamespace = DataStreamFieldSanitizer.sanitizeDataStreamNamespace(dataStreamNamespace);
     }
 
     public void setAdditionalFields(String additionalFields) {

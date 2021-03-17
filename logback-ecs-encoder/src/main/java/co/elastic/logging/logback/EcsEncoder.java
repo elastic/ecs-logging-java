@@ -11,9 +11,9 @@
  * the Apache License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -29,8 +29,9 @@ import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.classic.spi.ThrowableProxy;
 import ch.qos.logback.core.encoder.EncoderBase;
-import co.elastic.logging.EcsJsonSerializer;
 import co.elastic.logging.AdditionalField;
+import co.elastic.logging.DataStreamFieldSanitizer;
+import co.elastic.logging.EcsJsonSerializer;
 import org.slf4j.Marker;
 
 import java.io.IOException;
@@ -43,13 +44,14 @@ import java.util.List;
 public class EcsEncoder extends EncoderBase<ILoggingEvent> {
 
     private static final Charset UTF_8 = Charset.forName("UTF-8");
+    private final List<AdditionalField> additionalFields = new ArrayList<AdditionalField>();
     private boolean stackTraceAsArray = false;
     private String serviceName;
-    private String eventDataset;
+    private String dataset;
+    private String dataStreamNamespace;
     private boolean includeMarkers = false;
     private ThrowableProxyConverter throwableProxyConverter;
     private boolean includeOrigin;
-    private final List<AdditionalField> additionalFields = new ArrayList<AdditionalField>();
     private OutputStream os;
 
     @Override
@@ -62,8 +64,9 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         super.start();
         throwableProxyConverter = new ThrowableProxyConverter();
         throwableProxyConverter.start();
-        eventDataset = EcsJsonSerializer.computeEventDataset(eventDataset, serviceName);
+        setDataset(EcsJsonSerializer.computeDataset(dataset, serviceName));
     }
+
     /**
      * This method has been removed in logback 1.2.
      * To make this lib backwards compatible with logback 1.1 we have implement this method.
@@ -96,7 +99,8 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         EcsJsonSerializer.serializeEcsVersion(builder);
         serializeMarkers(event, builder);
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
-        EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
+        EcsJsonSerializer.serializeDataset(builder, dataset);
+        EcsJsonSerializer.serializeNamespace(builder, dataStreamNamespace);
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
         EcsJsonSerializer.serializeLoggerName(builder, event.getLoggerName());
         EcsJsonSerializer.serializeAdditionalFields(builder, additionalFields);
@@ -162,8 +166,19 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         this.additionalFields.add(pair);
     }
 
-    public void setEventDataset(String eventDataset) {
-        this.eventDataset = eventDataset;
+    public void setEventDataset(String dataset) {
+        setDataset(dataset);
     }
 
+    public void setDataStreamDataset(String dataset) {
+        setDataset(dataset);
+    }
+
+    private void setDataset(String dataset) {
+        this.dataset = DataStreamFieldSanitizer.sanitizeDataStreamDataset(dataset);
+    }
+
+    public void setDataStreamNamespace(String dataStreamNamespace) {
+        this.dataStreamNamespace = DataStreamFieldSanitizer.sanitizeDataStreamNamespace(dataStreamNamespace);
+    }
 }

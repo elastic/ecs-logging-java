@@ -5,6 +5,7 @@
         <layout class="co.elastic.logging.log4j.EcsLayout">
             <param name="serviceName" value="test"/>
             <param name="eventDataset" value="testdataset.log"/>
+            <param name="dataStreamNamespace" value="custom*namespace"/>
             <param name="includeOrigin" value="true"/>
             <param name="additionalField" value="key1=value1"/>
             <param name="additionalField" value="key2=value2"/>

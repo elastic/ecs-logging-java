@@ -7,6 +7,7 @@
             <includeOrigin>true</includeOrigin>
             <topLevelLabel>top_level</topLevelLabel>
             <eventDataset>testdataset.log</eventDataset>
+            <dataStreamNamespace>custom*namespace</dataStreamNamespace>
             <additionalField>
                 <key>key1</key>
                 <value>value1</value>

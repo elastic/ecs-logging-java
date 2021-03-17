@@ -24,6 +24,7 @@
  */
 package co.elastic.logging.log4j;
 
+import co.elastic.logging.DataStreamFieldSanitizer;
 import co.elastic.logging.EcsJsonSerializer;
 import co.elastic.logging.AdditionalField;
 import org.apache.log4j.Layout;
@@ -41,7 +42,8 @@ public class EcsLayout extends Layout {
     private boolean stackTraceAsArray = false;
     private String serviceName;
     private boolean includeOrigin;
-    private String eventDataset;
+    private String dataset;
+    private String dataStreamNamespace;
     private List<AdditionalField> additionalFields = new ArrayList<AdditionalField>();
 
     @Override
@@ -52,7 +54,8 @@ public class EcsLayout extends Layout {
         EcsJsonSerializer.serializeFormattedMessage(builder, event.getRenderedMessage());
         EcsJsonSerializer.serializeEcsVersion(builder);
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
-        EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
+        EcsJsonSerializer.serializeDataset(builder, dataset);
+        EcsJsonSerializer.serializeNamespace(builder, dataStreamNamespace);
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
         EcsJsonSerializer.serializeLoggerName(builder, event.categoryName);
         EcsJsonSerializer.serializeAdditionalFields(builder, additionalFields);
@@ -92,7 +95,7 @@ public class EcsLayout extends Layout {
 
     @Override
     public void activateOptions() {
-        eventDataset = EcsJsonSerializer.computeEventDataset(eventDataset, serviceName);
+        setDataset(EcsJsonSerializer.computeDataset(dataset, serviceName));
     }
 
     public void setServiceName(String serviceName) {
@@ -107,8 +110,20 @@ public class EcsLayout extends Layout {
         this.stackTraceAsArray = stackTraceAsArray;
     }
 
-    public void setEventDataset(String eventDataset) {
-        this.eventDataset = eventDataset;
+    public void setEventDataset(String dataset) {
+        setDataset(dataset);
+    }
+
+    public void setDataStreamDataset(String dataset) {
+        setDataset(dataset);
+    }
+
+    private void setDataset(String dataset) {
+        this.dataset = DataStreamFieldSanitizer.sanitizeDataStreamDataset(dataset);
+    }
+
+    public void setDataStreamNamespace(String dataStreamNamespace) {
+        this.dataStreamNamespace = DataStreamFieldSanitizer.sanitizeDataStreamNamespace(dataStreamNamespace);
     }
 
     public void setAdditionalField(String additionalField) {
