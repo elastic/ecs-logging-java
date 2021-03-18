@@ -11,9 +11,9 @@
  * the Apache License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -24,10 +24,10 @@
  */
 package co.elastic.logging.logback;
 
+import ch.qos.logback.classic.pattern.ThrowableHandlingConverter;
 import ch.qos.logback.classic.pattern.ThrowableProxyConverter;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.IThrowableProxy;
-import ch.qos.logback.classic.spi.ThrowableProxy;
 import ch.qos.logback.core.encoder.EncoderBase;
 import co.elastic.logging.EcsJsonSerializer;
 import co.elastic.logging.AdditionalField;
@@ -47,7 +47,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
     private String serviceName;
     private String eventDataset;
     private boolean includeMarkers = false;
-    private ThrowableProxyConverter throwableProxyConverter;
+    private ThrowableHandlingConverter throwableConverter = new ThrowableProxyConverter();
     private boolean includeOrigin;
     private final List<AdditionalField> additionalFields = new ArrayList<AdditionalField>();
     private OutputStream os;
@@ -60,8 +60,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
     @Override
     public void start() {
         super.start();
-        throwableProxyConverter = new ThrowableProxyConverter();
-        throwableProxyConverter.start();
+        throwableConverter.start();
         eventDataset = EcsJsonSerializer.computeEventDataset(eventDataset, serviceName);
     }
     /**
@@ -113,10 +112,8 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
             }
         }
         IThrowableProxy throwableProxy = event.getThrowableProxy();
-        if (throwableProxy instanceof ThrowableProxy) {
-            EcsJsonSerializer.serializeException(builder, ((ThrowableProxy) throwableProxy).getThrowable(), stackTraceAsArray);
-        } else if (throwableProxy != null) {
-            EcsJsonSerializer.serializeException(builder, throwableProxy.getClassName(), throwableProxy.getMessage(), throwableProxyConverter.convert(event), stackTraceAsArray);
+        if (throwableProxy != null) {
+            EcsJsonSerializer.serializeException(builder, throwableProxy.getClassName(), throwableProxy.getMessage(), throwableConverter.convert(event), stackTraceAsArray);
         }
         EcsJsonSerializer.serializeObjectEnd(builder);
         // all these allocations kinda hurt
@@ -171,4 +168,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         this.eventDataset = eventDataset;
     }
 
+    public void setThrowableConverter(ThrowableHandlingConverter throwableConverter) {
+        this.throwableConverter = throwableConverter;
+    }
 }
