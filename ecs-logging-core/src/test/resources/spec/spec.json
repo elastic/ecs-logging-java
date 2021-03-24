@@ -31,9 +31,13 @@
         },
         "message": {
             "type": "string",
-            "required": true,
+            "required": false,
             "index": 2,
-            "url": "https://www.elastic.co/guide/en/ecs/current/ecs-base.html"
+            "url": "https://www.elastic.co/guide/en/ecs/current/ecs-base.html",
+            "comment": [
+                "A message field is typically included in all log records, but some logging libraries allow records with no message.",
+                "That's typically the case for libraries that allow for structured logging."
+            ]
         },
         "ecs.version": {
             "type": "string",
