@@ -210,22 +210,14 @@ public class EcsJsonSerializer {
             builder.append("\",");
         }
         if (stackTraceAsArray) {
-            builder.append("\"error.stack_trace\":[").append(NEW_LINE);
-            for (String line : NEW_LINE_PATTERN.split(stackTrace)) {
-                appendQuoted(builder, line);
-            }
+            builder.append("\"error.stack_trace\":[");
+            formatStackTraceAsArray(builder, stackTrace);
             builder.append("]");
         } else {
             builder.append("\"error.stack_trace\":\"");
             JsonUtils.quoteAsString(stackTrace, builder);
             builder.append("\"");
         }
-    }
-
-    private static void appendQuoted(StringBuilder builder, CharSequence content) {
-        builder.append('"');
-        JsonUtils.quoteAsString(content, builder);
-        builder.append('"');
     }
 
     private static CharSequence formatThrowable(final Throwable throwable) {
@@ -252,6 +244,18 @@ public class EcsJsonSerializer {
         throwable.printStackTrace(pw);
         removeIfEndsWith(jsonBuilder, NEW_LINE);
         removeIfEndsWith(jsonBuilder, ",");
+    }
+
+    private static void formatStackTraceAsArray(StringBuilder builder, String stackTrace) {
+        builder.append(NEW_LINE);
+        for (String line : NEW_LINE_PATTERN.split(stackTrace)) {
+            builder.append("\t\"");
+            JsonUtils.quoteAsString(line, builder);
+            builder.append("\",");
+            builder.append(NEW_LINE);
+        }
+        removeIfEndsWith(builder, NEW_LINE);
+        removeIfEndsWith(builder, ",");
     }
 
     public static void removeIfEndsWith(StringBuilder sb, String ending) {

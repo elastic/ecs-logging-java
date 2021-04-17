@@ -25,8 +25,7 @@
 package co.elastic.logging.logback;
 
 import ch.qos.logback.classic.LoggerContext;
-import ch.qos.logback.classic.util.ContextInitializer;
-import ch.qos.logback.core.joran.spi.JoranException;
+import co.elastic.logging.AdditionalField;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -35,16 +34,29 @@ import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class EcsEncoderWithCustomThrowableConverterIntegrationTest extends AbstractEcsEncoderTest {
+public class EcsEncoderWithStacktraceAsArrayTest extends AbstractEcsEncoderTest {
+
     private OutputStreamAppender appender;
 
     @BeforeEach
-    void setUp() throws JoranException {
+    void setUp() throws IOException {
         LoggerContext context = new LoggerContext();
-        ContextInitializer contextInitializer = new ContextInitializer(context);
-        contextInitializer.configureByResource(this.getClass().getResource("/logback-config-with-nop-throwable-converter.xml"));
-        logger = context.getLogger("root");
-        appender = (OutputStreamAppender) logger.getAppender("out");
+        logger = context.getLogger(getClass());
+        appender = new OutputStreamAppender();
+        appender.setContext(context);
+        logger.addAppender(appender);
+        EcsEncoder ecsEncoder = new EcsEncoder();
+        ecsEncoder.setServiceName("test");
+        ecsEncoder.setIncludeMarkers(true);
+        ecsEncoder.setIncludeOrigin(true);
+        ecsEncoder.addAdditionalField(new AdditionalField("key1", "value1"));
+        ecsEncoder.addAdditionalField(new AdditionalField("key2", "value2"));
+        ecsEncoder.setEventDataset("testdataset.log");
+        ecsEncoder.setStackTraceAsArray(true);
+        ecsEncoder.start();
+        appender.setEncoder(ecsEncoder);
+        appender.start();
+        spec = objectMapper.readTree(getClass().getClassLoader().getResource("spec/stacktrace_as_array_spec.json"));
     }
 
     @Override
@@ -59,6 +71,8 @@ public class EcsEncoderWithCustomThrowableConverterIntegrationTest extends Abstr
         assertThat(log.get("log.level").textValue()).isIn("ERROR", "SEVERE");
         assertThat(log.get("error.message").textValue()).isEqualTo("test");
         assertThat(log.get("error.type").textValue()).isEqualTo(RuntimeException.class.getName());
-        assertThat(log.get("error.stack_trace").textValue()).contains("");
+        assertThat(log.get("error.stack_trace").isArray()).isTrue();
+        assertThat(log.get("error.stack_trace").get(0).textValue()).isEqualTo("java.lang.RuntimeException: test");
+        assertThat(log.get("error.stack_trace").get(1).textValue()).contains("at co.elastic.logging.logback.EcsEncoderWithStacktraceAsArrayTest");
     }
 }
