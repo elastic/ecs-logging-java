@@ -129,15 +129,10 @@ public abstract class AbstractEcsLoggingTest {
         switch (type) {
             case "datetime":
                 assertThatCode(() -> Instant.parse(fieldInLog.textValue())).doesNotThrowAnyException();
-                break;
             case "string":
                 assertThat(fieldInLog.isTextual())
                         .describedAs("%s is not a %s", fieldInLog, type)
                         .isTrue();
-                break;
-            case "array":
-                assertThat(fieldInLog.isArray()).isTrue();
-                break;
         }
     }
 

@@ -25,12 +25,12 @@
 package co.elastic.logging.logback;
 
 import ch.qos.logback.classic.pattern.ThrowableHandlingConverter;
-import ch.qos.logback.classic.pattern.ThrowableProxyConverter;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.IThrowableProxy;
+import ch.qos.logback.classic.spi.ThrowableProxy;
 import ch.qos.logback.core.encoder.EncoderBase;
-import co.elastic.logging.EcsJsonSerializer;
 import co.elastic.logging.AdditionalField;
+import co.elastic.logging.EcsJsonSerializer;
 import org.slf4j.Marker;
 
 import java.io.IOException;
@@ -47,7 +47,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
     private String serviceName;
     private String eventDataset;
     private boolean includeMarkers = false;
-    private ThrowableHandlingConverter throwableConverter = new ThrowableProxyConverter();
+    private ThrowableHandlingConverter throwableConverter = null;
     private boolean includeOrigin;
     private final List<AdditionalField> additionalFields = new ArrayList<AdditionalField>();
     private OutputStream os;
@@ -60,9 +60,12 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
     @Override
     public void start() {
         super.start();
-        throwableConverter.start();
+        if (throwableConverter != null) {
+            throwableConverter.start();
+        }
         eventDataset = EcsJsonSerializer.computeEventDataset(eventDataset, serviceName);
     }
+
     /**
      * This method has been removed in logback 1.2.
      * To make this lib backwards compatible with logback 1.1 we have implement this method.
@@ -112,8 +115,12 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
             }
         }
         IThrowableProxy throwableProxy = event.getThrowableProxy();
-        if (throwableProxy != null) {
-            EcsJsonSerializer.serializeException(builder, throwableProxy.getClassName(), throwableProxy.getMessage(), throwableConverter.convert(event), stackTraceAsArray);
+        if(throwableProxy != null) {
+            if (throwableConverter != null) {
+                EcsJsonSerializer.serializeException(builder, throwableProxy.getClassName(), throwableProxy.getMessage(), throwableConverter.convert(event), stackTraceAsArray);
+            } else {
+                EcsJsonSerializer.serializeException(builder, ((ThrowableProxy) throwableProxy).getThrowable(), stackTraceAsArray);
+            }
         }
         EcsJsonSerializer.serializeObjectEnd(builder);
         // all these allocations kinda hurt

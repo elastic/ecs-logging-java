@@ -56,7 +56,6 @@ public class EcsEncoderWithStacktraceAsArrayTest extends AbstractEcsEncoderTest 
         ecsEncoder.start();
         appender.setEncoder(ecsEncoder);
         appender.start();
-        spec = objectMapper.readTree(getClass().getClassLoader().getResource("spec/stacktrace_as_array_spec.json"));
     }
 
     @Override
@@ -67,12 +66,22 @@ public class EcsEncoderWithStacktraceAsArrayTest extends AbstractEcsEncoderTest 
     @Test
     void testLogException() throws Exception {
         error("test", new RuntimeException("test"));
-        JsonNode log = getAndValidateLastLogLine();
+        JsonNode log = getLastLogLine();
         assertThat(log.get("log.level").textValue()).isIn("ERROR", "SEVERE");
         assertThat(log.get("error.message").textValue()).isEqualTo("test");
         assertThat(log.get("error.type").textValue()).isEqualTo(RuntimeException.class.getName());
         assertThat(log.get("error.stack_trace").isArray()).isTrue();
         assertThat(log.get("error.stack_trace").get(0).textValue()).isEqualTo("java.lang.RuntimeException: test");
+        assertThat(log.get("error.stack_trace").get(1).textValue()).contains("at co.elastic.logging.logback.EcsEncoderWithStacktraceAsArrayTest");
+    }
+
+    @Test
+    void testLogExceptionNullMessage() throws Exception {
+        error("test", new RuntimeException());
+        JsonNode log = getLastLogLine();
+        assertThat(log.get("error.message")).isNull();
+        assertThat(log.get("error.type").textValue()).isEqualTo(RuntimeException.class.getName());
+        assertThat(log.get("error.stack_trace").get(0).textValue()).isEqualTo("java.lang.RuntimeException");
         assertThat(log.get("error.stack_trace").get(1).textValue()).contains("at co.elastic.logging.logback.EcsEncoderWithStacktraceAsArrayTest");
     }
 }
