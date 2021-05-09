@@ -25,6 +25,7 @@
 package co.elastic.logging.logback;
 
 import ch.qos.logback.classic.pattern.ThrowableHandlingConverter;
+import ch.qos.logback.classic.pattern.ThrowableProxyConverter;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.classic.spi.ThrowableProxy;
@@ -48,6 +49,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
     private String eventDataset;
     private boolean includeMarkers = false;
     private ThrowableHandlingConverter throwableConverter = null;
+    private final ThrowableProxyConverter throwableProxyConverter = new ThrowableProxyConverter();
     private boolean includeOrigin;
     private final List<AdditionalField> additionalFields = new ArrayList<AdditionalField>();
     private OutputStream os;
@@ -60,6 +62,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
     @Override
     public void start() {
         super.start();
+        throwableProxyConverter.start();
         if (throwableConverter != null) {
             throwableConverter.start();
         }
@@ -115,12 +118,14 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
             }
         }
         IThrowableProxy throwableProxy = event.getThrowableProxy();
-        if(throwableProxy != null) {
+        if (throwableProxy instanceof ThrowableProxy) {
             if (throwableConverter != null) {
                 EcsJsonSerializer.serializeException(builder, throwableProxy.getClassName(), throwableProxy.getMessage(), throwableConverter.convert(event), stackTraceAsArray);
             } else {
                 EcsJsonSerializer.serializeException(builder, ((ThrowableProxy) throwableProxy).getThrowable(), stackTraceAsArray);
             }
+        } else if (throwableProxy != null) {
+            EcsJsonSerializer.serializeException(builder, throwableProxy.getClassName(), throwableProxy.getMessage(), throwableProxyConverter.convert(event), stackTraceAsArray);
         }
         EcsJsonSerializer.serializeObjectEnd(builder);
         // all these allocations kinda hurt
