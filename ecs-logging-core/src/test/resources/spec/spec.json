@@ -76,6 +76,15 @@
                 "When an APM agent is active, they should auto-configure it if not already set."
             ]
         },
+        "service.version": {
+            "type": "string",
+            "required": false,
+            "url": "https://www.elastic.co/guide/en/ecs/current/ecs-service.html",
+            "comment": [
+                "Configurable by users.",
+                "When an APM agent is active, they should auto-configure it if not already set."
+            ]
+        },
         "event.dataset": {
             "type": "string",
             "required": false,

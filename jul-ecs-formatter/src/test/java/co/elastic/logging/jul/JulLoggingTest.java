@@ -11,9 +11,9 @@
  * the Apache License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -68,9 +68,9 @@ public class JulLoggingTest extends AbstractEcsLoggingTest {
     }
 
     private final EcsFormatter formatter = new EcsFormatter();
-    
+
     private final Logger logger = Logger.getLogger("");
-    
+
     private final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
     private LogRecord record;
@@ -100,7 +100,7 @@ public class JulLoggingTest extends AbstractEcsLoggingTest {
     public void error(String message, Throwable t) {
         logger.log(Level.SEVERE, message, t);
     }
-    
+
     @Override
     public JsonNode getLastLogLine() throws IOException {
         return objectMapper.readTree(out.toString());
@@ -109,15 +109,16 @@ public class JulLoggingTest extends AbstractEcsLoggingTest {
     @BeforeEach
     void setUp() {
         clearHandlers();
-        
+
         formatter.setIncludeOrigin(true);
         formatter.setServiceName("test");
+        formatter.setServiceVersion("1.0.0");
         formatter.setEventDataset("testdataset.log");
         formatter.setAdditionalFields("key1=value1,key2=value2");
-        
+
         Handler handler = new InMemoryStreamHandler(out, formatter);
         handler.setLevel(Level.ALL);
-        
+
         logger.addHandler(handler);
         logger.setLevel(Level.ALL);
     }
@@ -130,7 +131,7 @@ public class JulLoggingTest extends AbstractEcsLoggingTest {
         //No file.line for JUL
     }
 
-    
+
     private void clearHandlers() {
         for (Handler handler : logger.getHandlers()) {
             logger.removeHandler(handler);

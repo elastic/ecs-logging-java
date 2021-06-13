@@ -11,9 +11,9 @@
  * the Apache License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -37,9 +37,10 @@ public class EcsFormatter extends Formatter {
 
     private static final String UNKNOWN_FILE = "<Unknown>";
     private static final MdcSupplier mdcSupplier = MdcSupplier.Resolver.INSTANCE.resolve();
-    
+
     private boolean stackTraceAsArray;
     private String serviceName;
+    private String serviceVersion;
     private boolean includeOrigin;
     private String eventDataset;
     private List<AdditionalField> additionalFields = Collections.emptyList();
@@ -49,6 +50,7 @@ public class EcsFormatter extends Formatter {
      */
     public EcsFormatter() {
         serviceName = getProperty("co.elastic.logging.jul.EcsFormatter.serviceName", null);
+        serviceVersion = getProperty("co.elastic.logging.jul.EcsFormatter.serviceVersion", null);
         includeOrigin = Boolean.getBoolean(getProperty("co.elastic.logging.jul.EcsFormatter.includeOrigin", "false"));
         stackTraceAsArray = Boolean
                 .getBoolean(getProperty("co.elastic.logging.jul.EcsFormatter.stackTraceAsArray", "false"));
@@ -67,6 +69,7 @@ public class EcsFormatter extends Formatter {
         EcsJsonSerializer.serializeAdditionalFields(builder, additionalFields);
         EcsJsonSerializer.serializeMDC(builder, mdcSupplier.getMDC());
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
+        EcsJsonSerializer.serializeServiceVersion(builder, serviceVersion);
         EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
         if (Thread.currentThread().getId() == record.getThreadID()) {
             EcsJsonSerializer.serializeThreadName(builder, Thread.currentThread().getName());
@@ -93,10 +96,14 @@ public class EcsFormatter extends Formatter {
         this.serviceName = serviceName;
     }
 
+    public void setServiceVersion(String serviceVersion) {
+        this.serviceVersion = serviceVersion;
+    }
+
     protected void setStackTraceAsArray(final boolean stackTraceAsArray) {
         this.stackTraceAsArray = stackTraceAsArray;
     }
-    
+
     public void setEventDataset(String eventDataset) {
         this.eventDataset = eventDataset;
     }
