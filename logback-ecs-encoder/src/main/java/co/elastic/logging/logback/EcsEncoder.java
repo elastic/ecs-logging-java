@@ -118,14 +118,14 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
             }
         }
         IThrowableProxy throwableProxy = event.getThrowableProxy();
-        if (throwableProxy instanceof ThrowableProxy) {
+        if (throwableProxy != null) {
             if (throwableConverter != null) {
                 EcsJsonSerializer.serializeException(builder, throwableProxy.getClassName(), throwableProxy.getMessage(), throwableConverter.convert(event), stackTraceAsArray);
-            } else {
+            } else if (throwableProxy instanceof ThrowableProxy) {
                 EcsJsonSerializer.serializeException(builder, ((ThrowableProxy) throwableProxy).getThrowable(), stackTraceAsArray);
+            } else {
+                EcsJsonSerializer.serializeException(builder, throwableProxy.getClassName(), throwableProxy.getMessage(), throwableProxyConverter.convert(event), stackTraceAsArray);
             }
-        } else if (throwableProxy != null) {
-            EcsJsonSerializer.serializeException(builder, throwableProxy.getClassName(), throwableProxy.getMessage(), throwableProxyConverter.convert(event), stackTraceAsArray);
         }
         EcsJsonSerializer.serializeObjectEnd(builder);
         // all these allocations kinda hurt
