@@ -45,6 +45,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
     private static final Charset UTF_8 = Charset.forName("UTF-8");
     private boolean stackTraceAsArray = false;
     private String serviceName;
+    private String serviceNodeName;
     private String eventDataset;
     private boolean includeMarkers = false;
     private ThrowableProxyConverter throwableProxyConverter;
@@ -101,6 +102,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         EcsJsonSerializer.serializeEcsVersion(builder);
         serializeMarkers(event, builder);
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
+        EcsJsonSerializer.serializeServiceNodeName(builder, serviceNodeName);
         EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
         EcsJsonSerializer.serializeLoggerName(builder, event.getLoggerName());
@@ -149,6 +151,10 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
 
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
+    }
+
+    public void setServiceNodeName(String serviceNodeName) {
+        this.serviceNodeName = serviceNodeName;
     }
 
     public void setIncludeMarkers(boolean includeMarkers) {

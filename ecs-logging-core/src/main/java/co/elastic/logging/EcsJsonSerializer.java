@@ -87,13 +87,25 @@ public class EcsJsonSerializer {
 
     public static void serializeServiceName(StringBuilder builder, String serviceName) {
         if (serviceName != null) {
-            builder.append("\"service.name\":\"").append(serviceName).append("\",");
+            builder.append("\"service.name\":\"");
+            JsonUtils.quoteAsString(serviceName, builder);
+            builder.append("\",");
+        }
+    }
+
+    public static void serializeServiceNodeName(StringBuilder builder, String serviceNodeName) {
+        if (serviceNodeName != null) {
+            builder.append("\"service.node.name\":\"");
+            JsonUtils.quoteAsString(serviceNodeName, builder);
+            builder.append("\",");
         }
     }
 
     public static void serializeEventDataset(StringBuilder builder, String eventDataset) {
         if (eventDataset != null) {
-            builder.append("\"event.dataset\":\"").append(eventDataset).append("\",");
+            builder.append("\"event.dataset\":\"");
+            JsonUtils.quoteAsString(eventDataset, builder);
+            builder.append("\",");
         }
     }
 

@@ -68,14 +68,17 @@ public class EcsLayout extends AbstractStringLayout {
     private final PatternFormatter[][] fieldValuePatternFormatter;
     private final boolean stackTraceAsArray;
     private final String serviceName;
+    private final String serviceNodeName;
     private final String eventDataset;
     private final boolean includeMarkers;
     private final boolean includeOrigin;
     private final ConcurrentMap<Class<? extends MultiformatMessage>, Boolean> supportsJson = new ConcurrentHashMap<Class<? extends MultiformatMessage>, Boolean>();
 
-    private EcsLayout(Configuration config, String serviceName, String eventDataset, boolean includeMarkers, KeyValuePair[] additionalFields, boolean includeOrigin, boolean stackTraceAsArray) {
+    private EcsLayout(Configuration config, String serviceName, String serviceNodeName, String eventDataset, boolean includeMarkers,
+                      KeyValuePair[] additionalFields, boolean includeOrigin, boolean stackTraceAsArray) {
         super(config, UTF_8, null, null);
         this.serviceName = serviceName;
+        this.serviceNodeName = serviceNodeName;
         this.eventDataset = eventDataset;
         this.includeMarkers = includeMarkers;
         this.includeOrigin = includeOrigin;
@@ -125,6 +128,7 @@ public class EcsLayout extends AbstractStringLayout {
         serializeMessage(builder, gcFree, event.getMessage(), event.getThrown());
         EcsJsonSerializer.serializeEcsVersion(builder);
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
+        EcsJsonSerializer.serializeServiceNodeName(builder, serviceNodeName);
         EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
         EcsJsonSerializer.serializeLoggerName(builder, event.getLoggerName());
@@ -324,6 +328,8 @@ public class EcsLayout extends AbstractStringLayout {
         private Configuration configuration;
         @PluginBuilderAttribute("serviceName")
         private String serviceName;
+        @PluginBuilderAttribute("serviceNodeName")
+        private String serviceNodeName;
         @PluginBuilderAttribute("eventDataset")
         private String eventDataset;
         @PluginBuilderAttribute("includeMarkers")
@@ -355,6 +361,10 @@ public class EcsLayout extends AbstractStringLayout {
             return serviceName;
         }
 
+        public String getServiceNodeName() {
+            return serviceNodeName;
+        }
+
         public String getEventDataset() {
             return eventDataset;
         }
@@ -382,6 +392,11 @@ public class EcsLayout extends AbstractStringLayout {
             return this;
         }
 
+        public EcsLayout.Builder setServiceNodeName(final String serviceNodeName) {
+            this.serviceNodeName = serviceNodeName;
+            return this;
+        }
+
         public EcsLayout.Builder setEventDataset(String eventDataset) {
             this.eventDataset = eventDataset;
             return this;
@@ -404,7 +419,8 @@ public class EcsLayout extends AbstractStringLayout {
 
         @Override
         public EcsLayout build() {
-            return new EcsLayout(getConfiguration(), serviceName, EcsJsonSerializer.computeEventDataset(eventDataset, serviceName), includeMarkers, additionalFields, includeOrigin, stackTraceAsArray);
+            return new EcsLayout(getConfiguration(), serviceName, serviceNodeName, EcsJsonSerializer.computeEventDataset(eventDataset, serviceName),
+                    includeMarkers, additionalFields, includeOrigin, stackTraceAsArray);
         }
 
         public boolean isStackTraceAsArray() {
