@@ -67,6 +67,7 @@ abstract class Log4j2EcsLayoutTest extends AbstractLog4j2EcsLayoutTest {
         EcsLayout ecsLayout = EcsLayout.newBuilder()
                 .setConfiguration(ctx.getConfiguration())
                 .setServiceName("test")
+                .setServiceVersion("1.0.0")
                 .setIncludeMarkers(true)
                 .setIncludeOrigin(true)
                 .setEventDataset("testdataset.log")

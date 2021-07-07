@@ -11,9 +11,9 @@
  * the Apache License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -68,14 +68,16 @@ public class EcsLayout extends AbstractStringLayout {
     private final PatternFormatter[][] fieldValuePatternFormatter;
     private final boolean stackTraceAsArray;
     private final String serviceName;
+    private final String serviceVersion;
     private final String eventDataset;
     private final boolean includeMarkers;
     private final boolean includeOrigin;
     private final ConcurrentMap<Class<? extends MultiformatMessage>, Boolean> supportsJson = new ConcurrentHashMap<Class<? extends MultiformatMessage>, Boolean>();
 
-    private EcsLayout(Configuration config, String serviceName, String eventDataset, boolean includeMarkers, KeyValuePair[] additionalFields, boolean includeOrigin, boolean stackTraceAsArray) {
+    private EcsLayout(Configuration config, String serviceName, String serviceVersion, String eventDataset, boolean includeMarkers, KeyValuePair[] additionalFields, boolean includeOrigin, boolean stackTraceAsArray) {
         super(config, UTF_8, null, null);
         this.serviceName = serviceName;
+        this.serviceVersion = serviceVersion;
         this.eventDataset = eventDataset;
         this.includeMarkers = includeMarkers;
         this.includeOrigin = includeOrigin;
@@ -125,6 +127,7 @@ public class EcsLayout extends AbstractStringLayout {
         serializeMessage(builder, gcFree, event.getMessage(), event.getThrown());
         EcsJsonSerializer.serializeEcsVersion(builder);
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
+        EcsJsonSerializer.serializeServiceVersion(builder, serviceVersion);
         EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
         EcsJsonSerializer.serializeLoggerName(builder, event.getLoggerName());
@@ -324,6 +327,8 @@ public class EcsLayout extends AbstractStringLayout {
         private Configuration configuration;
         @PluginBuilderAttribute("serviceName")
         private String serviceName;
+        @PluginBuilderAttribute("serviceVersion")
+        private String serviceVersion;
         @PluginBuilderAttribute("eventDataset")
         private String eventDataset;
         @PluginBuilderAttribute("includeMarkers")
@@ -355,6 +360,10 @@ public class EcsLayout extends AbstractStringLayout {
             return serviceName;
         }
 
+        public String getServiceVersion() {
+            return serviceVersion;
+        }
+
         public String getEventDataset() {
             return eventDataset;
         }
@@ -382,6 +391,11 @@ public class EcsLayout extends AbstractStringLayout {
             return this;
         }
 
+        public EcsLayout.Builder setServiceVersion(final String serviceVersion) {
+            this.serviceVersion = serviceVersion;
+            return this;
+        }
+
         public EcsLayout.Builder setEventDataset(String eventDataset) {
             this.eventDataset = eventDataset;
             return this;
@@ -404,7 +418,7 @@ public class EcsLayout extends AbstractStringLayout {
 
         @Override
         public EcsLayout build() {
-            return new EcsLayout(getConfiguration(), serviceName, EcsJsonSerializer.computeEventDataset(eventDataset, serviceName), includeMarkers, additionalFields, includeOrigin, stackTraceAsArray);
+            return new EcsLayout(getConfiguration(), serviceName, serviceVersion, EcsJsonSerializer.computeEventDataset(eventDataset, serviceName), includeMarkers, additionalFields, includeOrigin, stackTraceAsArray);
         }
 
         public boolean isStackTraceAsArray() {

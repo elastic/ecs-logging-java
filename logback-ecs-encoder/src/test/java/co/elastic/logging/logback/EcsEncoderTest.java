@@ -44,6 +44,7 @@ public class EcsEncoderTest extends AbstractEcsEncoderTest {
         logger.addAppender(appender);
         EcsEncoder ecsEncoder = new EcsEncoder();
         ecsEncoder.setServiceName("test");
+        ecsEncoder.setServiceVersion("1.0.0");
         ecsEncoder.setIncludeMarkers(true);
         ecsEncoder.setIncludeOrigin(true);
         ecsEncoder.addAdditionalField(new AdditionalField("key1", "value1"));

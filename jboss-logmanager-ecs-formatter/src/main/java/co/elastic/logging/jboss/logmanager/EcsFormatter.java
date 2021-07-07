@@ -37,6 +37,7 @@ import java.util.List;
 public class EcsFormatter extends ExtFormatter {
 
     private String serviceName;
+    private String serviceVersion;
     private String eventDataset;
     private List<AdditionalField> additionalFields = Collections.emptyList();
     private boolean includeOrigin;
@@ -44,6 +45,7 @@ public class EcsFormatter extends ExtFormatter {
 
     public EcsFormatter() {
         serviceName = getProperty("co.elastic.logging.jboss.logmanager.EcsFormatter.serviceName", null);
+        serviceVersion = getProperty("co.elastic.logging.jboss.logmanager.EcsFormatter.serviceVersion", null);
         eventDataset = getProperty("co.elastic.logging.jboss.logmanager.EcsFormatter.eventDataset", null);
         eventDataset = EcsJsonSerializer.computeEventDataset(eventDataset, serviceName);
         includeOrigin = Boolean.getBoolean(getProperty("co.elastic.logging.jboss.logmanager.EcsFormatter.includeOrigin", "false"));
@@ -58,6 +60,7 @@ public class EcsFormatter extends ExtFormatter {
         EcsJsonSerializer.serializeFormattedMessage(builder, record.getFormattedMessage());
         EcsJsonSerializer.serializeEcsVersion(builder);
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
+        EcsJsonSerializer.serializeServiceVersion(builder, serviceVersion);
         EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
         EcsJsonSerializer.serializeThreadName(builder, record.getThreadName());
         EcsJsonSerializer.serializeLoggerName(builder, record.getLoggerName());
@@ -89,6 +92,10 @@ public class EcsFormatter extends ExtFormatter {
     public void setServiceName(final String serviceName) {
         this.serviceName = serviceName;
         eventDataset = EcsJsonSerializer.computeEventDataset(eventDataset, serviceName);
+    }
+
+    public void setServiceVersion(String serviceVersion) {
+        this.serviceVersion = serviceVersion;
     }
 
     public void setStackTraceAsArray(final boolean stackTraceAsArray) {

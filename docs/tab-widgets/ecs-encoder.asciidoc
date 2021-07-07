@@ -50,7 +50,12 @@ All you have to do is to use the `co.elastic.logging.logback.EcsEncoder` instead
 |`serviceName`
 |String
 |
-|Sets the `service.name` field so you can filter your logs by a particular service
+|Sets the `service.name` field so you can filter your logs by a particular service name
+
+|`serviceVersion`
+|String
+|
+|Sets the `service.version` field so you can filter your logs by a particular service version
 
 |`eventDataset`
 |String
@@ -125,7 +130,12 @@ For example:
 |`serviceName`
 |String
 |
-|Sets the `service.name` field so you can filter your logs by a particular service
+|Sets the `service.name` field so you can filter your logs by a particular service name
+
+|`serviceVersion`
+|String
+|
+|Sets the `service.version` field so you can filter your logs by a particular service version
 
 |`eventDataset`
 |String
@@ -205,7 +215,12 @@ For example:
 |`serviceName`
 |String
 |
-|Sets the `service.name` field so you can filter your logs by a particular service
+|Sets the `service.name` field so you can filter your logs by a particular service name
+
+|`serviceVersion`
+|String
+|
+|Sets the `service.version` field so you can filter your logs by a particular service version
 
 |`eventDataset`
 |String
@@ -259,7 +274,12 @@ co.elastic.logging.jul.EcsFormatter.serviceName=my-app
 |`serviceName`
 |String
 |
-|Sets the `service.name` field so you can filter your logs by a particular service
+|Sets the `service.name` field so you can filter your logs by a particular service name
+
+|`serviceVersion`
+|String
+|
+|Sets the `service.version` field so you can filter your logs by a particular service version
 
 |`eventDataset`
 |String
@@ -313,7 +333,12 @@ $WILDFLY_HOME/bin/jboss-cli.sh -c '/subsystem=logging/custom-formatter=ECS:add(m
 |`serviceName`
 |String
 |
-|Sets the `service.name` field so you can filter your logs by a particular service
+|Sets the `service.name` field so you can filter your logs by a particular service name
+
+|`serviceVersion`
+|String
+|
+|Sets the `service.version` field so you can filter your logs by a particular service version
 
 |`eventDataset`
 |String

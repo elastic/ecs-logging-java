@@ -89,6 +89,7 @@ class JBossLogManagerTest extends AbstractEcsLoggingTest {
     void setUp() {
         formatter.setIncludeOrigin(true);
         formatter.setServiceName("test");
+        formatter.setServiceVersion("1.0.0");
         formatter.setEventDataset("testdataset.log");
         formatter.setAdditionalFields("key1=value1,key2=value2");
 

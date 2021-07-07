@@ -11,9 +11,9 @@
  * the Apache License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -45,6 +45,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
     private static final Charset UTF_8 = Charset.forName("UTF-8");
     private boolean stackTraceAsArray = false;
     private String serviceName;
+    private String serviceVersion;
     private String eventDataset;
     private boolean includeMarkers = false;
     private ThrowableProxyConverter throwableProxyConverter;
@@ -101,6 +102,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         EcsJsonSerializer.serializeEcsVersion(builder);
         serializeMarkers(event, builder);
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
+        EcsJsonSerializer.serializeServiceVersion(builder, serviceVersion);
         EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
         EcsJsonSerializer.serializeLoggerName(builder, event.getLoggerName());
@@ -149,6 +151,10 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
 
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
+    }
+
+    public void setServiceVersion(String serviceVersion) {
+        this.serviceVersion = serviceVersion;
     }
 
     public void setIncludeMarkers(boolean includeMarkers) {
