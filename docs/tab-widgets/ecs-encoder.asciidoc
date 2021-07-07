@@ -39,6 +39,7 @@ All you have to do is to use the `co.elastic.logging.logback.EcsEncoder` instead
 ----
 <encoder class="co.elastic.logging.logback.EcsEncoder">
     <serviceName>my-application</serviceName>
+    <serviceNodeName>my-application-cluster-node</serviceNodeName>
 </encoder>
 ----
 
@@ -51,6 +52,11 @@ All you have to do is to use the `co.elastic.logging.logback.EcsEncoder` instead
 |String
 |
 |Sets the `service.name` field so you can filter your logs by a particular service
+
+|`serviceNodeName`
+|String
+|
+|Sets the `service.node.name` field so you can filter your logs by a particular node of your clustered service
 
 |`eventDataset`
 |String
@@ -102,10 +108,10 @@ For example:
 <Configuration status="DEBUG">
     <Appenders>
         <Console name="LogToConsole" target="SYSTEM_OUT">
-            <EcsLayout serviceName="my-app"/>
+            <EcsLayout serviceName="my-app" serviceNodeName="my-app-cluster-node"/>
         </Console>
         <File name="LogToFile" fileName="logs/app.log">
-            <EcsLayout serviceName="my-app"/>
+            <EcsLayout serviceName="my-app" serviceNodeName="my-app-cluster-node"/>
         </File>
     </Appenders>
     <Loggers>
@@ -126,6 +132,11 @@ For example:
 |String
 |
 |Sets the `service.name` field so you can filter your logs by a particular service
+
+|`serviceNodeName`
+|String
+|
+|Sets the `service.node.name` field so you can filter your logs by a particular node of your clustered service
 
 |`eventDataset`
 |String
@@ -180,12 +191,14 @@ For example:
         <param name="Target" value="System.out"/>
         <layout class="co.elastic.logging.log4j.EcsLayout">
             <param name="serviceName" value="my-app"/>
+            <param name="serviceNodeName" value="my-app-cluster-node"/>
         </layout>
     </appender>
     <appender name="LogToFile" class="org.apache.log4j.RollingFileAppender">
         <param name="File" value="logs/app.log"/>
         <layout class="co.elastic.logging.log4j.EcsLayout">
             <param name="serviceName" value="my-app"/>
+            <param name="serviceNodeName" value="my-app-cluster-node"/>
         </layout>
     </appender>
     <root>
@@ -206,6 +219,11 @@ For example:
 |String
 |
 |Sets the `service.name` field so you can filter your logs by a particular service
+
+|`serviceNodeName`
+|String
+|
+|Sets the `service.node.name` field so you can filter your logs by a particular node of your clustered service
 
 |`eventDataset`
 |String
@@ -249,6 +267,7 @@ For example, in `$CATALINA_HOME/conf/logging.properties`:
 java.util.logging.ConsoleHandler.level = FINE
 java.util.logging.ConsoleHandler.formatter = co.elastic.logging.jul.EcsFormatter
 co.elastic.logging.jul.EcsFormatter.serviceName=my-app
+co.elastic.logging.jul.EcsFormatter.serviceNodeName=my-app-cluster-node
 ----
 
 **Layout Parameters**
@@ -260,6 +279,11 @@ co.elastic.logging.jul.EcsFormatter.serviceName=my-app
 |String
 |
 |Sets the `service.name` field so you can filter your logs by a particular service
+
+|`serviceNodeName`
+|String
+|
+|Sets the `service.node.name` field so you can filter your logs by a particular node of your clustered service
 
 |`eventDataset`
 |String
@@ -301,7 +325,8 @@ Add the formatter to a handler in the logging subsystem:
 
 [source,bash]
 ----
-$WILDFLY_HOME/bin/jboss-cli.sh -c '/subsystem=logging/custom-formatter=ECS:add(module=co.elastic.logging.jboss-logmanager-ecs-formatter, class=co.elastic.logging.jboss.logmanager.EcsFormatter, properties={serviceName=my-app}),\
+$WILDFLY_HOME/bin/jboss-cli.sh -c '/subsystem=logging/custom-formatter=ECS:add(module=co.elastic.logging.jboss-logmanager-ecs-formatter,
+class=co.elastic.logging.jboss.logmanager.EcsFormatter, properties={serviceName=my-app,serviceNodeName=my-app-cluster-node}),\
                                    /subsystem=logging/console-handler=CONSOLE:write-attribute(name=named-formatter,value=ECS)'
 ----
 
@@ -314,6 +339,11 @@ $WILDFLY_HOME/bin/jboss-cli.sh -c '/subsystem=logging/custom-formatter=ECS:add(m
 |String
 |
 |Sets the `service.name` field so you can filter your logs by a particular service
+
+|`serviceNodeName`
+|String
+|
+|Sets the `service.node.name` field so you can filter your logs by a particular node of your clustered service
 
 |`eventDataset`
 |String

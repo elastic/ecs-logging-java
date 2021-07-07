@@ -91,6 +91,12 @@ public class EcsJsonSerializer {
         }
     }
 
+    public static void serializeServiceNodeName(StringBuilder builder, String serviceNodeName) {
+        if (serviceNodeName != null) {
+            builder.append("\"service.node.name\":\"").append(serviceNodeName).append("\",");
+        }
+    }
+
     public static void serializeEventDataset(StringBuilder builder, String eventDataset) {
         if (eventDataset != null) {
             builder.append("\"event.dataset\":\"").append(eventDataset).append("\",");
