@@ -73,7 +73,16 @@
             "url": "https://www.elastic.co/guide/en/ecs/current/ecs-service.html",
             "comment": [
                 "Configurable by users.",
-                "When an APM agent is active, they should auto-configure it if not already set."
+                "When an APM agent is active, it should auto-configure this field if not already set."
+            ]
+        },
+        "service.node.name": {
+            "type": "string",
+            "required": false,
+            "url": "https://www.elastic.co/guide/en/ecs/current/ecs-service.html",
+            "comment": [
+                "Configurable by users.",
+                "When an APM agent is active and `service_node_name` is manually configured, the agent should auto-configure this field if not already set."
             ]
         },
         "event.dataset": {
