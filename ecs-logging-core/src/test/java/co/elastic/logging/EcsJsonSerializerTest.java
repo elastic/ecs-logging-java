@@ -11,9 +11,9 @@
  * the Apache License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -40,6 +40,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 class EcsJsonSerializerTest {
 
+    private static final String ERROR_TYPE = "error.type";
+    private static final String ERROR_STACK_TRACE = "error.stack_trace";
+    private static final String ERROR_MESSAGE = "error.message";
+    private ObjectMapper objectMapper = new ObjectMapper();
+
     @Test
     void serializeExceptionAsString() throws IOException {
         Exception exception = new Exception("foo");
@@ -47,13 +52,13 @@ class EcsJsonSerializerTest {
         jsonBuilder.append('{');
         EcsJsonSerializer.serializeException(jsonBuilder, exception, false);
         jsonBuilder.append('}');
-        JsonNode jsonNode = new ObjectMapper().readTree(jsonBuilder.toString());
+        JsonNode jsonNode = objectMapper.readTree(jsonBuilder.toString());
 
-        assertThat(jsonNode.get("error.type").textValue()).isEqualTo(exception.getClass().getName());
-        assertThat(jsonNode.get("error.message").textValue()).isEqualTo("foo");
+        assertThat(jsonNode.get(ERROR_TYPE).textValue()).isEqualTo(exception.getClass().getName());
+        assertThat(jsonNode.get(ERROR_MESSAGE).textValue()).isEqualTo("foo");
         StringWriter stringWriter = new StringWriter();
         exception.printStackTrace(new PrintWriter(stringWriter));
-        assertThat(jsonNode.get("error.stack_trace").textValue()).isEqualTo(stringWriter.toString());
+        assertThat(jsonNode.get(ERROR_STACK_TRACE).textValue()).isEqualTo(stringWriter.toString());
     }
 
     @Test
@@ -102,13 +107,13 @@ class EcsJsonSerializerTest {
         EcsJsonSerializer.serializeException(jsonBuilder, exception, true);
         jsonBuilder.append('}');
         System.out.println(jsonBuilder);
-        JsonNode jsonNode = new ObjectMapper().readTree(jsonBuilder.toString());
+        JsonNode jsonNode = objectMapper.readTree(jsonBuilder.toString());
 
-        assertThat(jsonNode.get("error.type").textValue()).isEqualTo(exception.getClass().getName());
-        assertThat(jsonNode.get("error.message").textValue()).isEqualTo("foo");
+        assertThat(jsonNode.get(ERROR_TYPE).textValue()).isEqualTo(exception.getClass().getName());
+        assertThat(jsonNode.get(ERROR_MESSAGE).textValue()).isEqualTo("foo");
         StringWriter stringWriter = new StringWriter();
         exception.printStackTrace(new PrintWriter(stringWriter));
-        assertThat(StreamSupport.stream(jsonNode.get("error.stack_trace").spliterator(), false)
+        assertThat(StreamSupport.stream(jsonNode.get(ERROR_STACK_TRACE).spliterator(), false)
                 .map(JsonNode::textValue)
                 .collect(Collectors.joining(System.lineSeparator(), "", System.lineSeparator())))
                 .isEqualTo(stringWriter.toString());
@@ -119,6 +124,48 @@ class EcsJsonSerializerTest {
         assertRemoveIfEndsWith("", "foo", "");
         assertRemoveIfEndsWith("foobar", "foo", "foobar");
         assertRemoveIfEndsWith("barfoo", "foo", "bar");
+    }
+
+    @Test
+    void serializeException() throws JsonProcessingException {
+        StringBuilder jsonBuilder = new StringBuilder();
+        jsonBuilder.append('{');
+        EcsJsonSerializer.serializeException(jsonBuilder, "className", "message", "stacktrace\ncaused by error", false);
+        jsonBuilder.append('}');
+
+        JsonNode jsonNode = objectMapper.readTree(jsonBuilder.toString());
+        assertThat(jsonNode.get(ERROR_TYPE).textValue()).isEqualTo("className");
+        assertThat(jsonNode.get(ERROR_STACK_TRACE).isArray()).isFalse();
+        assertThat(jsonNode.get(ERROR_STACK_TRACE).textValue()).isEqualTo("stacktrace\ncaused by error");
+        assertThat(jsonNode.get(ERROR_MESSAGE).textValue()).isEqualTo("message");
+    }
+
+    @Test
+    void serializeExceptionWithStackTraceAsArray() throws JsonProcessingException {
+        StringBuilder jsonBuilder = new StringBuilder();
+        jsonBuilder.append('{');
+        EcsJsonSerializer.serializeException(jsonBuilder, "className", "message", "stacktrace\ncaused by error", true);
+        jsonBuilder.append('}');
+
+        JsonNode jsonNode = objectMapper.readTree(jsonBuilder.toString());
+        assertThat(jsonNode.get(ERROR_TYPE).textValue()).isEqualTo("className");
+        assertThat(jsonNode.get(ERROR_STACK_TRACE).isArray()).isTrue();
+        assertThat(jsonNode.get(ERROR_STACK_TRACE).get(0).textValue()).isEqualTo("stacktrace");
+        assertThat(jsonNode.get(ERROR_STACK_TRACE).get(1).textValue()).isEqualTo("caused by error");
+        assertThat(jsonNode.get(ERROR_MESSAGE).textValue()).isEqualTo("message");
+    }
+
+    @Test
+    void serializeExceptionWithNullMessage() throws JsonProcessingException {
+        StringBuilder jsonBuilder = new StringBuilder();
+        jsonBuilder.append('{');
+        EcsJsonSerializer.serializeException(jsonBuilder, "className", null, "stacktrace", false);
+        jsonBuilder.append('}');
+
+        JsonNode jsonNode = objectMapper.readTree(jsonBuilder.toString());
+        assertThat(jsonNode.get(ERROR_TYPE).textValue()).isEqualTo("className");
+        assertThat(jsonNode.get(ERROR_STACK_TRACE).textValue()).isEqualTo("stacktrace");
+        assertThat(jsonNode.get(ERROR_MESSAGE)).isNull();
     }
 
     private void assertRemoveIfEndsWith(String builder, String ending, String expected) {

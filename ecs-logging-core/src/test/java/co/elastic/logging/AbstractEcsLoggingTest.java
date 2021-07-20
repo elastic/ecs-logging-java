@@ -45,7 +45,7 @@ import static org.assertj.core.api.Assertions.within;
 public abstract class AbstractEcsLoggingTest {
 
     protected ObjectMapper objectMapper = new ObjectMapper();
-    private JsonNode spec;
+    protected JsonNode spec;
 
     @BeforeEach
     final void setUpSpec() throws Exception {
