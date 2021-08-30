@@ -7,7 +7,7 @@
             <includeMarkers>true</includeMarkers>
             <includeOrigin>true</includeOrigin>
             <topLevelLabel>top_level</topLevelLabel>
-            <eventDataset>testdataset.log</eventDataset>
+            <eventDataset>testdataset</eventDataset>
             <additionalField>
                 <key>key1</key>
                 <value>value1</value>

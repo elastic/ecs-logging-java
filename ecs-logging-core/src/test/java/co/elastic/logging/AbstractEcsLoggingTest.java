@@ -61,7 +61,7 @@ public abstract class AbstractEcsLoggingTest {
         assertThat(Instant.parse(getAndValidateLastLogLine().get("@timestamp").textValue())).isCloseTo(Instant.now(), within(1, ChronoUnit.MINUTES));
         assertThat(getAndValidateLastLogLine().get("log.level").textValue()).isIn("DEBUG", "FINE");
         assertThat(getAndValidateLastLogLine().get("log.logger")).isNotNull();
-        assertThat(getAndValidateLastLogLine().get("event.dataset").textValue()).isEqualTo("testdataset.log");
+        assertThat(getAndValidateLastLogLine().get("event.dataset").textValue()).isEqualTo("testdataset");
         assertThat(getAndValidateLastLogLine().get("ecs.version").textValue()).isEqualTo("1.2.0");
         validateLog(getAndValidateLastLogLine());
     }

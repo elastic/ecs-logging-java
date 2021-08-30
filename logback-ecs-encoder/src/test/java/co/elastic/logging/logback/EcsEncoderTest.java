@@ -49,7 +49,7 @@ public class EcsEncoderTest extends AbstractEcsEncoderTest {
         ecsEncoder.setIncludeOrigin(true);
         ecsEncoder.addAdditionalField(new AdditionalField("key1", "value1"));
         ecsEncoder.addAdditionalField(new AdditionalField("key2", "value2"));
-        ecsEncoder.setEventDataset("testdataset.log");
+        ecsEncoder.setEventDataset("testdataset");
         ecsEncoder.start();
         appender.setEncoder(ecsEncoder);
         appender.start();
