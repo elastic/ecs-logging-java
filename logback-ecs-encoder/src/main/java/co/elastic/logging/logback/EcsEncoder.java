@@ -100,7 +100,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         StringBuilder builder = new StringBuilder();
         EcsJsonSerializer.serializeObjectStart(builder, event.getTimeStamp());
         EcsJsonSerializer.serializeLogLevel(builder, event.getLevel().toString());
-        EcsJsonSerializer.serializeFormattedMessage(builder, this.layout.doLayout(event));
+        serializeMessage(event, builder);
         EcsJsonSerializer.serializeEcsVersion(builder);
         serializeMarkers(event, builder);
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
@@ -125,6 +125,14 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         EcsJsonSerializer.serializeObjectEnd(builder);
         // all these allocations kinda hurt
         return builder.toString().getBytes(UTF_8);
+    }
+
+    private void serializeMessage(ILoggingEvent event, StringBuilder builder) {
+        if(layout == null) {
+            EcsJsonSerializer.serializeFormattedMessage(builder, event.getFormattedMessage());
+        } else {
+            EcsJsonSerializer.serializeFormattedMessage(builder, this.layout.doLayout(event));
+        }
     }
 
     private void serializeMarkers(ILoggingEvent event, StringBuilder builder) {
