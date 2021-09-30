@@ -28,6 +28,7 @@ import ch.qos.logback.classic.pattern.ThrowableProxyConverter;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.classic.spi.ThrowableProxy;
+import ch.qos.logback.core.Layout;
 import ch.qos.logback.core.encoder.EncoderBase;
 import co.elastic.logging.EcsJsonSerializer;
 import co.elastic.logging.AdditionalField;
@@ -52,6 +53,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
     private boolean includeOrigin;
     private final List<AdditionalField> additionalFields = new ArrayList<AdditionalField>();
     private OutputStream os;
+    protected Layout<ILoggingEvent> layout;
 
     @Override
     public byte[] headerBytes() {
@@ -98,7 +100,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         StringBuilder builder = new StringBuilder();
         EcsJsonSerializer.serializeObjectStart(builder, event.getTimeStamp());
         EcsJsonSerializer.serializeLogLevel(builder, event.getLevel().toString());
-        EcsJsonSerializer.serializeFormattedMessage(builder, event.getFormattedMessage());
+        EcsJsonSerializer.serializeFormattedMessage(builder, this.layout.doLayout(event));
         EcsJsonSerializer.serializeEcsVersion(builder);
         serializeMarkers(event, builder);
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
@@ -175,6 +177,14 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
 
     public void setEventDataset(String eventDataset) {
         this.eventDataset = eventDataset;
+    }
+
+    public Layout<ILoggingEvent> getLayout() {
+        return this.layout;
+    }
+
+    public void setLayout(Layout<ILoggingEvent> layout) {
+        this.layout = layout;
     }
 
 }
