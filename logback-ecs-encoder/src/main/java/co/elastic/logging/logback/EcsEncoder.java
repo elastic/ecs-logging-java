@@ -114,6 +114,8 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
                 EcsJsonSerializer.serializeOrigin(builder, callerData[0]);
             }
         }
+        // Allow subclasses to add custom fields. Calling this before the throwable serialization so we don't need to check for presence/absence of an ending comma.
+        addCustomFields(event, builder);
         IThrowableProxy throwableProxy = event.getThrowableProxy();
         if (throwableProxy instanceof ThrowableProxy) {
             EcsJsonSerializer.serializeException(builder, ((ThrowableProxy) throwableProxy).getThrowable(), stackTraceAsArray);
@@ -124,6 +126,13 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         // all these allocations kinda hurt
         return builder.toString().getBytes(UTF_8);
     }
+
+    /**
+     * Subclasses can override this to add custom fields.
+     * The last character in the StringBuilder will be comma when this is called.
+     * You must add a comma after each custom field.
+     */
+    protected void addCustomFields(ILoggingEvent event, StringBuilder builder) {}
 
     private void serializeMarkers(ILoggingEvent event, StringBuilder builder) {
         Marker marker = event.getMarker();
