@@ -62,7 +62,7 @@ All you have to do is to use the `co.elastic.logging.logback.EcsEncoder` instead
 
 |`eventDataset`
 |String
-|`${serviceName}.log`
+|`${serviceName}`
 |Sets the `event.dataset` field used by the machine learning job of the Logs app to look for anomalies in the log rate.
 
 |`includeMarkers`
@@ -142,7 +142,7 @@ For example:
 
 |`eventDataset`
 |String
-|`${serviceName}.log`
+|`${serviceName}`
 |Sets the `event.dataset` field used by the machine learning job of the Logs app to look for anomalies in the log rate.
 
 |`includeMarkers`
@@ -229,7 +229,7 @@ For example:
 
 |`eventDataset`
 |String
-|`${serviceName}.log`
+|`${serviceName}`
 |Sets the `event.dataset` field used by the machine learning job of the Logs app to look for anomalies in the log rate.
 
 |`stackTraceAsArray`
@@ -289,7 +289,7 @@ co.elastic.logging.jul.EcsFormatter.serviceNodeName=my-app-cluster-node
 
 |`eventDataset`
 |String
-|`${serviceName}.log`
+|`${serviceName}`
 |Sets the `event.dataset` field used by the machine learning job of the Logs app to look for anomalies in the log rate.
 
 |`stackTraceAsArray`
@@ -349,7 +349,7 @@ class=co.elastic.logging.jboss.logmanager.EcsFormatter, properties={serviceName=
 
 |`eventDataset`
 |String
-|`${serviceName}.log`
+|`${serviceName}`
 |Sets the `event.dataset` field used by the machine learning job of the Logs app to look for anomalies in the log rate.
 
 |`stackTraceAsArray`

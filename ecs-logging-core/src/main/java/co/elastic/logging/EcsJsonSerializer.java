@@ -294,7 +294,7 @@ public class EcsJsonSerializer {
 
     public static String computeEventDataset(String eventDataset, String serviceName) {
         if (eventDataset == null && serviceName != null && !serviceName.isEmpty()) {
-            return serviceName + ".log";
+            return serviceName;
         }
         return eventDataset;
     }

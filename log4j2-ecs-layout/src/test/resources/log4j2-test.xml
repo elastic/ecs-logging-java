@@ -6,7 +6,7 @@
     <Appenders>
         <List name="TestAppender">
             <EcsLayout serviceName="test" serviceNodeName="test-node" includeMarkers="true" includeOrigin="true"
-                       eventDataset="testdataset.log">
+                       eventDataset="testdataset">
                 <KeyValuePair key="cluster.uuid" value="9fe9134b-20b0-465e-acf9-8cc09ac9053b"/>
                 <KeyValuePair key="node.id" value="${node.id}"/>
                 <KeyValuePair key="empty" value="${empty}"/>
