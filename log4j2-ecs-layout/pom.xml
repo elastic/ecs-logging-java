@@ -9,7 +9,7 @@
 
     <properties>
         <parent.base.dir>${project.basedir}/..</parent.base.dir>
-        <version.log4j>2.15.0</version.log4j>
+        <version.log4j>2.16.0</version.log4j>
     </properties>
 
     <artifactId>log4j2-ecs-layout</artifactId>
