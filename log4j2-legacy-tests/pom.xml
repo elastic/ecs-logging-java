@@ -10,7 +10,7 @@
     <artifactId>log4j2-legacy-tests</artifactId>
 
     <properties>
-        <version.log4j.legacy>2.6</version.log4j.legacy>
+        <version.log4j.legacy>2.17.1</version.log4j.legacy>
         <parent.base.dir>${project.basedir}/..</parent.base.dir>
         <maven-deploy-plugin.skip>true</maven-deploy-plugin.skip>
     </properties>
