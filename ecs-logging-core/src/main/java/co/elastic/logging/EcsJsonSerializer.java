@@ -11,9 +11,9 @@
  * the Apache License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -34,7 +34,7 @@ public class EcsJsonSerializer {
 
     private static final TimestampSerializer TIMESTAMP_SERIALIZER = new TimestampSerializer();
     private static final ThreadLocal<StringBuilder> messageStringBuilder = new ThreadLocal<StringBuilder>();
-    private static final  String NEW_LINE = System.getProperty("line.separator");
+    private static final String NEW_LINE = System.getProperty("line.separator");
     private static final Pattern NEW_LINE_PATTERN = Pattern.compile("\\n");
 
     public static CharSequence toNullSafeString(final CharSequence s) {
@@ -79,6 +79,7 @@ public class EcsJsonSerializer {
         builder.append(threadId);
         builder.append(",");
     }
+
     public static void serializeFormattedMessage(StringBuilder builder, String message) {
         builder.append("\"message\":\"");
         JsonUtils.quoteAsString(message, builder);
@@ -214,26 +215,21 @@ public class EcsJsonSerializer {
         builder.append("\"error.type\":\"");
         JsonUtils.quoteAsString(exceptionClassName, builder);
         builder.append("\",");
-        builder.append("\"error.message\":\"");
-        JsonUtils.quoteAsString(exceptionMessage, builder);
-        builder.append("\",");
+
+        if (exceptionMessage != null) {
+            builder.append("\"error.message\":\"");
+            JsonUtils.quoteAsString(exceptionMessage, builder);
+            builder.append("\",");
+        }
         if (stackTraceAsArray) {
-            builder.append("\"error.stack_trace\":[").append(NEW_LINE);
-            for (String line : NEW_LINE_PATTERN.split(stackTrace)) {
-                appendQuoted(builder, line);
-            }
+            builder.append("\"error.stack_trace\":[");
+            formatStackTraceAsArray(builder, stackTrace);
             builder.append("]");
         } else {
             builder.append("\"error.stack_trace\":\"");
             JsonUtils.quoteAsString(stackTrace, builder);
             builder.append("\"");
         }
-    }
-
-    private static void appendQuoted(StringBuilder builder, CharSequence content) {
-        builder.append('"');
-        JsonUtils.quoteAsString(content, builder);
-        builder.append('"');
     }
 
     private static CharSequence formatThrowable(final Throwable throwable) {
@@ -260,6 +256,18 @@ public class EcsJsonSerializer {
         throwable.printStackTrace(pw);
         removeIfEndsWith(jsonBuilder, NEW_LINE);
         removeIfEndsWith(jsonBuilder, ",");
+    }
+
+    private static void formatStackTraceAsArray(StringBuilder builder, String stackTrace) {
+        builder.append(NEW_LINE);
+        for (String line : NEW_LINE_PATTERN.split(stackTrace)) {
+            builder.append("\t\"");
+            JsonUtils.quoteAsString(line, builder);
+            builder.append("\",");
+            builder.append(NEW_LINE);
+        }
+        removeIfEndsWith(builder, NEW_LINE);
+        removeIfEndsWith(builder, ",");
     }
 
     public static void removeIfEndsWith(StringBuilder sb, String ending) {

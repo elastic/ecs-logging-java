@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <appender name="out" class="co.elastic.logging.logback.OutputStreamAppender">
+        <encoder class="co.elastic.logging.logback.EcsEncoder">
+            <throwableConverter class="ch.qos.logback.classic.pattern.NopThrowableInformationConverter"/>
+            <serviceName>test</serviceName>
+            <serviceNodeName>test-node</serviceNodeName>
+            <includeMarkers>true</includeMarkers>
+            <includeOrigin>true</includeOrigin>
+            <topLevelLabel>top_level</topLevelLabel>
+            <eventDataset>testdataset</eventDataset>
+            <additionalField>
+                <key>key1</key>
+                <value>value1</value>
+            </additionalField>
+            <additionalField>
+                <key>key2</key>
+                <value>value2</value>
+            </additionalField>
+        </encoder>
+    </appender>
+    <root level="DEBUG">
+        <appender-ref ref="out"/>
+    </root>
+</configuration>
