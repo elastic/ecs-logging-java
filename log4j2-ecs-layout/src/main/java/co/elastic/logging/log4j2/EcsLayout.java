@@ -52,10 +52,12 @@ import org.apache.logging.log4j.util.PropertiesUtil;
 import org.apache.logging.log4j.util.StringBuilderFormattable;
 
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
+import java.util.regex.Pattern;
 
 @Plugin(name = "EcsLayout", category = Node.CATEGORY, elementType = Layout.ELEMENT_TYPE)
 public class EcsLayout extends AbstractStringLayout {
@@ -69,6 +71,7 @@ public class EcsLayout extends AbstractStringLayout {
 
     private final KeyValuePair[] additionalFields;
     private final PatternFormatter[][] fieldValuePatternFormatter;
+    private final List<Pattern> stackTraceFilter;
     private final boolean stackTraceAsArray;
     private final String serviceName;
     private final String serviceNodeName;
@@ -78,13 +81,14 @@ public class EcsLayout extends AbstractStringLayout {
     private final ConcurrentMap<Class<? extends MultiformatMessage>, Boolean> supportsJson = new ConcurrentHashMap<Class<? extends MultiformatMessage>, Boolean>();
 
     private EcsLayout(Configuration config, String serviceName, String serviceNodeName, String eventDataset, boolean includeMarkers,
-                      KeyValuePair[] additionalFields, boolean includeOrigin, boolean stackTraceAsArray) {
+                      KeyValuePair[] additionalFields, boolean includeOrigin, List<Pattern> stackTraceFilter, boolean stackTraceAsArray) {
         super(config, UTF_8, null, null);
         this.serviceName = serviceName;
         this.serviceNodeName = serviceNodeName;
         this.eventDataset = eventDataset;
         this.includeMarkers = includeMarkers;
         this.includeOrigin = includeOrigin;
+        this.stackTraceFilter = stackTraceFilter;
         this.stackTraceAsArray = stackTraceAsArray;
         this.additionalFields = additionalFields;
         fieldValuePatternFormatter = new PatternFormatter[additionalFields.length][];
@@ -140,7 +144,7 @@ public class EcsLayout extends AbstractStringLayout {
         if (includeOrigin) {
             EcsJsonSerializer.serializeOrigin(builder, event.getSource());
         }
-        EcsJsonSerializer.serializeException(builder, event.getThrown(), stackTraceAsArray);
+        EcsJsonSerializer.serializeException(builder, event.getThrown(), stackTraceFilter, stackTraceAsArray);
         EcsJsonSerializer.serializeObjectEnd(builder);
         return builder;
     }
@@ -339,6 +343,8 @@ public class EcsLayout extends AbstractStringLayout {
         private boolean includeMarkers = false;
         @PluginBuilderAttribute("stackTraceAsArray")
         private boolean stackTraceAsArray = false;
+        @PluginElement("StackTraceFilters")
+        private StackTraceFilter[] stackTraceFilters = new StackTraceFilter[]{};
         @PluginElement("AdditionalField")
         private KeyValuePair[] additionalFields = new KeyValuePair[]{};
         @PluginBuilderAttribute("includeOrigin")
@@ -380,6 +386,14 @@ public class EcsLayout extends AbstractStringLayout {
             return includeOrigin;
         }
 
+        public boolean isStackTraceAsArray() {
+            return stackTraceAsArray;
+        }
+
+        public StackTraceFilter[] getStackTraceFilters() {
+            return stackTraceFilters;
+        }
+
         /**
          * Additional fields to set on each log event.
          *
@@ -415,6 +429,11 @@ public class EcsLayout extends AbstractStringLayout {
             return this;
         }
 
+        public EcsLayout.Builder setStackTraceFilters(StackTraceFilter[] stackTraceFilters) {
+            this.stackTraceFilters = stackTraceFilters;
+            return this;
+        }
+
         public EcsLayout.Builder setStackTraceAsArray(boolean stackTraceAsArray) {
             this.stackTraceAsArray = stackTraceAsArray;
             return this;
@@ -422,12 +441,12 @@ public class EcsLayout extends AbstractStringLayout {
 
         @Override
         public EcsLayout build() {
+            List<Pattern> stackTraceFilterPatterns = new ArrayList<Pattern>(stackTraceFilters.length);
+            for (StackTraceFilter stackTraceFilter : stackTraceFilters) {
+                stackTraceFilterPatterns.add(Pattern.compile("\tat .*" + stackTraceFilter.getFilter()));
+            }
             return new EcsLayout(getConfiguration(), serviceName, serviceNodeName, EcsJsonSerializer.computeEventDataset(eventDataset, serviceName),
-                    includeMarkers, additionalFields, includeOrigin, stackTraceAsArray);
-        }
-
-        public boolean isStackTraceAsArray() {
-            return stackTraceAsArray;
+                    includeMarkers, additionalFields, includeOrigin, stackTraceFilterPatterns, stackTraceAsArray);
         }
     }
 }

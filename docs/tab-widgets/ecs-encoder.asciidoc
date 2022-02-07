@@ -176,6 +176,15 @@ To include any custom field in the output, use following syntax:
 
 Custom fields are included in the order they are declared. The values support https://logging.apache.org/log4j/2.x/manual/lookups.html[lookups].
 
+To suppress lines containing `com.example.SomeClass` in an exceptions stack trace, use the following syntax:
+
+[source,xml]
+----
+  <EcsLayout>
+    <StackTraceFilter filter="com.example.SomeClass" />
+  </EcsLayout>
+----
+
 NOTE: The log4j2 `EcsLayout` does not allocate any memory (unless the log event contains an `Exception`) to reduce GC pressure.
 This is achieved by manually serializing JSON so that no intermediate JSON or map representation of a log event is needed.
 // end::log4j2[]

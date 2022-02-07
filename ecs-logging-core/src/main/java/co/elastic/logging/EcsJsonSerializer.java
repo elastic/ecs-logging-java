@@ -26,6 +26,7 @@ package co.elastic.logging;
 
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -188,6 +189,10 @@ public class EcsJsonSerializer {
     }
 
     public static void serializeException(StringBuilder builder, Throwable thrown, boolean stackTraceAsArray) {
+        serializeException(builder, thrown, Collections.<Pattern>emptyList(), stackTraceAsArray);
+    }
+
+    public static void serializeException(StringBuilder builder, Throwable thrown, List<Pattern> stackTraceFilters, boolean stackTraceAsArray) {
         if (thrown != null) {
             builder.append("\"error.type\":\"");
             JsonUtils.quoteAsString(thrown.getClass().getName(), builder);
@@ -201,11 +206,11 @@ public class EcsJsonSerializer {
             }
             if (stackTraceAsArray) {
                 builder.append("\"error.stack_trace\":[").append(NEW_LINE);
-                formatThrowableAsArray(builder, thrown);
+                formatThrowableAsArray(builder, thrown, stackTraceFilters);
                 builder.append("]");
             } else {
                 builder.append("\"error.stack_trace\":\"");
-                JsonUtils.quoteAsString(formatThrowable(thrown), builder);
+                JsonUtils.quoteAsString(formatThrowable(thrown, stackTraceFilters), builder);
                 builder.append("\"");
             }
         }
@@ -232,19 +237,73 @@ public class EcsJsonSerializer {
         }
     }
 
-    private static CharSequence formatThrowable(final Throwable throwable) {
-        StringBuilder buffer = getMessageStringBuilder();
-        final PrintWriter pw = new PrintWriter(new StringBuilderWriter(buffer));
+    private static CharSequence formatThrowable(final Throwable throwable, final List<Pattern> stackTraceFilters) {
+        final StringBuilder buffer = getMessageStringBuilder();
+        final PrintWriter pw = new PrintWriter(new StringBuilderWriter(buffer)) {
+
+            private int endOfLastLine;
+            private int numberOfSuppressedLines;
+
+            @Override
+            public void println() {
+                for (Pattern p : stackTraceFilters) {
+                    if (p.matcher(buffer).find(endOfLastLine)) {
+                        ++numberOfSuppressedLines;
+                        buffer.setLength(endOfLastLine);
+
+                        return;
+                    }
+                }
+                if (numberOfSuppressedLines > 0) {
+                    int lengthOfNextLine = buffer.length() - endOfLastLine;
+                    if (numberOfSuppressedLines > 1) {
+                        buffer.insert(endOfLastLine, "\t... suppressed ")
+                                .insert(buffer.length() - lengthOfNextLine, numberOfSuppressedLines)
+                                .insert(buffer.length() - lengthOfNextLine, " lines");
+                    } else {
+                        buffer.insert(endOfLastLine, "\t...");
+                    }
+                    buffer.insert(buffer.length() - lengthOfNextLine, NEW_LINE);
+
+                    numberOfSuppressedLines = 0;
+                }
+                buffer.append(NEW_LINE);
+                endOfLastLine = buffer.length();
+            }
+        };
         throwable.printStackTrace(pw);
         pw.flush();
         return buffer;
     }
 
-    private static void formatThrowableAsArray(final StringBuilder jsonBuilder, final Throwable throwable) {
+    private static void formatThrowableAsArray(final StringBuilder jsonBuilder, final Throwable throwable, final List<Pattern> stackTraceFilters) {
         final StringBuilder buffer = getMessageStringBuilder();
         final PrintWriter pw = new PrintWriter(new StringBuilderWriter(buffer), true) {
+
+            private int numberOfSuppressedLines;
+
             @Override
             public void println() {
+                for (Pattern p : stackTraceFilters) {
+                    if (p.matcher(buffer).find()) {
+                        ++numberOfSuppressedLines;
+                        buffer.setLength(0);
+
+                        return;
+                    }
+                }
+                if (numberOfSuppressedLines > 0) {
+                    jsonBuilder.append("\t\"");
+                    if (numberOfSuppressedLines > 1) {
+                        jsonBuilder.append("\\t... suppressed ").append(numberOfSuppressedLines).append(" lines");
+                    } else {
+                        jsonBuilder.append("\\t...");
+                    }
+                    jsonBuilder.append("\",");
+                    jsonBuilder.append(NEW_LINE);
+
+                    numberOfSuppressedLines = 0;
+                }
                 flush();
                 jsonBuilder.append("\t\"");
                 JsonUtils.quoteAsString(buffer, jsonBuilder);
