@@ -40,6 +40,7 @@ public class EcsLayout extends Layout {
 
     private boolean stackTraceAsArray = false;
     private String serviceName;
+    private String serviceVersion;
     private String serviceNodeName;
     private boolean includeOrigin;
     private String eventDataset;
@@ -53,6 +54,7 @@ public class EcsLayout extends Layout {
         EcsJsonSerializer.serializeFormattedMessage(builder, event.getRenderedMessage());
         EcsJsonSerializer.serializeEcsVersion(builder);
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
+        EcsJsonSerializer.serializeServiceVersion(builder, serviceVersion);
         EcsJsonSerializer.serializeServiceNodeName(builder, serviceNodeName);
         EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
@@ -99,6 +101,10 @@ public class EcsLayout extends Layout {
 
     public void setServiceName(String serviceName) {
         this.serviceName = serviceName;
+    }
+
+    public void setServiceVersion(String serviceVersion) {
+        this.serviceVersion = serviceVersion;
     }
 
     public void setServiceNodeName(String serviceNodeName) {

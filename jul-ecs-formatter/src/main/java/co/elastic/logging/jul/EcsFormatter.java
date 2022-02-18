@@ -40,6 +40,7 @@ public class EcsFormatter extends Formatter {
     
     private boolean stackTraceAsArray;
     private String serviceName;
+    private String serviceVersion;
     private String serviceNodeName;
     private boolean includeOrigin;
     private String eventDataset;
@@ -50,6 +51,7 @@ public class EcsFormatter extends Formatter {
      */
     public EcsFormatter() {
         serviceName = getProperty("co.elastic.logging.jul.EcsFormatter.serviceName", null);
+        serviceVersion= getProperty("co.elastic.logging.jul.EcsFormatter.serviceVersion", null);
         serviceNodeName = getProperty("co.elastic.logging.jul.EcsFormatter.serviceNodeName", null);
         includeOrigin = Boolean.getBoolean(getProperty("co.elastic.logging.jul.EcsFormatter.includeOrigin", "false"));
         stackTraceAsArray = Boolean
@@ -69,6 +71,7 @@ public class EcsFormatter extends Formatter {
         EcsJsonSerializer.serializeAdditionalFields(builder, additionalFields);
         EcsJsonSerializer.serializeMDC(builder, mdcSupplier.getMDC());
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
+        EcsJsonSerializer.serializeServiceVersion(builder, serviceVersion);
         EcsJsonSerializer.serializeServiceNodeName(builder, serviceNodeName);
         EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
         if (Thread.currentThread().getId() == record.getThreadID()) {
@@ -94,6 +97,10 @@ public class EcsFormatter extends Formatter {
 
     protected void setServiceName(final String serviceName) {
         this.serviceName = serviceName;
+    }
+
+    protected void setServiceVersion(final String serviceVersion) {
+        this.serviceVersion = serviceVersion;
     }
 
     protected void setServiceNodeName(final String serviceNodeName) {
