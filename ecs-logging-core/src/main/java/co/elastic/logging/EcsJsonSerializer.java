@@ -189,10 +189,10 @@ public class EcsJsonSerializer {
     }
 
     public static void serializeException(StringBuilder builder, Throwable thrown, boolean stackTraceAsArray) {
-        serializeException(builder, thrown, Collections.<Pattern>emptyList(), stackTraceAsArray);
+        serializeException(builder, thrown, Collections.<String>emptyList(), stackTraceAsArray);
     }
 
-    public static void serializeException(StringBuilder builder, Throwable thrown, List<Pattern> stackTraceFilters, boolean stackTraceAsArray) {
+    public static void serializeException(StringBuilder builder, Throwable thrown, List<String> stackTraceFilters, boolean stackTraceAsArray) {
         if (thrown != null) {
             builder.append("\"error.type\":\"");
             JsonUtils.quoteAsString(thrown.getClass().getName(), builder);
@@ -237,7 +237,7 @@ public class EcsJsonSerializer {
         }
     }
 
-    private static CharSequence formatThrowable(final Throwable throwable, final List<Pattern> stackTraceFilters) {
+    private static CharSequence formatThrowable(final Throwable throwable, final List<String> stackTraceFilters) {
         final StringBuilder buffer = getMessageStringBuilder();
         final PrintWriter pw = new PrintWriter(new StringBuilderWriter(buffer)) {
 
@@ -246,12 +246,14 @@ public class EcsJsonSerializer {
 
             @Override
             public void println() {
-                for (Pattern p : stackTraceFilters) {
-                    if (p.matcher(buffer).find(endOfLastLine)) {
-                        ++numberOfSuppressedLines;
-                        buffer.setLength(endOfLastLine);
+                if (buffer.indexOf("\tat", endOfLastLine) == endOfLastLine) {
+                    for (String filter : stackTraceFilters) {
+                        if (buffer.indexOf(filter, endOfLastLine) != -1) {
+                            ++numberOfSuppressedLines;
+                            buffer.setLength(endOfLastLine);
 
-                        return;
+                            return;
+                        }
                     }
                 }
                 if (numberOfSuppressedLines > 0) {
@@ -276,7 +278,7 @@ public class EcsJsonSerializer {
         return buffer;
     }
 
-    private static void formatThrowableAsArray(final StringBuilder jsonBuilder, final Throwable throwable, final List<Pattern> stackTraceFilters) {
+    private static void formatThrowableAsArray(final StringBuilder jsonBuilder, final Throwable throwable, final List<String> stackTraceFilters) {
         final StringBuilder buffer = getMessageStringBuilder();
         final PrintWriter pw = new PrintWriter(new StringBuilderWriter(buffer), true) {
 
@@ -284,12 +286,14 @@ public class EcsJsonSerializer {
 
             @Override
             public void println() {
-                for (Pattern p : stackTraceFilters) {
-                    if (p.matcher(buffer).find()) {
-                        ++numberOfSuppressedLines;
-                        buffer.setLength(0);
+                if (buffer.indexOf("\tat") == 0) {
+                    for (String filter : stackTraceFilters) {
+                        if (buffer.indexOf(filter) != -1) {
+                            ++numberOfSuppressedLines;
+                            buffer.setLength(0);
 
-                        return;
+                            return;
+                        }
                     }
                 }
                 if (numberOfSuppressedLines > 0) {

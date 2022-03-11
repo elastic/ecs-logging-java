@@ -33,7 +33,6 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.util.List;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -182,13 +181,13 @@ class EcsJsonSerializerTest {
         } catch (Exception exception) {
             StringBuilder jsonBuilder = new StringBuilder();
             jsonBuilder.append('{');
-            List<Pattern> stackTraceFilters = List.of(Pattern.compile("\tat co.elastic.logging.EcsJsonSerializerTest.First"));
+            List<String> stackTraceFilters = List.of("co.elastic.logging.EcsJsonSerializerTest$First");
             EcsJsonSerializer.serializeException(jsonBuilder, exception, stackTraceFilters, false);
             jsonBuilder.append('}');
 
             String stackTrace = objectMapper.readTree(jsonBuilder.toString()).get(ERROR_STACK_TRACE).textValue();
             assertThat(stackTrace).contains("\n\t...\n");
-            assertThat(stackTrace).doesNotContain("co.elastic.logging.EcsJsonSerializerTest.First");
+            assertThat(stackTrace).doesNotContain("co.elastic.logging.EcsJsonSerializerTest$First");
         }
     }
 
@@ -199,13 +198,13 @@ class EcsJsonSerializerTest {
         } catch (Exception exception) {
             StringBuilder jsonBuilder = new StringBuilder();
             jsonBuilder.append('{');
-            List<Pattern> stackTraceFilters = List.of(Pattern.compile("\tat co.elastic.logging.EcsJsonSerializerTest.First"));
+            List<String> stackTraceFilters = List.of("co.elastic.logging.EcsJsonSerializerTest$First");
             EcsJsonSerializer.serializeException(jsonBuilder, exception, stackTraceFilters, true);
             jsonBuilder.append('}');
 
             String stackTrace = objectMapper.readTree(jsonBuilder.toString()).get(ERROR_STACK_TRACE).toString();
             assertThat(stackTrace).contains("\"\\t...\"");
-            assertThat(stackTrace).doesNotContain("co.elastic.logging.EcsJsonSerializerTest.First");
+            assertThat(stackTrace).doesNotContain("co.elastic.logging.EcsJsonSerializerTest$First");
         }
     }
 
@@ -216,14 +215,14 @@ class EcsJsonSerializerTest {
         } catch (Exception exception) {
             StringBuilder jsonBuilder = new StringBuilder();
             jsonBuilder.append('{');
-            List<Pattern> stackTraceFilters = List.of(Pattern.compile("\tat co.elastic.logging.EcsJsonSerializerTest.First"), Pattern.compile("\tat co.elastic.logging.EcsJsonSerializerTest.Second"));
+            List<String> stackTraceFilters = List.of("co.elastic.logging.EcsJsonSerializerTest$First", "co.elastic.logging.EcsJsonSerializerTest$Second");
             EcsJsonSerializer.serializeException(jsonBuilder, exception, stackTraceFilters, false);
             jsonBuilder.append('}');
 
             String stackTrace = objectMapper.readTree(jsonBuilder.toString()).get(ERROR_STACK_TRACE).textValue();
             assertThat(stackTrace).contains("\n\t... suppressed 2 lines\n");
-            assertThat(stackTrace).doesNotContain("co.elastic.logging.EcsJsonSerializerTest.First");
-            assertThat(stackTrace).doesNotContain("co.elastic.logging.EcsJsonSerializerTest.Second");
+            assertThat(stackTrace).doesNotContain("co.elastic.logging.EcsJsonSerializerTest$First");
+            assertThat(stackTrace).doesNotContain("co.elastic.logging.EcsJsonSerializerTest$Second");
         }
     }
 
@@ -234,14 +233,14 @@ class EcsJsonSerializerTest {
         } catch (Exception exception) {
             StringBuilder jsonBuilder = new StringBuilder();
             jsonBuilder.append('{');
-            List<Pattern> stackTraceFilters = List.of(Pattern.compile("\tat co.elastic.logging.EcsJsonSerializerTest.First"), Pattern.compile("\tat co.elastic.logging.EcsJsonSerializerTest.Second"));
+            List<String> stackTraceFilters = List.of("co.elastic.logging.EcsJsonSerializerTest$First", "co.elastic.logging.EcsJsonSerializerTest$Second");
             EcsJsonSerializer.serializeException(jsonBuilder, exception, stackTraceFilters, true);
             jsonBuilder.append('}');
 
             String stackTrace = objectMapper.readTree(jsonBuilder.toString()).get(ERROR_STACK_TRACE).toString();
             assertThat(stackTrace).contains("\"\\t... suppressed 2 lines\"");
-            assertThat(stackTrace).doesNotContain("co.elastic.logging.EcsJsonSerializerTest.First");
-            assertThat(stackTrace).doesNotContain("co.elastic.logging.EcsJsonSerializerTest.Second");
+            assertThat(stackTrace).doesNotContain("co.elastic.logging.EcsJsonSerializerTest$First");
+            assertThat(stackTrace).doesNotContain("co.elastic.logging.EcsJsonSerializerTest$Second");
         }
     }
 

@@ -57,7 +57,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
-import java.util.regex.Pattern;
 
 @Plugin(name = "EcsLayout", category = Node.CATEGORY, elementType = Layout.ELEMENT_TYPE)
 public class EcsLayout extends AbstractStringLayout {
@@ -71,7 +70,7 @@ public class EcsLayout extends AbstractStringLayout {
 
     private final KeyValuePair[] additionalFields;
     private final PatternFormatter[][] fieldValuePatternFormatter;
-    private final List<Pattern> stackTraceFilter;
+    private final List<String> stackTraceFilter;
     private final boolean stackTraceAsArray;
     private final String serviceName;
     private final String serviceNodeName;
@@ -81,7 +80,7 @@ public class EcsLayout extends AbstractStringLayout {
     private final ConcurrentMap<Class<? extends MultiformatMessage>, Boolean> supportsJson = new ConcurrentHashMap<Class<? extends MultiformatMessage>, Boolean>();
 
     private EcsLayout(Configuration config, String serviceName, String serviceNodeName, String eventDataset, boolean includeMarkers,
-                      KeyValuePair[] additionalFields, boolean includeOrigin, List<Pattern> stackTraceFilter, boolean stackTraceAsArray) {
+                      KeyValuePair[] additionalFields, boolean includeOrigin, List<String> stackTraceFilter, boolean stackTraceAsArray) {
         super(config, UTF_8, null, null);
         this.serviceName = serviceName;
         this.serviceNodeName = serviceNodeName;
@@ -441,9 +440,9 @@ public class EcsLayout extends AbstractStringLayout {
 
         @Override
         public EcsLayout build() {
-            List<Pattern> stackTraceFilterPatterns = new ArrayList<Pattern>(stackTraceFilters.length);
+            List<String> stackTraceFilterPatterns = new ArrayList<String>(stackTraceFilters.length);
             for (StackTraceFilter stackTraceFilter : stackTraceFilters) {
-                stackTraceFilterPatterns.add(Pattern.compile("\tat .*" + stackTraceFilter.getFilter()));
+                stackTraceFilterPatterns.add(stackTraceFilter.getFilter());
             }
             return new EcsLayout(getConfiguration(), serviceName, serviceNodeName, EcsJsonSerializer.computeEventDataset(eventDataset, serviceName),
                     includeMarkers, additionalFields, includeOrigin, stackTraceFilterPatterns, stackTraceAsArray);
