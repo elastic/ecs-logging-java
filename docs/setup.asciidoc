@@ -27,13 +27,7 @@ include::./tab-widgets/ecs-encoder-widget.asciidoc[]
 
 [float]
 [[setup-step-2]]
-=== Step 2: Enable APM log correlation (optional)
-If you are using the Elastic APM Java agent,
-set {apm-java-ref}/config-logging.html#config-enable-log-correlation[`enable_log_correlation`] to `true`.
-
-[float]
-[[setup-step-3]]
-=== Step 3: Configure Filebeat
+=== Step 2: Configure Filebeat
 
 include::{ecs-repo-dir}/setup.asciidoc[tag=configure-filebeat]
 
