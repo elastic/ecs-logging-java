@@ -25,6 +25,9 @@ include::./tab-widgets/add-dependency-widget.asciidoc[]
 
 include::./tab-widgets/ecs-encoder-widget.asciidoc[]
 
+NOTE: If you're using the Elastic APM Java agent,
+log correlation is enabled by default starting in version 1.30.0.
+
 [float]
 [[setup-step-2]]
 === Step 2: Configure Filebeat
