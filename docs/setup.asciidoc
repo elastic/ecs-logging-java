@@ -47,7 +47,7 @@ But when combining the multiline settings with a `decode_json_fields` we can als
 [source,yml]
 ----
 filebeat.inputs:
-  - type: log
+  - type: filestream
     paths: /path/to/logs.json
     multiline.pattern: '^{'
     multiline.negate: true
