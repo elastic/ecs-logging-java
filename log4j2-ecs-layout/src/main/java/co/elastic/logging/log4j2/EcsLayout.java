@@ -453,8 +453,9 @@ public class EcsLayout extends AbstractStringLayout {
             return this;
         }
 
-        public void setExceptionPattern(String exceptionPattern) {
+        public EcsLayout.Builder setExceptionPattern(String exceptionPattern) {
             this.exceptionPattern = exceptionPattern;
+            return this;
         }
 
         @Override
