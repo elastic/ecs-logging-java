@@ -28,6 +28,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class EcsJsonSerializer {
@@ -212,6 +213,10 @@ public class EcsJsonSerializer {
     }
 
     public static void serializeException(StringBuilder builder, String exceptionClassName, String exceptionMessage, String stackTrace, boolean stackTraceAsArray) {
+        serializeException(builder, exceptionClassName, exceptionMessage, (CharSequence) stackTrace, stackTraceAsArray);
+    }
+
+    public static void serializeException(StringBuilder builder, String exceptionClassName, CharSequence exceptionMessage, CharSequence stackTrace, boolean stackTraceAsArray) {
         builder.append("\"error.type\":\"");
         JsonUtils.quoteAsString(exceptionClassName, builder);
         builder.append("\",");
@@ -258,16 +263,48 @@ public class EcsJsonSerializer {
         removeIfEndsWith(jsonBuilder, ",");
     }
 
-    private static void formatStackTraceAsArray(StringBuilder builder, String stackTrace) {
+    private static void formatStackTraceAsArray(StringBuilder builder, CharSequence stackTrace) {
         builder.append(NEW_LINE);
-        for (String line : NEW_LINE_PATTERN.split(stackTrace)) {
+
+        // splits the stackTrace by new lines
+        Matcher matcher = NEW_LINE_PATTERN.matcher(stackTrace);
+        if (matcher.find()) {
+            int index = 0;
+            do {
+                int start = matcher.start();
+                int end = matcher.end();
+                if (index == 0 && index == start && start == end) {
+                    // no empty leading substring included for zero-width match
+                    // at the beginning of the input char sequence.
+                    continue;
+                }
+
+                // append line
+                CharSequence match = stackTrace.subSequence(index, matcher.start());
+                builder.append("\t\"");
+                JsonUtils.quoteAsString(match, builder);
+                builder.append("\",");
+                builder.append(NEW_LINE);
+                index = end;
+            } while (matcher.find());
+
+            int length = stackTrace.length();
+            if (index < length) {
+                // append remaining line
+                CharSequence remaining = stackTrace.subSequence(index, length);
+                builder.append("\t\"");
+                JsonUtils.quoteAsString(remaining, builder);
+                builder.append("\"");
+            }
+
+            removeIfEndsWith(builder, NEW_LINE);
+            removeIfEndsWith(builder, ",");
+        } else {
+            // no newlines found, add entire stack trace as single element
             builder.append("\t\"");
-            JsonUtils.quoteAsString(line, builder);
-            builder.append("\",");
-            builder.append(NEW_LINE);
+            JsonUtils.quoteAsString(stackTrace, builder);
+            builder.append("\"");
         }
-        removeIfEndsWith(builder, NEW_LINE);
-        removeIfEndsWith(builder, ",");
     }
 
     public static void removeIfEndsWith(StringBuilder sb, String ending) {
