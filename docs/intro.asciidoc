@@ -77,8 +77,10 @@ Using a common schema across different services and teams makes it possible crea
 *APM Log correlation*::
 +
 --
-If you are using the {apm-java-ref}/index.html[Elastic APM Java agent],
-you can leverage the {apm-java-ref}/config-logging.html#config-enable-log-correlation[log correlation feature] without any additional configuration.
+If you're using the Elastic APM Java agent,
+log correlation is enabled by default starting in version 1.30.0.
+In previous versions, log correlation is off by default, but can be enabled by setting
+the `enable_log_correlation` config to `true`.
 This lets you jump from the {kibana-ref}/spans.html[Span timeline in the APM UI] to the {observability-guide}/monitor-logs.html[Logs app],
 showing only the logs which belong to the corresponding request.
 Vice versa, you can also jump from a log line in the Logs UI to the Span Timeline of the APM UI.
