@@ -88,19 +88,19 @@ public class EcsFormatter extends Formatter {
         return builder.toString();
     }
 
-    protected void setIncludeOrigin(final boolean includeOrigin) {
+    public void setIncludeOrigin(final boolean includeOrigin) {
         this.includeOrigin = includeOrigin;
     }
 
-    protected void setServiceName(final String serviceName) {
+    public void setServiceName(final String serviceName) {
         this.serviceName = serviceName;
     }
 
-    protected void setServiceNodeName(final String serviceNodeName) {
+    public void setServiceNodeName(final String serviceNodeName) {
         this.serviceNodeName = serviceNodeName;
     }
 
-    protected void setStackTraceAsArray(final boolean stackTraceAsArray) {
+    public void setStackTraceAsArray(final boolean stackTraceAsArray) {
         this.stackTraceAsArray = stackTraceAsArray;
     }
     
@@ -110,6 +110,10 @@ public class EcsFormatter extends Formatter {
 
     public void setAdditionalFields(String additionalFields) {
         this.additionalFields = AdditionalField.parse(additionalFields);
+    }
+
+    public void setAdditionalFields(List<AdditionalField> additionalFields) {
+        this.additionalFields = additionalFields;
     }
 
     private String getProperty(final String name, final String defaultValue) {
