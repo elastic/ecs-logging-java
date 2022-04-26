@@ -25,6 +25,7 @@
 package co.elastic.logging.jul;
 
 import co.elastic.logging.AbstractEcsLoggingTest;
+import co.elastic.logging.AdditionalField;
 import co.elastic.logging.ParameterizedLogSupport;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,6 +35,7 @@ import org.slf4j.MDC;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.List;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
@@ -67,7 +69,7 @@ public class JulLoggingTest extends AbstractEcsLoggingTest {
         }
     }
 
-    private final EcsFormatter formatter = new EcsFormatter();
+    private EcsFormatter formatter;
     
     private final Logger logger = Logger.getLogger("");
     
@@ -108,17 +110,22 @@ public class JulLoggingTest extends AbstractEcsLoggingTest {
 
     @BeforeEach
     void setUp() {
+        setUpFormatter();
+        formatter.setAdditionalFields("key1=value1,key2=value2");
+    }
+
+    private void setUpFormatter() {
         clearHandlers();
-        
+
+        formatter = new EcsFormatter();
         formatter.setIncludeOrigin(true);
         formatter.setServiceName("test");
         formatter.setServiceNodeName("test-node");
         formatter.setEventDataset("testdataset");
-        formatter.setAdditionalFields("key1=value1,key2=value2");
-        
+
         Handler handler = new InMemoryStreamHandler(out, formatter);
         handler.setLevel(Level.ALL);
-        
+
         logger.addHandler(handler);
         logger.setLevel(Level.ALL);
     }
@@ -131,11 +138,16 @@ public class JulLoggingTest extends AbstractEcsLoggingTest {
         //No file.line for JUL
     }
 
+    @Test
+    void testAdditionalFieldsAsList() throws Exception {
+        setUpFormatter();
+        formatter.setAdditionalFields(List.of(new AdditionalField("key1", "value1"), new AdditionalField("key2", "value2")));
+        super.testAdditionalFields();
+    }
     
     private void clearHandlers() {
         for (Handler handler : logger.getHandlers()) {
             logger.removeHandler(handler);
         }
     }
-
 }
