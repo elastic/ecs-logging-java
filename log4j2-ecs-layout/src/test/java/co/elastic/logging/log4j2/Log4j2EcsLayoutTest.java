@@ -29,7 +29,6 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.BasicConfigurationFactory;
 import org.apache.logging.log4j.core.LoggerContext;
-import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.ConfigurationFactory;
 import org.apache.logging.log4j.core.util.KeyValuePair;
 import org.apache.logging.log4j.test.appender.ListAppender;
@@ -82,7 +81,7 @@ abstract class Log4j2EcsLayoutTest extends AbstractLog4j2EcsLayoutTest {
                 .setIncludeMarkers(true)
                 .setIncludeOrigin(true)
                 .setEventDataset("testdataset")
-                .setExceptionPattern("%rEx{4,filters(co.elastic.logging.log4j2)}")
+                .setExceptionPattern("%ex{4}")
                 .setAdditionalFields(new KeyValuePair[]{
                         new KeyValuePair("cluster.uuid", "9fe9134b-20b0-465e-acf9-8cc09ac9053b"),
                         new KeyValuePair("node.id", "${node.id}"),

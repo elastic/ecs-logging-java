@@ -56,17 +56,6 @@ public class CurrentLog4j2EcsLayoutTest extends Log4j2EcsLayoutTest {
         assertThat(getLastLogLine().get("baz").booleanValue()).isEqualTo(true);
     }
 
-    @Test
-    void testExceptionPattern() throws Exception {
-        error("test", new RuntimeException("test"));
-        JsonNode log = getAndValidateLastLogLine();
-        assertThat(log.get("log.level").textValue()).isIn("ERROR", "SEVERE");
-        assertThat(log.get("error.message").textValue()).isEqualTo("test");
-        assertThat(log.get("error.type").textValue()).isEqualTo(RuntimeException.class.getName());
-        assertThat(log.get("error.stack_trace").textValue().split("\\n").length).isEqualTo(4L);
-        assertThat(log.get("error.stack_trace").textValue()).doesNotContain("co.elastic.logging.log4j2");
-    }
-
     public static class TestClass {
         String foo;
         int bar;
