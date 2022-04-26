@@ -279,11 +279,9 @@ public class EcsJsonSerializer {
                     continue;
                 }
 
-                // append line
-                CharSequence match = stackTrace.subSequence(index, matcher.start());
-                builder.append("\t\"");
-                JsonUtils.quoteAsString(match, builder);
-                builder.append("\",");
+                // append non-last line
+                appendStackTraceLine(builder, stackTrace, index, start);
+                builder.append(',');
                 builder.append(NEW_LINE);
                 index = end;
             } while (matcher.find());
@@ -291,20 +289,18 @@ public class EcsJsonSerializer {
             int length = stackTrace.length();
             if (index < length) {
                 // append remaining line
-                CharSequence remaining = stackTrace.subSequence(index, length);
-                builder.append("\t\"");
-                JsonUtils.quoteAsString(remaining, builder);
-                builder.append("\"");
+                appendStackTraceLine(builder, stackTrace, index, length);
             }
-
-            removeIfEndsWith(builder, NEW_LINE);
-            removeIfEndsWith(builder, ",");
         } else {
             // no newlines found, add entire stack trace as single element
-            builder.append("\t\"");
-            JsonUtils.quoteAsString(stackTrace, builder);
-            builder.append("\"");
+            appendStackTraceLine(builder, stackTrace, 0, stackTrace.length());
         }
+    }
+
+    private static void appendStackTraceLine(StringBuilder builder, CharSequence stackTrace, int start, int end) {
+        builder.append("\t\"");
+        JsonUtils.quoteAsString(stackTrace, start, end, builder);
+        builder.append("\"");
     }
 
     public static void removeIfEndsWith(StringBuilder sb, String ending) {
