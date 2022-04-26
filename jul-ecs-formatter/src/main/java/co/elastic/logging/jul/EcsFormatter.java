@@ -109,16 +109,10 @@ public class EcsFormatter extends Formatter {
     }
 
     public void setAdditionalFields(String additionalFields) {
-        if (!this.additionalFields.isEmpty()) {
-            throw new IllegalStateException("Additional fields have already been set");
-        }
         this.additionalFields = AdditionalField.parse(additionalFields);
     }
 
     public void setAdditionalFields(List<AdditionalField> additionalFields) {
-        if (!this.additionalFields.isEmpty()) {
-            throw new IllegalStateException("Additional fields have already been set");
-        }
         this.additionalFields = additionalFields;
     }
 
