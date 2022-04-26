@@ -29,6 +29,7 @@ import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.core.Appender;
 import org.apache.logging.log4j.core.BasicConfigurationFactory;
 import org.apache.logging.log4j.core.LoggerContext;
+import org.apache.logging.log4j.core.config.Configuration;
 import org.apache.logging.log4j.core.config.ConfigurationFactory;
 import org.apache.logging.log4j.core.util.KeyValuePair;
 import org.apache.logging.log4j.test.appender.ListAppender;
@@ -64,8 +65,18 @@ abstract class Log4j2EcsLayoutTest extends AbstractLog4j2EcsLayoutTest {
         for (final Appender appender : root.getAppenders().values()) {
             root.removeAppender(appender);
         }
-        EcsLayout ecsLayout = EcsLayout.newBuilder()
-                .setConfiguration(ctx.getConfiguration())
+        EcsLayout ecsLayout = configureLayout(ctx)
+                .build();
+
+        listAppender = new ListAppender("ecs", null, ecsLayout, false, false);
+        listAppender.start();
+        root.addAppender(listAppender);
+        root.setLevel(Level.DEBUG);
+    }
+
+    protected EcsLayout.Builder configureLayout(LoggerContext context) {
+        return EcsLayout.newBuilder()
+                .setConfiguration(context.getConfiguration())
                 .setServiceName("test")
                 .setServiceNodeName("test-node")
                 .setIncludeMarkers(true)
@@ -81,13 +92,7 @@ abstract class Log4j2EcsLayoutTest extends AbstractLog4j2EcsLayoutTest {
                         new KeyValuePair("emptyPattern", "%notEmpty{%invalidPattern}"),
                         new KeyValuePair("key1", "value1"),
                         new KeyValuePair("key2", "value2"),
-                })
-                .build();
-
-        listAppender = new ListAppender("ecs", null, ecsLayout, false, false);
-        listAppender.start();
-        root.addAppender(listAppender);
-        root.setLevel(Level.DEBUG);
+                });
     }
 
     @AfterEach
