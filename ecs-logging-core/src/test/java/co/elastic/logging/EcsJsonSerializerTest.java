@@ -148,10 +148,28 @@ class EcsJsonSerializerTest {
         jsonBuilder.append('}');
 
         JsonNode jsonNode = objectMapper.readTree(jsonBuilder.toString());
+        System.out.println(jsonNode.toPrettyString());
         assertThat(jsonNode.get(ERROR_TYPE).textValue()).isEqualTo("className");
         assertThat(jsonNode.get(ERROR_STACK_TRACE).isArray()).isTrue();
+        assertThat(jsonNode.get(ERROR_STACK_TRACE).size()).isEqualTo(2);
         assertThat(jsonNode.get(ERROR_STACK_TRACE).get(0).textValue()).isEqualTo("stacktrace");
         assertThat(jsonNode.get(ERROR_STACK_TRACE).get(1).textValue()).isEqualTo("caused by error");
+        assertThat(jsonNode.get(ERROR_MESSAGE).textValue()).isEqualTo("message");
+    }
+
+    @Test
+    void serializeExceptionWithSingleLineStackTraceAsArray() throws JsonProcessingException {
+        StringBuilder jsonBuilder = new StringBuilder();
+        jsonBuilder.append('{');
+        EcsJsonSerializer.serializeException(jsonBuilder, "className", "message", "caused by error", true);
+        jsonBuilder.append('}');
+        System.out.println(jsonBuilder);
+        JsonNode jsonNode = objectMapper.readTree(jsonBuilder.toString());
+        System.out.println(jsonNode.toPrettyString());
+        assertThat(jsonNode.get(ERROR_TYPE).textValue()).isEqualTo("className");
+        assertThat(jsonNode.get(ERROR_STACK_TRACE).isArray()).isTrue();
+        assertThat(jsonNode.get(ERROR_STACK_TRACE).size()).isEqualTo(1);
+        assertThat(jsonNode.get(ERROR_STACK_TRACE).get(0).textValue()).isEqualTo("caused by error");
         assertThat(jsonNode.get(ERROR_MESSAGE).textValue()).isEqualTo("message");
     }
 
