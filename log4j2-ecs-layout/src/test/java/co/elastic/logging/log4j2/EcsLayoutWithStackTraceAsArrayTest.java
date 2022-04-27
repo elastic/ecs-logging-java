@@ -12,34 +12,46 @@ public class EcsLayoutWithStackTraceAsArrayTest extends Log4j2EcsLayoutTest {
     @Override
     protected EcsLayout.Builder configureLayout(LoggerContext context) {
         return super.configureLayout(context)
-                .setExceptionPattern("%cEx")
+                .setExceptionPattern("%rEx{4,filters(java.base,java.lang)}")
                 .setStackTraceAsArray(true);
     }
 
     @Test
     void testLogException() throws Exception {
-        error("test", new RuntimeException("test"));
+        error("test", numberFormatException());
         JsonNode log = getLastLogLine();
         assertThat(log.get("log.level").textValue()).isIn("ERROR", "SEVERE");
-        assertThat(log.get("error.message").textValue()).isEqualTo("test");
-        assertThat(log.get("error.type").textValue()).isEqualTo(RuntimeException.class.getName());
+        assertThat(log.get("error.message").textValue()).isEqualTo("For input string: \"NOT_AN_INT\"");
+        assertThat(log.get("error.type").textValue()).isEqualTo(NumberFormatException.class.getName());
         assertThat(log.get("error.stack_trace").isArray()).isTrue();
         ArrayNode arrayNode = (ArrayNode) log.get("error.stack_trace");
-        assertThat(arrayNode.size()).isEqualTo(2);
-        assertThat(arrayNode.get(0).textValue()).isEqualTo("java.lang.RuntimeException: test");
-        assertThat(arrayNode.get(1).textValue()).isEqualTo("STACK_TRACE!");
+        assertThat(arrayNode.size()).isEqualTo(4);
+        assertThat(arrayNode.get(0).textValue()).isEqualTo("java.lang.NumberFormatException: For input string: \"NOT_AN_INT\"");
+        assertThat(arrayNode.get(1).textValue()).isEqualTo("\t... suppressed 3 lines");
+        assertThat(arrayNode.get(2).textValue()).startsWith("\tat co.elastic.logging.log4j2.EcsLayoutWithStackTraceAsArrayTest.numberFormatException");
+        assertThat(arrayNode.get(3).textValue()).startsWith("\tat co.elastic.logging.log4j2.EcsLayoutWithStackTraceAsArrayTest.testLogException");
+    }
+
+    private static Throwable numberFormatException() {
+        try {
+            Integer.parseInt("NOT_AN_INT");
+            return null;
+        } catch (Exception ex) {
+            return ex;
+        }
     }
 
     @Test
     void testLogExceptionNullMessage() throws Exception {
         error("test", new RuntimeException());
-        JsonNode log = getLastLogLine();;
+        // skip validation that error.stack_trace is a string
+        JsonNode log = getLastLogLine();
         assertThat(log.get("error.type").textValue()).isEqualTo(RuntimeException.class.getName());
         assertThat(log.get("error.message")).isNull();
         assertThat(log.get("error.stack_trace").isArray()).isTrue();
         ArrayNode arrayNode = (ArrayNode) log.get("error.stack_trace");
-        assertThat(arrayNode.size()).isEqualTo(2);
+        assertThat(arrayNode.size()).isEqualTo(4);
         assertThat(arrayNode.get(0).textValue()).isEqualTo("java.lang.RuntimeException");
-        assertThat(arrayNode.get(1).textValue()).isEqualTo("STACK_TRACE!");
+        assertThat(arrayNode.get(1).textValue()).startsWith("\tat co.elastic.logging.log4j2.EcsLayoutWithStackTraceAsArrayTest.testLogExceptionNullMessage");
     }
 }
