@@ -70,7 +70,7 @@ abstract class Log4j2EcsLayoutTest extends AbstractLog4j2EcsLayoutTest {
                 .setServiceNodeName("test-node")
                 .setIncludeMarkers(true)
                 .setIncludeOrigin(true)
-                .setEventDataset("testdataset.log")
+                .setEventDataset("testdataset")
                 .setAdditionalFields(new KeyValuePair[]{
                         new KeyValuePair("cluster.uuid", "9fe9134b-20b0-465e-acf9-8cc09ac9053b"),
                         new KeyValuePair("node.id", "${node.id}"),

@@ -48,6 +48,7 @@ import org.apache.logging.log4j.core.util.KeyValuePair;
 import org.apache.logging.log4j.message.Message;
 import org.apache.logging.log4j.message.MultiformatMessage;
 import org.apache.logging.log4j.message.ObjectMessage;
+import org.apache.logging.log4j.util.PropertiesUtil;
 import org.apache.logging.log4j.util.StringBuilderFormattable;
 
 import java.nio.charset.Charset;
@@ -63,6 +64,8 @@ public class EcsLayout extends AbstractStringLayout {
     private static final ObjectMessageJacksonSerializer JACKSON_SERIALIZER = ObjectMessageJacksonSerializer.Resolver.resolve();
     private static final MdcSerializer MDC_SERIALIZER = MdcSerializer.Resolver.resolve();
     private static final MultiFormatHandler MULTI_FORMAT_HANDLER = MultiFormatHandler.Resolver.resolve();
+    private static final boolean FORMAT_MESSAGES_PATTERN_DISABLE_LOOKUPS = PropertiesUtil.getProperties().getBooleanProperty(
+            "log4j2.formatMsgNoLookups", false);
 
     private final KeyValuePair[] additionalFields;
     private final PatternFormatter[][] fieldValuePatternFormatter;
@@ -156,7 +159,7 @@ public class EcsLayout extends AbstractStringLayout {
                     if (buffer.length() > 0) {
                         value = buffer;
                     }
-                } else if (valueNeedsLookup(additionalField.getValue())) {
+                } else if (valueNeedsLookup(additionalField.getValue()) && !FORMAT_MESSAGES_PATTERN_DISABLE_LOOKUPS) {
                     StringBuilder lookupValue = EcsJsonSerializer.getMessageStringBuilder();
                     lookupValue.append(additionalField.getValue());
                     if (strSubstitutor.replaceIn(event, lookupValue)) {

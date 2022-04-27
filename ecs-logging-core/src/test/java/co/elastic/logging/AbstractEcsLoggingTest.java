@@ -45,7 +45,7 @@ import static org.assertj.core.api.Assertions.within;
 public abstract class AbstractEcsLoggingTest {
 
     protected ObjectMapper objectMapper = new ObjectMapper();
-    private JsonNode spec;
+    protected JsonNode spec;
 
     @BeforeEach
     final void setUpSpec() throws Exception {
@@ -61,13 +61,13 @@ public abstract class AbstractEcsLoggingTest {
         assertThat(Instant.parse(getAndValidateLastLogLine().get("@timestamp").textValue())).isCloseTo(Instant.now(), within(1, ChronoUnit.MINUTES));
         assertThat(getAndValidateLastLogLine().get("log.level").textValue()).isIn("DEBUG", "FINE");
         assertThat(getAndValidateLastLogLine().get("log.logger")).isNotNull();
-        assertThat(getAndValidateLastLogLine().get("event.dataset").textValue()).isEqualTo("testdataset.log");
+        assertThat(getAndValidateLastLogLine().get("event.dataset").textValue()).isEqualTo("testdataset");
         assertThat(getAndValidateLastLogLine().get("ecs.version").textValue()).isEqualTo("1.2.0");
         validateLog(getAndValidateLastLogLine());
     }
 
     @Test
-    final void testAdditionalFields() throws Exception {
+    protected final void testAdditionalFields() throws Exception {
         debug("test");
         assertThat(getAndValidateLastLogLine().get("key1").textValue()).isEqualTo("value1");
         assertThat(getAndValidateLastLogLine().get("key2").textValue()).isEqualTo("value2");

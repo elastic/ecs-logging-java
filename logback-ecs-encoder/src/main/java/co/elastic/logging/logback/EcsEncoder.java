@@ -11,9 +11,9 @@
  * the Apache License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -24,14 +24,15 @@
  */
 package co.elastic.logging.logback;
 
+import ch.qos.logback.classic.pattern.ThrowableHandlingConverter;
 import ch.qos.logback.classic.pattern.ThrowableProxyConverter;
 import ch.qos.logback.classic.spi.ILoggingEvent;
 import ch.qos.logback.classic.spi.IThrowableProxy;
 import ch.qos.logback.classic.spi.ThrowableProxy;
 import ch.qos.logback.core.Layout;
 import ch.qos.logback.core.encoder.EncoderBase;
-import co.elastic.logging.EcsJsonSerializer;
 import co.elastic.logging.AdditionalField;
+import co.elastic.logging.EcsJsonSerializer;
 import org.slf4j.Marker;
 
 import java.io.IOException;
@@ -49,7 +50,8 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
     private String serviceNodeName;
     private String eventDataset;
     private boolean includeMarkers = false;
-    private ThrowableProxyConverter throwableProxyConverter;
+    private ThrowableHandlingConverter throwableConverter = null;
+    private final ThrowableProxyConverter throwableProxyConverter = new ThrowableProxyConverter();
     private boolean includeOrigin;
     private final List<AdditionalField> additionalFields = new ArrayList<AdditionalField>();
     private OutputStream os;
@@ -63,10 +65,13 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
     @Override
     public void start() {
         super.start();
-        throwableProxyConverter = new ThrowableProxyConverter();
         throwableProxyConverter.start();
+        if (throwableConverter != null) {
+            throwableConverter.start();
+        }
         eventDataset = EcsJsonSerializer.computeEventDataset(eventDataset, serviceName);
     }
+
     /**
      * This method has been removed in logback 1.2.
      * To make this lib backwards compatible with logback 1.1 we have implement this method.
@@ -97,7 +102,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
 
     @Override
     public byte[] encode(ILoggingEvent event) {
-        StringBuilder builder = new StringBuilder();
+        StringBuilder builder = new StringBuilder(256);
         EcsJsonSerializer.serializeObjectStart(builder, event.getTimeStamp());
         EcsJsonSerializer.serializeLogLevel(builder, event.getLevel().toString());
         serializeMessage(event, builder);
@@ -116,11 +121,17 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
                 EcsJsonSerializer.serializeOrigin(builder, callerData[0]);
             }
         }
+        // Allow subclasses to add custom fields. Calling this before the throwable serialization so we don't need to check for presence/absence of an ending comma.
+        addCustomFields(event, builder);
         IThrowableProxy throwableProxy = event.getThrowableProxy();
-        if (throwableProxy instanceof ThrowableProxy) {
-            EcsJsonSerializer.serializeException(builder, ((ThrowableProxy) throwableProxy).getThrowable(), stackTraceAsArray);
-        } else if (throwableProxy != null) {
-            EcsJsonSerializer.serializeException(builder, throwableProxy.getClassName(), throwableProxy.getMessage(), throwableProxyConverter.convert(event), stackTraceAsArray);
+        if (throwableProxy != null) {
+            if (throwableConverter != null) {
+                EcsJsonSerializer.serializeException(builder, throwableProxy.getClassName(), throwableProxy.getMessage(), throwableConverter.convert(event), stackTraceAsArray);
+            } else if (throwableProxy instanceof ThrowableProxy) {
+                EcsJsonSerializer.serializeException(builder, ((ThrowableProxy) throwableProxy).getThrowable(), stackTraceAsArray);
+            } else {
+                EcsJsonSerializer.serializeException(builder, throwableProxy.getClassName(), throwableProxy.getMessage(), throwableProxyConverter.convert(event), stackTraceAsArray);
+            }
         }
         EcsJsonSerializer.serializeObjectEnd(builder);
         // all these allocations kinda hurt
@@ -134,6 +145,13 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
             EcsJsonSerializer.serializeFormattedMessage(builder, this.layout.doLayout(event));
         }
     }
+
+    /**
+     * Subclasses can override this to add custom fields.
+     * The last character in the StringBuilder will be comma when this is called.
+     * You must add a comma after each custom field.
+     */
+    protected void addCustomFields(ILoggingEvent event, StringBuilder builder) {}
 
     private void serializeMarkers(ILoggingEvent event, StringBuilder builder) {
         Marker marker = event.getMarker();
@@ -187,6 +205,9 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         this.eventDataset = eventDataset;
     }
 
+    public void setThrowableConverter(ThrowableHandlingConverter throwableConverter) {
+        this.throwableConverter = throwableConverter;
+    }
     public Layout<ILoggingEvent> getLayout() {
         return this.layout;
     }
@@ -194,5 +215,4 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
     public void setLayout(Layout<ILoggingEvent> layout) {
         this.layout = layout;
     }
-
 }

@@ -62,9 +62,17 @@ public final class JsonUtils {
             sb.append("null");
             return;
         }
+        quoteAsString(content, 0, content.length(), sb);
+    }
+
+    public static void quoteAsString(CharSequence content, int start, int end, StringBuilder sb) {
+        if (content == null) {
+            sb.append("null");
+            return;
+        }
         final int[] escCodes = sOutputEscapes128;
         final int escLen = escCodes.length;
-        for (int i = 0, len = content.length(); i < len; ++i) {
+        for (int i = start; i < end; ++i) {
             char c = content.charAt(i);
             if (c >= escLen || escCodes[c] == 0) {
                 sb.append(c);

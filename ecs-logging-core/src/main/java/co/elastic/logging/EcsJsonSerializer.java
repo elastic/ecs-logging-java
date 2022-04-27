@@ -11,9 +11,9 @@
  * the Apache License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -28,13 +28,14 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class EcsJsonSerializer {
 
     private static final TimestampSerializer TIMESTAMP_SERIALIZER = new TimestampSerializer();
     private static final ThreadLocal<StringBuilder> messageStringBuilder = new ThreadLocal<StringBuilder>();
-    private static final  String NEW_LINE = System.getProperty("line.separator");
+    private static final String NEW_LINE = System.getProperty("line.separator");
     private static final Pattern NEW_LINE_PATTERN = Pattern.compile("\\n");
 
     public static CharSequence toNullSafeString(final CharSequence s) {
@@ -79,6 +80,7 @@ public class EcsJsonSerializer {
         builder.append(threadId);
         builder.append(",");
     }
+
     public static void serializeFormattedMessage(StringBuilder builder, String message) {
         builder.append("\"message\":\"");
         JsonUtils.quoteAsString(message, builder);
@@ -211,29 +213,28 @@ public class EcsJsonSerializer {
     }
 
     public static void serializeException(StringBuilder builder, String exceptionClassName, String exceptionMessage, String stackTrace, boolean stackTraceAsArray) {
+        serializeException(builder, exceptionClassName, exceptionMessage, (CharSequence) stackTrace, stackTraceAsArray);
+    }
+
+    public static void serializeException(StringBuilder builder, String exceptionClassName, CharSequence exceptionMessage, CharSequence stackTrace, boolean stackTraceAsArray) {
         builder.append("\"error.type\":\"");
         JsonUtils.quoteAsString(exceptionClassName, builder);
         builder.append("\",");
-        builder.append("\"error.message\":\"");
-        JsonUtils.quoteAsString(exceptionMessage, builder);
-        builder.append("\",");
+
+        if (exceptionMessage != null) {
+            builder.append("\"error.message\":\"");
+            JsonUtils.quoteAsString(exceptionMessage, builder);
+            builder.append("\",");
+        }
         if (stackTraceAsArray) {
-            builder.append("\"error.stack_trace\":[").append(NEW_LINE);
-            for (String line : NEW_LINE_PATTERN.split(stackTrace)) {
-                appendQuoted(builder, line);
-            }
+            builder.append("\"error.stack_trace\":[");
+            formatStackTraceAsArray(builder, stackTrace);
             builder.append("]");
         } else {
             builder.append("\"error.stack_trace\":\"");
             JsonUtils.quoteAsString(stackTrace, builder);
             builder.append("\"");
         }
-    }
-
-    private static void appendQuoted(StringBuilder builder, CharSequence content) {
-        builder.append('"');
-        JsonUtils.quoteAsString(content, builder);
-        builder.append('"');
     }
 
     private static CharSequence formatThrowable(final Throwable throwable) {
@@ -260,6 +261,46 @@ public class EcsJsonSerializer {
         throwable.printStackTrace(pw);
         removeIfEndsWith(jsonBuilder, NEW_LINE);
         removeIfEndsWith(jsonBuilder, ",");
+    }
+
+    private static void formatStackTraceAsArray(StringBuilder builder, CharSequence stackTrace) {
+        builder.append(NEW_LINE);
+
+        // splits the stackTrace by new lines
+        Matcher matcher = NEW_LINE_PATTERN.matcher(stackTrace);
+        if (matcher.find()) {
+            int index = 0;
+            do {
+                int start = matcher.start();
+                int end = matcher.end();
+                if (index == 0 && index == start && start == end) {
+                    // no empty leading substring included for zero-width match
+                    // at the beginning of the input char sequence.
+                    continue;
+                }
+
+                // append non-last line
+                appendStackTraceLine(builder, stackTrace, index, start);
+                builder.append(',');
+                builder.append(NEW_LINE);
+                index = end;
+            } while (matcher.find());
+
+            int length = stackTrace.length();
+            if (index < length) {
+                // append remaining line
+                appendStackTraceLine(builder, stackTrace, index, length);
+            }
+        } else {
+            // no newlines found, add entire stack trace as single element
+            appendStackTraceLine(builder, stackTrace, 0, stackTrace.length());
+        }
+    }
+
+    private static void appendStackTraceLine(StringBuilder builder, CharSequence stackTrace, int start, int end) {
+        builder.append("\t\"");
+        JsonUtils.quoteAsString(stackTrace, start, end, builder);
+        builder.append("\"");
     }
 
     public static void removeIfEndsWith(StringBuilder sb, String ending) {
@@ -294,7 +335,7 @@ public class EcsJsonSerializer {
 
     public static String computeEventDataset(String eventDataset, String serviceName) {
         if (eventDataset == null && serviceName != null && !serviceName.isEmpty()) {
-            return serviceName + ".log";
+            return serviceName;
         }
         return eventDataset;
     }

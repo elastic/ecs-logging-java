@@ -3,13 +3,13 @@
     <parent>
         <artifactId>ecs-logging-java-parent</artifactId>
         <groupId>co.elastic.logging</groupId>
-        <version>1.1.1-SNAPSHOT</version>
+        <version>1.3.3-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
     <properties>
         <parent.base.dir>${project.basedir}/..</parent.base.dir>
-        <version.log4j>2.14.0</version.log4j>
+        <version.log4j>2.17.1</version.log4j>
     </properties>
 
     <artifactId>log4j2-ecs-layout</artifactId>

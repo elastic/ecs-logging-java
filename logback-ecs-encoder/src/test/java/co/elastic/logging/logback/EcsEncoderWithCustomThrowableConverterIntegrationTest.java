@@ -2,7 +2,7 @@
  * #%L
  * Java ECS logging
  * %%
- * Copyright (C) 2019 - 2020 Elastic and contributors
+ * Copyright (C) 2019 - 2021 Elastic and contributors
  * %%
  * Licensed to Elasticsearch B.V. under one or more contributor
  * license agreements. See the NOTICE file distributed with
@@ -11,9 +11,9 @@
  * the Apache License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *
+ * 
  *   http://www.apache.org/licenses/LICENSE-2.0
- *
+ * 
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -25,38 +25,40 @@
 package co.elastic.logging.logback;
 
 import ch.qos.logback.classic.LoggerContext;
-import co.elastic.logging.AdditionalField;
+import ch.qos.logback.classic.util.ContextInitializer;
+import ch.qos.logback.core.joran.spi.JoranException;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
 
-public class EcsEncoderTest extends AbstractEcsEncoderTest {
+import static org.assertj.core.api.Assertions.assertThat;
 
+public class EcsEncoderWithCustomThrowableConverterIntegrationTest extends AbstractEcsEncoderTest {
     private OutputStreamAppender appender;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws JoranException {
         LoggerContext context = new LoggerContext();
-        logger = context.getLogger(getClass());
-        appender = new OutputStreamAppender();
-        appender.setContext(context);
-        logger.addAppender(appender);
-        EcsEncoder ecsEncoder = new EcsEncoder();
-        ecsEncoder.setServiceName("test");
-        ecsEncoder.setServiceNodeName("test-node");
-        ecsEncoder.setIncludeMarkers(true);
-        ecsEncoder.setIncludeOrigin(true);
-        ecsEncoder.addAdditionalField(new AdditionalField("key1", "value1"));
-        ecsEncoder.addAdditionalField(new AdditionalField("key2", "value2"));
-        ecsEncoder.setEventDataset("testdataset");
-        ecsEncoder.start();
-        appender.setEncoder(ecsEncoder);
-        appender.start();
+        ContextInitializer contextInitializer = new ContextInitializer(context);
+        contextInitializer.configureByResource(this.getClass().getResource("/logback-config-with-nop-throwable-converter.xml"));
+        logger = context.getLogger("root");
+        appender = (OutputStreamAppender) logger.getAppender("out");
     }
 
     @Override
     public JsonNode getLastLogLine() throws IOException {
         return objectMapper.readTree(appender.getBytes());
+    }
+
+    @Test
+    void testLogException() throws Exception {
+        error("test", new RuntimeException("test"));
+        JsonNode log = getAndValidateLastLogLine();
+        assertThat(log.get("log.level").textValue()).isIn("ERROR", "SEVERE");
+        assertThat(log.get("error.message").textValue()).isEqualTo("test");
+        assertThat(log.get("error.type").textValue()).isEqualTo(RuntimeException.class.getName());
+        assertThat(log.get("error.stack_trace").textValue()).contains("");
     }
 }
