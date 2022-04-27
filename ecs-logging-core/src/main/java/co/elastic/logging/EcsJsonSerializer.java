@@ -46,7 +46,7 @@ public class EcsJsonSerializer {
         builder.append('{');
         builder.append("\"@timestamp\":\"");
         TIMESTAMP_SERIALIZER.serializeEpochTimestampAsIsoDateTime(builder, timeMillis);
-        builder.append("\", ");
+        builder.append("\",");
     }
 
     public static void serializeEcsVersion(StringBuilder builder) {
@@ -84,7 +84,7 @@ public class EcsJsonSerializer {
     public static void serializeFormattedMessage(StringBuilder builder, String message) {
         builder.append("\"message\":\"");
         JsonUtils.quoteAsString(message, builder);
-        builder.append("\", ");
+        builder.append("\",");
     }
 
     public static void serializeServiceName(StringBuilder builder, String serviceName) {
@@ -121,7 +121,7 @@ public class EcsJsonSerializer {
         }
         builder.append('\"');
         JsonUtils.quoteAsString(level, builder);
-        builder.append("\", ");
+        builder.append("\",");
     }
 
     public static void serializeTag(StringBuilder builder, String tag) {

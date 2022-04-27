@@ -96,7 +96,7 @@ class EcsJsonSerializerTest {
     void serializeNullDoesNotThrowAnException() throws JsonProcessingException {
         StringBuilder stringBuilder = new StringBuilder();
         EcsJsonSerializer.serializeFormattedMessage(stringBuilder, null);
-        assertThat(stringBuilder.toString()).isEqualTo("\"message\":\"null\", ");
+        assertThat(stringBuilder.toString()).isEqualTo("\"message\":\"null\",");
     }
 
     @Test
