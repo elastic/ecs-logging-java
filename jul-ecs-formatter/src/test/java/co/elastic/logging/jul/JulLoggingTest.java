@@ -39,6 +39,7 @@ import java.util.List;
 import java.util.logging.Formatter;
 import java.util.logging.Handler;
 import java.util.logging.Level;
+import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 import java.util.logging.Logger;
 import java.util.logging.StreamHandler;
@@ -109,26 +110,32 @@ public class JulLoggingTest extends AbstractEcsLoggingTest {
     }
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws IOException {
+        // loads configuration based on the default logging.properties file
+        LogManager.getLogManager().readConfiguration();
         setUpFormatter();
         formatter.setAdditionalFields("key1=value1,key2=value2");
     }
 
-    private void setUpFormatter() {
+    protected void setUpFormatter() {
         clearHandlers();
-
-        formatter = new EcsFormatter();
-        formatter.setIncludeOrigin(true);
-        formatter.setServiceName("test");
-        formatter.setServiceVersion("test-version");
-        formatter.setServiceNodeName("test-node");
-        formatter.setEventDataset("testdataset");
+        formatter = createEcsFormatter();
 
         Handler handler = new InMemoryStreamHandler(out, formatter);
         handler.setLevel(Level.ALL);
 
         logger.addHandler(handler);
         logger.setLevel(Level.ALL);
+    }
+
+    protected EcsFormatter createEcsFormatter() {
+        EcsFormatter ret = new EcsFormatter();
+        ret.setIncludeOrigin(true);
+        ret.setServiceName("test");
+        ret.setServiceVersion("test-version");
+        ret.setServiceNodeName("test-node");
+        ret.setEventDataset("testdataset");
+        return ret;
     }
 
     @Test
