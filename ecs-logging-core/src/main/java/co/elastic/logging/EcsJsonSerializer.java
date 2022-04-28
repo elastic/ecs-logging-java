@@ -212,10 +212,6 @@ public class EcsJsonSerializer {
         }
     }
 
-    public static void serializeException(StringBuilder builder, String exceptionClassName, String exceptionMessage, String stackTrace, boolean stackTraceAsArray) {
-        serializeException(builder, exceptionClassName, exceptionMessage, (CharSequence) stackTrace, stackTraceAsArray);
-    }
-
     public static void serializeException(StringBuilder builder, String exceptionClassName, CharSequence exceptionMessage, CharSequence stackTrace, boolean stackTraceAsArray) {
         builder.append("\"error.type\":\"");
         JsonUtils.quoteAsString(exceptionClassName, builder);

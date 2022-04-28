@@ -338,9 +338,8 @@ public class EcsLayout extends AbstractStringLayout {
         Throwable thrown = event.getThrown();
         if (thrown != null) {
             if (exceptionPatternFormatter != null) {
-                StringBuilder builder = EcsJsonSerializer.getMessageStringBuilder();
-                formatPattern(event, exceptionPatternFormatter, builder);
-                String stackTrace = builder.toString();
+                StringBuilder stackTrace = EcsJsonSerializer.getMessageStringBuilder();
+                formatPattern(event, exceptionPatternFormatter, stackTrace);
                 EcsJsonSerializer.serializeException(messageBuffer, thrown.getClass().getName(), thrown.getMessage(), stackTrace, stackTraceAsArray);
             } else {
                 EcsJsonSerializer.serializeException(messageBuffer, thrown, stackTraceAsArray);
