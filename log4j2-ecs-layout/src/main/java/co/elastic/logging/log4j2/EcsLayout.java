@@ -71,6 +71,7 @@ public class EcsLayout extends AbstractStringLayout {
     private final PatternFormatter[][] fieldValuePatternFormatter;
     private final boolean stackTraceAsArray;
     private final String serviceName;
+    private final String serviceVersion;
     private final String serviceNodeName;
     private final String eventDataset;
     private final boolean includeMarkers;
@@ -78,10 +79,11 @@ public class EcsLayout extends AbstractStringLayout {
     private final PatternFormatter[] exceptionPatternFormatter;
     private final ConcurrentMap<Class<? extends MultiformatMessage>, Boolean> supportsJson = new ConcurrentHashMap<Class<? extends MultiformatMessage>, Boolean>();
 
-    private EcsLayout(Configuration config, String serviceName, String serviceNodeName, String eventDataset, boolean includeMarkers,
+    private EcsLayout(Configuration config, String serviceName, String serviceVersion, String serviceNodeName, String eventDataset, boolean includeMarkers,
                       KeyValuePair[] additionalFields, boolean includeOrigin, String exceptionPattern, boolean stackTraceAsArray) {
         super(config, UTF_8, null, null);
         this.serviceName = serviceName;
+        this.serviceVersion = serviceVersion;
         this.serviceNodeName = serviceNodeName;
         this.eventDataset = eventDataset;
         this.includeMarkers = includeMarkers;
@@ -140,6 +142,7 @@ public class EcsLayout extends AbstractStringLayout {
         serializeMessage(builder, gcFree, event.getMessage(), event.getThrown());
         EcsJsonSerializer.serializeEcsVersion(builder);
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
+        EcsJsonSerializer.serializeServiceVersion(builder, serviceVersion);
         EcsJsonSerializer.serializeServiceNodeName(builder, serviceNodeName);
         EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
@@ -338,9 +341,8 @@ public class EcsLayout extends AbstractStringLayout {
         Throwable thrown = event.getThrown();
         if (thrown != null) {
             if (exceptionPatternFormatter != null) {
-                StringBuilder builder = EcsJsonSerializer.getMessageStringBuilder();
-                formatPattern(event, exceptionPatternFormatter, builder);
-                String stackTrace = builder.toString();
+                StringBuilder stackTrace = EcsJsonSerializer.getMessageStringBuilder();
+                formatPattern(event, exceptionPatternFormatter, stackTrace);
                 EcsJsonSerializer.serializeException(messageBuffer, thrown.getClass().getName(), thrown.getMessage(), stackTrace, stackTraceAsArray);
             } else {
                 EcsJsonSerializer.serializeException(messageBuffer, thrown, stackTraceAsArray);
@@ -354,6 +356,8 @@ public class EcsLayout extends AbstractStringLayout {
         private Configuration configuration;
         @PluginBuilderAttribute("serviceName")
         private String serviceName;
+        @PluginBuilderAttribute("serviceVersion")
+        private String serviceVersion;
         @PluginBuilderAttribute("serviceNodeName")
         private String serviceNodeName;
         @PluginBuilderAttribute("eventDataset")
@@ -387,6 +391,10 @@ public class EcsLayout extends AbstractStringLayout {
 
         public String getServiceName() {
             return serviceName;
+        }
+
+        public String getServiceVersion() {
+            return serviceVersion;
         }
 
         public String getServiceNodeName() {
@@ -428,6 +436,11 @@ public class EcsLayout extends AbstractStringLayout {
             return this;
         }
 
+        public EcsLayout.Builder setServiceVersion(final String serviceVersion) {
+            this.serviceVersion = serviceVersion;
+            return this;
+        }
+
         public EcsLayout.Builder setServiceNodeName(final String serviceNodeName) {
             this.serviceNodeName = serviceNodeName;
             return this;
@@ -460,7 +473,7 @@ public class EcsLayout extends AbstractStringLayout {
 
         @Override
         public EcsLayout build() {
-            return new EcsLayout(getConfiguration(), serviceName, serviceNodeName, EcsJsonSerializer.computeEventDataset(eventDataset, serviceName),
+            return new EcsLayout(getConfiguration(), serviceName, serviceVersion, serviceNodeName, EcsJsonSerializer.computeEventDataset(eventDataset, serviceName),
                     includeMarkers, additionalFields, includeOrigin, exceptionPattern, stackTraceAsArray);
         }
     }

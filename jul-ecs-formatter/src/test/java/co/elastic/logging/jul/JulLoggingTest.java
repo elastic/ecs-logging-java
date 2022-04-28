@@ -132,6 +132,7 @@ public class JulLoggingTest extends AbstractEcsLoggingTest {
         EcsFormatter ret = new EcsFormatter();
         ret.setIncludeOrigin(true);
         ret.setServiceName("test");
+        ret.setServiceVersion("test-version");
         ret.setServiceNodeName("test-node");
         ret.setEventDataset("testdataset");
         return ret;

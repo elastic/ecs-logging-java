@@ -95,6 +95,14 @@ public class EcsJsonSerializer {
         }
     }
 
+    public static void serializeServiceVersion(StringBuilder builder, String serviceVersion) {
+        if (serviceVersion != null) {
+            builder.append("\"service.version\":\"");
+            JsonUtils.quoteAsString(serviceVersion, builder);
+            builder.append("\",");
+        }
+    }
+
     public static void serializeServiceNodeName(StringBuilder builder, String serviceNodeName) {
         if (serviceNodeName != null) {
             builder.append("\"service.node.name\":\"");
@@ -210,10 +218,6 @@ public class EcsJsonSerializer {
                 builder.append("\"");
             }
         }
-    }
-
-    public static void serializeException(StringBuilder builder, String exceptionClassName, String exceptionMessage, String stackTrace, boolean stackTraceAsArray) {
-        serializeException(builder, exceptionClassName, exceptionMessage, (CharSequence) stackTrace, stackTraceAsArray);
     }
 
     public static void serializeException(StringBuilder builder, String exceptionClassName, CharSequence exceptionMessage, CharSequence stackTrace, boolean stackTraceAsArray) {
