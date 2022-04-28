@@ -26,7 +26,7 @@ public class EcsLayoutWithExceptionPatternTest extends Log4j2EcsLayoutTest {
     @Test
     void testLogExceptionNullMessage() throws Exception {
         error("test", new RuntimeException());
-        JsonNode log = getLastLogLine();;
+        JsonNode log = getLastLogLine();
         assertThat(log.get("error.type").textValue()).isEqualTo(RuntimeException.class.getName());
         assertThat(log.get("error.message")).isNull();
         assertThat(log.get("error.stack_trace").textValue()).isEqualTo("java.lang.RuntimeException\nSTACK_TRACE!");
