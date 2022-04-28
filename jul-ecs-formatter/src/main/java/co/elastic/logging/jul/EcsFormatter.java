@@ -51,9 +51,8 @@ public class EcsFormatter extends Formatter {
     public EcsFormatter() {
         serviceName = getProperty("co.elastic.logging.jul.EcsFormatter.serviceName", null);
         serviceNodeName = getProperty("co.elastic.logging.jul.EcsFormatter.serviceNodeName", null);
-        includeOrigin = Boolean.getBoolean(getProperty("co.elastic.logging.jul.EcsFormatter.includeOrigin", "false"));
-        stackTraceAsArray = Boolean
-                .getBoolean(getProperty("co.elastic.logging.jul.EcsFormatter.stackTraceAsArray", "false"));
+        includeOrigin = Boolean.parseBoolean(getProperty("co.elastic.logging.jul.EcsFormatter.includeOrigin", "false"));
+        stackTraceAsArray = Boolean.parseBoolean(getProperty("co.elastic.logging.jul.EcsFormatter.stackTraceAsArray", "false"));
         eventDataset = getProperty("co.elastic.logging.jul.EcsFormatter.eventDataset", null);
         eventDataset = EcsJsonSerializer.computeEventDataset(eventDataset, serviceName);
         setAdditionalFields(getProperty("co.elastic.logging.jul.EcsFormatter.additionalFields", null));
