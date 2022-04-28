@@ -24,19 +24,19 @@
  */
 package co.elastic.logging.jboss.logmanager;
 
-import co.elastic.logging.EcsJsonSerializer;
 import co.elastic.logging.AdditionalField;
+import co.elastic.logging.EcsJsonSerializer;
 import org.jboss.logmanager.ExtFormatter;
 import org.jboss.logmanager.ExtLogRecord;
 import org.jboss.logmanager.LogManager;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
 public class EcsFormatter extends ExtFormatter {
 
     private String serviceName;
+    private String serviceVersion;
     private String serviceNodeName;
     private String eventDataset;
     private List<AdditionalField> additionalFields = Collections.emptyList();
@@ -45,6 +45,7 @@ public class EcsFormatter extends ExtFormatter {
 
     public EcsFormatter() {
         serviceName = getProperty("co.elastic.logging.jboss.logmanager.EcsFormatter.serviceName", null);
+        serviceVersion = getProperty("co.elastic.logging.jboss.logmanager.EcsFormatter.serviceversion", null);
         serviceNodeName = getProperty("co.elastic.logging.jboss.logmanager.EcsFormatter.serviceNodeName", null);
         eventDataset = getProperty("co.elastic.logging.jboss.logmanager.EcsFormatter.eventDataset", null);
         eventDataset = EcsJsonSerializer.computeEventDataset(eventDataset, serviceName);
@@ -60,6 +61,7 @@ public class EcsFormatter extends ExtFormatter {
         EcsJsonSerializer.serializeFormattedMessage(builder, record.getFormattedMessage());
         EcsJsonSerializer.serializeEcsVersion(builder);
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
+        EcsJsonSerializer.serializeServiceVersion(builder, serviceVersion);
         EcsJsonSerializer.serializeServiceNodeName(builder, serviceNodeName);
         EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
         EcsJsonSerializer.serializeThreadName(builder, record.getThreadName());
@@ -92,6 +94,10 @@ public class EcsFormatter extends ExtFormatter {
     public void setServiceName(final String serviceName) {
         this.serviceName = serviceName;
         eventDataset = EcsJsonSerializer.computeEventDataset(eventDataset, serviceName);
+    }
+
+    public void setServiceVersion(final String serviceVersion) {
+        this.serviceVersion = serviceVersion;
     }
 
     public void setServiceNodeName(final String serviceNodeName) {

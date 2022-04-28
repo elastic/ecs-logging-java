@@ -4,6 +4,7 @@
         <encoder class="co.elastic.logging.logback.EcsEncoder">
             <throwableConverter class="ch.qos.logback.classic.pattern.NopThrowableInformationConverter"/>
             <serviceName>test</serviceName>
+            <serviceVersion>test-version</serviceVersion>
             <serviceNodeName>test-node</serviceNodeName>
             <includeMarkers>true</includeMarkers>
             <includeOrigin>true</includeOrigin>

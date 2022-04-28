@@ -3,6 +3,7 @@
     <appender name="out" class="co.elastic.logging.logback.OutputStreamAppender">
         <encoder class="co.elastic.logging.logback.EcsEncoder">
             <serviceName>test</serviceName>
+            <serviceVersion>test-version</serviceVersion>
             <serviceNodeName>test-node</serviceNodeName>
             <includeMarkers>true</includeMarkers>
             <includeOrigin>true</includeOrigin>

@@ -65,6 +65,7 @@ class EcsJsonSerializerTest {
     void testEscaping() throws IOException {
         String loggerName = "logger\"";
         String serviceName = "test\"";
+        String serviceVersion = "test-version\"";
         String serviceNodeName = "test-node\"";
         String eventDataset = "event-dataset\"";
         String threadName = "event-dataset\"";
@@ -75,6 +76,7 @@ class EcsJsonSerializerTest {
         jsonBuilder.append('{');
         EcsJsonSerializer.serializeLoggerName(jsonBuilder, loggerName);
         EcsJsonSerializer.serializeServiceName(jsonBuilder, serviceName);
+        EcsJsonSerializer.serializeServiceVersion(jsonBuilder, serviceVersion);
         EcsJsonSerializer.serializeServiceNodeName(jsonBuilder, serviceNodeName);
         EcsJsonSerializer.serializeEventDataset(jsonBuilder, eventDataset);
         EcsJsonSerializer.serializeThreadName(jsonBuilder, threadName);
@@ -85,6 +87,7 @@ class EcsJsonSerializerTest {
 
         assertThat(jsonNode.get("log.logger").textValue()).isEqualTo(loggerName);
         assertThat(jsonNode.get("service.name").textValue()).isEqualTo(serviceName);
+        assertThat(jsonNode.get("service.version").textValue()).isEqualTo(serviceVersion);
         assertThat(jsonNode.get("service.node.name").textValue()).isEqualTo(serviceNodeName);
         assertThat(jsonNode.get("event.dataset").textValue()).isEqualTo(eventDataset);
         assertThat(jsonNode.get("process.thread.name").textValue()).isEqualTo(eventDataset);

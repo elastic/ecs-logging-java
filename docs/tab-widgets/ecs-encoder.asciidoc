@@ -41,6 +41,7 @@ All you have to do is to use the `co.elastic.logging.logback.EcsEncoder` instead
 ----
 <encoder class="co.elastic.logging.logback.EcsEncoder">
     <serviceName>my-application</serviceName>
+    <serviceVersion>my-application-version</serviceVersion>
     <serviceNodeName>my-application-cluster-node</serviceNodeName>
 </encoder>
 ----
@@ -53,7 +54,12 @@ All you have to do is to use the `co.elastic.logging.logback.EcsEncoder` instead
 |`serviceName`
 |String
 |
-|Sets the `service.name` field so you can filter your logs by a particular service
+|Sets the `service.name` field so you can filter your logs by a particular service name
+
+|`serviceVersion`
+|String
+|
+|Sets the `service.version` field so you can filter your logs by a particular service version
 
 |`serviceNodeName`
 |String
@@ -110,10 +116,10 @@ For example:
 <Configuration status="DEBUG">
     <Appenders>
         <Console name="LogToConsole" target="SYSTEM_OUT">
-            <EcsLayout serviceName="my-app" serviceNodeName="my-app-cluster-node"/>
+            <EcsLayout serviceName="my-app" serviceVersion="my-app-version" serviceNodeName="my-app-cluster-node"/>
         </Console>
         <File name="LogToFile" fileName="logs/app.log">
-            <EcsLayout serviceName="my-app" serviceNodeName="my-app-cluster-node"/>
+            <EcsLayout serviceName="my-app" serviceVersion="my-app-version" serviceNodeName="my-app-cluster-node"/>
         </File>
     </Appenders>
     <Loggers>
@@ -133,7 +139,12 @@ For example:
 |`serviceName`
 |String
 |
-|Sets the `service.name` field so you can filter your logs by a particular service
+|Sets the `service.name` field so you can filter your logs by a particular service name
+
+|`serviceVersion`
+|String
+|
+|Sets the `service.version` field so you can filter your logs by a particular service version
 
 |`serviceNodeName`
 |String
@@ -220,7 +231,12 @@ For example:
 |`serviceName`
 |String
 |
-|Sets the `service.name` field so you can filter your logs by a particular service
+|Sets the `service.name` field so you can filter your logs by a particular service name
+
+|`serviceVersion`
+|String
+|
+|Sets the `service.version` field so you can filter your logs by a particular service version
 
 |`serviceNodeName`
 |String
@@ -269,6 +285,7 @@ For example, in `$CATALINA_HOME/conf/logging.properties`:
 java.util.logging.ConsoleHandler.level = FINE
 java.util.logging.ConsoleHandler.formatter = co.elastic.logging.jul.EcsFormatter
 co.elastic.logging.jul.EcsFormatter.serviceName=my-app
+co.elastic.logging.jul.EcsFormatter.serviceVersion=my-app-version
 co.elastic.logging.jul.EcsFormatter.serviceNodeName=my-app-cluster-node
 ----
 
@@ -280,7 +297,12 @@ co.elastic.logging.jul.EcsFormatter.serviceNodeName=my-app-cluster-node
 |`serviceName`
 |String
 |
-|Sets the `service.name` field so you can filter your logs by a particular service
+|Sets the `service.name` field so you can filter your logs by a particular service name
+
+|`serviceVersion`
+|String
+|
+|Sets the `service.version` field so you can filter your logs by a particular service version
 
 |`serviceNodeName`
 |String
@@ -328,7 +350,7 @@ Add the formatter to a handler in the logging subsystem:
 [source,bash]
 ----
 $WILDFLY_HOME/bin/jboss-cli.sh -c '/subsystem=logging/custom-formatter=ECS:add(module=co.elastic.logging.jboss-logmanager-ecs-formatter,
-class=co.elastic.logging.jboss.logmanager.EcsFormatter, properties={serviceName=my-app,serviceNodeName=my-app-cluster-node}),\
+class=co.elastic.logging.jboss.logmanager.EcsFormatter, properties={serviceName=my-app,serviceVersion=my-app-version,serviceNodeName=my-app-cluster-node}),\
                                    /subsystem=logging/console-handler=CONSOLE:write-attribute(name=named-formatter,value=ECS)'
 ----
 
@@ -340,7 +362,12 @@ class=co.elastic.logging.jboss.logmanager.EcsFormatter, properties={serviceName=
 |`serviceName`
 |String
 |
-|Sets the `service.name` field so you can filter your logs by a particular service
+|Sets the `service.name` field so you can filter your logs by a particular service name
+
+|`serviceVersion`
+|String
+|
+|Sets the `service.version` field so you can filter your logs by a particular service version
 
 |`serviceNodeName`
 |String

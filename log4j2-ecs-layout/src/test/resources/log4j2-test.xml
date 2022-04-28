@@ -5,7 +5,7 @@
     </Properties>
     <Appenders>
         <List name="TestAppender">
-            <EcsLayout serviceName="test" serviceNodeName="test-node" includeMarkers="true" includeOrigin="true"
+            <EcsLayout serviceName="test" serviceVersion="test-version" serviceNodeName="test-node" includeMarkers="true" includeOrigin="true"
                        eventDataset="testdataset" exceptionPattern="%ex{4}">
                 <KeyValuePair key="cluster.uuid" value="9fe9134b-20b0-465e-acf9-8cc09ac9053b"/>
                 <KeyValuePair key="node.id" value="${node.id}"/>
