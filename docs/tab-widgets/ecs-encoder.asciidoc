@@ -54,12 +54,12 @@ All you have to do is to use the `co.elastic.logging.logback.EcsEncoder` instead
 |`serviceName`
 |String
 |
-|Sets the `service.name` fieldso you can filter your logs by a particular service name
+|Sets the `service.name` field so you can filter your logs by a particular service name
 
 |`serviceVersion`
 |String
 |
-|Sets the `service.version` fieldso you can filter your logs by a particular service version
+|Sets the `service.version` field so you can filter your logs by a particular service version
 
 |`serviceNodeName`
 |String
