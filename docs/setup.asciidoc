@@ -7,6 +7,13 @@ include::./tab-widgets/code.asciidoc[]
 [[setup-step-1]]
 === Step 1: Configure application logging
 
+If you are using the Elastic APM Java agent, the easiest way to transform your logs into ECS-compatible JSON format is through the
+{apm-java-ref}/config-logging.html#config-log-ecs-reformatting[`log_ecs_reformatting`] configuration option.
+By only setting this option, the Java agent will automatically import the correct ECS-logging library and configure your logging
+framework to use it instead (`OVERRIDE`/`REPLACE`) or in addition to (`SHADE`) your current configuration. No other changes required!
+Make sure to check out other {apm-java-ref}/config-logging.html[Logging configuration options] to unlock the full potential of this option.
+
+Otherwise, follow the steps below to manually apply ECS-formatting through your logging framework configuration.
 The following logging frameworks are supported:
 
 * Logback (default for Spring Boot)
