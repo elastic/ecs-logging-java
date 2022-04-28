@@ -55,24 +55,28 @@ public abstract class AbstractEcsLoggingTest {
     @Test
     void testMetadata() throws Exception {
         debug("test");
-        assertThat(getAndValidateLastLogLine().get("process.thread.name").textValue()).isEqualTo(Thread.currentThread().getName());
-        assertThat(getAndValidateLastLogLine().get("service.name").textValue()).isEqualTo("test");
-        assertThat(getAndValidateLastLogLine().get("service.version").textValue()).isEqualTo("test-version");
-        assertThat(getAndValidateLastLogLine().get("service.node.name").textValue()).isEqualTo("test-node");
-        assertThat(Instant.parse(getAndValidateLastLogLine().get("@timestamp").textValue())).isCloseTo(Instant.now(), within(1, ChronoUnit.MINUTES));
-        assertThat(getAndValidateLastLogLine().get("log.level").textValue()).isIn("DEBUG", "FINE");
-        assertThat(getAndValidateLastLogLine().get("log.logger")).isNotNull();
-        assertThat(getAndValidateLastLogLine().get("event.dataset").textValue()).isEqualTo("testdataset");
-        assertThat(getAndValidateLastLogLine().get("ecs.version").textValue()).isEqualTo("1.2.0");
-        validateLog(getAndValidateLastLogLine());
+        JsonNode logLine = getAndValidateLastLogLine();
+        System.out.println(logLine.toPrettyString());
+        assertThat(logLine.get("process.thread.name").textValue()).isEqualTo(Thread.currentThread().getName());
+        assertThat(logLine.get("service.name").textValue()).isEqualTo("test");
+        assertThat(logLine.get("service.version").textValue()).isEqualTo("test-version");
+        assertThat(logLine.get("service.node.name").textValue()).isEqualTo("test-node");
+        assertThat(Instant.parse(logLine.get("@timestamp").textValue())).isCloseTo(Instant.now(), within(1, ChronoUnit.MINUTES));
+        assertThat(logLine.get("log.level").textValue()).isIn("DEBUG", "FINE");
+        assertThat(logLine.get("log.logger")).isNotNull();
+        assertThat(logLine.get("event.dataset").textValue()).isEqualTo("testdataset");
+        assertThat(logLine.get("ecs.version").textValue()).isEqualTo("1.2.0");
+        validateLog(logLine);
     }
 
     @Test
-    final void testAdditionalFields() throws Exception {
+    protected final void testAdditionalFields() throws Exception {
         debug("test");
-        assertThat(getAndValidateLastLogLine().get("key1").textValue()).isEqualTo("value1");
-        assertThat(getAndValidateLastLogLine().get("key2").textValue()).isEqualTo("value2");
-        validateLog(getAndValidateLastLogLine());
+        JsonNode logLine = getAndValidateLastLogLine();
+        System.out.println(logLine.toPrettyString());
+        assertThat(logLine.get("key1").textValue()).isEqualTo("value1");
+        assertThat(logLine.get("key2").textValue()).isEqualTo("value2");
+        validateLog(logLine);
     }
 
     @Test
@@ -190,6 +194,7 @@ public abstract class AbstractEcsLoggingTest {
     void testLogException() throws Exception {
         error("test", new RuntimeException("test"));
         JsonNode log = getAndValidateLastLogLine();
+        System.out.println(log.toPrettyString());
         assertThat(log.get("log.level").textValue()).isIn("ERROR", "SEVERE");
         assertThat(log.get("error.message").textValue()).isEqualTo("test");
         assertThat(log.get("error.type").textValue()).isEqualTo(RuntimeException.class.getName());
@@ -206,9 +211,11 @@ public abstract class AbstractEcsLoggingTest {
     @Test
     void testLogOrigin() throws Exception {
         debug("test");
-        assertThat(getAndValidateLastLogLine().at("/log/origin/file/name").textValue()).endsWith(".java");
-        assertThat(getAndValidateLastLogLine().at("/log/origin/function").textValue()).isEqualTo("debug");
-        assertThat(getAndValidateLastLogLine().at("/log/origin/file/line").intValue()).isPositive();
+        JsonNode logLine = getAndValidateLastLogLine();
+        System.out.println(logLine.toPrettyString());
+        assertThat(logLine.at("/log/origin/file/name").textValue()).endsWith(".java");
+        assertThat(logLine.at("/log/origin/function").textValue()).isEqualTo("debug");
+        assertThat(logLine.at("/log/origin/file/line").intValue()).isPositive();
     }
 
     public boolean putMdc(String key, String value) {

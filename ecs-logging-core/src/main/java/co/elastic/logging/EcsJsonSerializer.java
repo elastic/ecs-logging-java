@@ -28,6 +28,7 @@ import java.io.PrintWriter;
 import java.io.Writer;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class EcsJsonSerializer {
@@ -45,7 +46,7 @@ public class EcsJsonSerializer {
         builder.append('{');
         builder.append("\"@timestamp\":\"");
         TIMESTAMP_SERIALIZER.serializeEpochTimestampAsIsoDateTime(builder, timeMillis);
-        builder.append("\", ");
+        builder.append("\",");
     }
 
     public static void serializeEcsVersion(StringBuilder builder) {
@@ -83,7 +84,7 @@ public class EcsJsonSerializer {
     public static void serializeFormattedMessage(StringBuilder builder, String message) {
         builder.append("\"message\":\"");
         JsonUtils.quoteAsString(message, builder);
-        builder.append("\", ");
+        builder.append("\",");
     }
 
     public static void serializeServiceName(StringBuilder builder, String serviceName) {
@@ -128,7 +129,7 @@ public class EcsJsonSerializer {
         }
         builder.append('\"');
         JsonUtils.quoteAsString(level, builder);
-        builder.append("\", ");
+        builder.append("\",");
     }
 
     public static void serializeTag(StringBuilder builder, String tag) {
@@ -220,6 +221,10 @@ public class EcsJsonSerializer {
     }
 
     public static void serializeException(StringBuilder builder, String exceptionClassName, String exceptionMessage, String stackTrace, boolean stackTraceAsArray) {
+        serializeException(builder, exceptionClassName, exceptionMessage, (CharSequence) stackTrace, stackTraceAsArray);
+    }
+
+    public static void serializeException(StringBuilder builder, String exceptionClassName, CharSequence exceptionMessage, CharSequence stackTrace, boolean stackTraceAsArray) {
         builder.append("\"error.type\":\"");
         JsonUtils.quoteAsString(exceptionClassName, builder);
         builder.append("\",");
@@ -266,16 +271,44 @@ public class EcsJsonSerializer {
         removeIfEndsWith(jsonBuilder, ",");
     }
 
-    private static void formatStackTraceAsArray(StringBuilder builder, String stackTrace) {
+    private static void formatStackTraceAsArray(StringBuilder builder, CharSequence stackTrace) {
         builder.append(NEW_LINE);
-        for (String line : NEW_LINE_PATTERN.split(stackTrace)) {
-            builder.append("\t\"");
-            JsonUtils.quoteAsString(line, builder);
-            builder.append("\",");
-            builder.append(NEW_LINE);
+
+        // splits the stackTrace by new lines
+        Matcher matcher = NEW_LINE_PATTERN.matcher(stackTrace);
+        if (matcher.find()) {
+            int index = 0;
+            do {
+                int start = matcher.start();
+                int end = matcher.end();
+                if (index == 0 && index == start && start == end) {
+                    // no empty leading substring included for zero-width match
+                    // at the beginning of the input char sequence.
+                    continue;
+                }
+
+                // append non-last line
+                appendStackTraceLine(builder, stackTrace, index, start);
+                builder.append(',');
+                builder.append(NEW_LINE);
+                index = end;
+            } while (matcher.find());
+
+            int length = stackTrace.length();
+            if (index < length) {
+                // append remaining line
+                appendStackTraceLine(builder, stackTrace, index, length);
+            }
+        } else {
+            // no newlines found, add entire stack trace as single element
+            appendStackTraceLine(builder, stackTrace, 0, stackTrace.length());
         }
-        removeIfEndsWith(builder, NEW_LINE);
-        removeIfEndsWith(builder, ",");
+    }
+
+    private static void appendStackTraceLine(StringBuilder builder, CharSequence stackTrace, int start, int end) {
+        builder.append("\t\"");
+        JsonUtils.quoteAsString(stackTrace, start, end, builder);
+        builder.append("\"");
     }
 
     public static void removeIfEndsWith(StringBuilder sb, String ending) {
