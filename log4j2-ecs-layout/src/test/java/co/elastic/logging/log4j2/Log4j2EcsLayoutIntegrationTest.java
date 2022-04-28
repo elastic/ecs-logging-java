@@ -29,8 +29,11 @@ import org.apache.logging.log4j.core.LoggerContext;
 import org.apache.logging.log4j.test.appender.ListAppender;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 class Log4j2EcsLayoutIntegrationTest extends AbstractLog4j2EcsLayoutTest {
     @BeforeEach

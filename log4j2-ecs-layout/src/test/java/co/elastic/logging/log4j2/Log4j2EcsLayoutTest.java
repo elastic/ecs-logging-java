@@ -64,13 +64,24 @@ abstract class Log4j2EcsLayoutTest extends AbstractLog4j2EcsLayoutTest {
         for (final Appender appender : root.getAppenders().values()) {
             root.removeAppender(appender);
         }
-        EcsLayout ecsLayout = EcsLayout.newBuilder()
-                .setConfiguration(ctx.getConfiguration())
+        EcsLayout ecsLayout = configureLayout(ctx)
+                .build();
+
+        listAppender = new ListAppender("ecs", null, ecsLayout, false, false);
+        listAppender.start();
+        root.addAppender(listAppender);
+        root.setLevel(Level.DEBUG);
+    }
+
+    protected EcsLayout.Builder configureLayout(LoggerContext context) {
+        return EcsLayout.newBuilder()
+                .setConfiguration(context.getConfiguration())
                 .setServiceName("test")
                 .setServiceNodeName("test-node")
                 .setIncludeMarkers(true)
                 .setIncludeOrigin(true)
                 .setEventDataset("testdataset")
+                .setExceptionPattern("%ex{4}")
                 .setAdditionalFields(new KeyValuePair[]{
                         new KeyValuePair("cluster.uuid", "9fe9134b-20b0-465e-acf9-8cc09ac9053b"),
                         new KeyValuePair("node.id", "${node.id}"),
@@ -80,13 +91,7 @@ abstract class Log4j2EcsLayoutTest extends AbstractLog4j2EcsLayoutTest {
                         new KeyValuePair("emptyPattern", "%notEmpty{%invalidPattern}"),
                         new KeyValuePair("key1", "value1"),
                         new KeyValuePair("key2", "value2"),
-                })
-                .build();
-
-        listAppender = new ListAppender("ecs", null, ecsLayout, false, false);
-        listAppender.start();
-        root.addAppender(listAppender);
-        root.setLevel(Level.DEBUG);
+                });
     }
 
     @AfterEach

@@ -75,10 +75,11 @@ public class EcsLayout extends AbstractStringLayout {
     private final String eventDataset;
     private final boolean includeMarkers;
     private final boolean includeOrigin;
+    private final PatternFormatter[] exceptionPatternFormatter;
     private final ConcurrentMap<Class<? extends MultiformatMessage>, Boolean> supportsJson = new ConcurrentHashMap<Class<? extends MultiformatMessage>, Boolean>();
 
     private EcsLayout(Configuration config, String serviceName, String serviceNodeName, String eventDataset, boolean includeMarkers,
-                      KeyValuePair[] additionalFields, boolean includeOrigin, boolean stackTraceAsArray) {
+                      KeyValuePair[] additionalFields, boolean includeOrigin, String exceptionPattern, boolean stackTraceAsArray) {
         super(config, UTF_8, null, null);
         this.serviceName = serviceName;
         this.serviceNodeName = serviceNodeName;
@@ -95,6 +96,14 @@ public class EcsLayout extends AbstractStringLayout {
                         .parse(additionalField.getValue())
                         .toArray(new PatternFormatter[0]);
             }
+        }
+
+        if (exceptionPattern != null && !exceptionPattern.isEmpty()) {
+            exceptionPatternFormatter = PatternLayout.createPatternParser(config)
+                    .parse(exceptionPattern)
+                    .toArray(new PatternFormatter[0]);
+        } else {
+            exceptionPatternFormatter = null;
         }
     }
 
@@ -140,7 +149,7 @@ public class EcsLayout extends AbstractStringLayout {
         if (includeOrigin) {
             EcsJsonSerializer.serializeOrigin(builder, event.getSource());
         }
-        EcsJsonSerializer.serializeException(builder, event.getThrown(), stackTraceAsArray);
+        serializeException(builder, event);
         EcsJsonSerializer.serializeObjectEnd(builder);
         return builder;
     }
@@ -325,6 +334,20 @@ public class EcsLayout extends AbstractStringLayout {
         return supportsJson;
     }
 
+    private void serializeException(StringBuilder messageBuffer, LogEvent event) {
+        Throwable thrown = event.getThrown();
+        if (thrown != null) {
+            if (exceptionPatternFormatter != null) {
+                StringBuilder builder = EcsJsonSerializer.getMessageStringBuilder();
+                formatPattern(event, exceptionPatternFormatter, builder);
+                String stackTrace = builder.toString();
+                EcsJsonSerializer.serializeException(messageBuffer, thrown.getClass().getName(), thrown.getMessage(), stackTrace, stackTraceAsArray);
+            } else {
+                EcsJsonSerializer.serializeException(messageBuffer, thrown, stackTraceAsArray);
+            }
+        }
+    }
+
     public static class Builder implements org.apache.logging.log4j.core.util.Builder<EcsLayout> {
 
         @PluginConfiguration
@@ -337,6 +360,8 @@ public class EcsLayout extends AbstractStringLayout {
         private String eventDataset;
         @PluginBuilderAttribute("includeMarkers")
         private boolean includeMarkers = false;
+        @PluginBuilderAttribute("exceptionPattern")
+        private String exceptionPattern;
         @PluginBuilderAttribute("stackTraceAsArray")
         private boolean stackTraceAsArray = false;
         @PluginElement("AdditionalField")
@@ -380,6 +405,14 @@ public class EcsLayout extends AbstractStringLayout {
             return includeOrigin;
         }
 
+        public boolean isStackTraceAsArray() {
+            return stackTraceAsArray;
+        }
+
+        public String getExceptionPattern() {
+            return exceptionPattern;
+        }
+
         /**
          * Additional fields to set on each log event.
          *
@@ -420,14 +453,15 @@ public class EcsLayout extends AbstractStringLayout {
             return this;
         }
 
+        public EcsLayout.Builder setExceptionPattern(String exceptionPattern) {
+            this.exceptionPattern = exceptionPattern;
+            return this;
+        }
+
         @Override
         public EcsLayout build() {
             return new EcsLayout(getConfiguration(), serviceName, serviceNodeName, EcsJsonSerializer.computeEventDataset(eventDataset, serviceName),
-                    includeMarkers, additionalFields, includeOrigin, stackTraceAsArray);
-        }
-
-        public boolean isStackTraceAsArray() {
-            return stackTraceAsArray;
+                    includeMarkers, additionalFields, includeOrigin, exceptionPattern, stackTraceAsArray);
         }
     }
 }
