@@ -48,6 +48,7 @@ public class EcsEncoderWithStacktraceAsArrayTest extends AbstractEcsEncoderTest 
         EcsEncoder ecsEncoder = new EcsEncoder();
         ecsEncoder.setServiceName("test");
         ecsEncoder.setServiceVersion("test-version");
+        ecsEncoder.setServiceEnvironment("test-environment");
         ecsEncoder.setIncludeMarkers(true);
         ecsEncoder.setIncludeOrigin(true);
         ecsEncoder.addAdditionalField(new AdditionalField("key1", "value1"));

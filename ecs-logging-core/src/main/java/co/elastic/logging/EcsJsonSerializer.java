@@ -103,6 +103,14 @@ public class EcsJsonSerializer {
         }
     }
 
+    public static void serializeServiceEnvironment(StringBuilder builder, String serviceEnvironment) {
+        if (serviceEnvironment != null) {
+            builder.append("\"service.environment\":\"");
+            JsonUtils.quoteAsString(serviceEnvironment, builder);
+            builder.append("\",");
+        }
+    }
+
     public static void serializeServiceNodeName(StringBuilder builder, String serviceNodeName) {
         if (serviceNodeName != null) {
             builder.append("\"service.node.name\":\"");

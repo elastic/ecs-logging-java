@@ -41,6 +41,8 @@ public class EcsLayout extends Layout {
     private boolean stackTraceAsArray = false;
     private String serviceName;
     private String serviceVersion;
+
+    private String serviceEnvironment;
     private String serviceNodeName;
     private boolean includeOrigin;
     private String eventDataset;
@@ -55,6 +57,7 @@ public class EcsLayout extends Layout {
         EcsJsonSerializer.serializeEcsVersion(builder);
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
         EcsJsonSerializer.serializeServiceVersion(builder, serviceVersion);
+        EcsJsonSerializer.serializeServiceEnvironment(builder, serviceEnvironment);
         EcsJsonSerializer.serializeServiceNodeName(builder, serviceNodeName);
         EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
@@ -105,6 +108,10 @@ public class EcsLayout extends Layout {
 
     public void setServiceVersion(String serviceVersion) {
         this.serviceVersion = serviceVersion;
+    }
+
+    public void setServiceEnvironment(String serviceEnvironment) {
+        this.serviceEnvironment = serviceEnvironment;
     }
 
     public void setServiceNodeName(String serviceNodeName) {

@@ -5,6 +5,7 @@
             <throwableConverter class="ch.qos.logback.classic.pattern.NopThrowableInformationConverter"/>
             <serviceName>test</serviceName>
             <serviceVersion>test-version</serviceVersion>
+            <serviceEnvironment>test-environment</serviceEnvironment>
             <serviceNodeName>test-node</serviceNodeName>
             <includeMarkers>true</includeMarkers>
             <includeOrigin>true</includeOrigin>

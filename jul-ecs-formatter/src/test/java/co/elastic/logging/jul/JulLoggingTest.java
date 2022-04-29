@@ -133,6 +133,7 @@ public class JulLoggingTest extends AbstractEcsLoggingTest {
         ret.setIncludeOrigin(true);
         ret.setServiceName("test");
         ret.setServiceVersion("test-version");
+        ret.setServiceEnvironment("test-environment");
         ret.setServiceNodeName("test-node");
         ret.setEventDataset("testdataset");
         return ret;

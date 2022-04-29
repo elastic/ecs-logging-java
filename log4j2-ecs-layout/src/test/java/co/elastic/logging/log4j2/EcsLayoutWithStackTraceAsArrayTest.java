@@ -50,7 +50,7 @@ public class EcsLayoutWithStackTraceAsArrayTest extends Log4j2EcsLayoutTest {
         assertThat(log.get("error.stack_trace").isArray()).isTrue();
         ArrayNode arrayNode = (ArrayNode) log.get("error.stack_trace");
         assertThat(arrayNode.size()).isEqualTo(4);
-        assertThat(arrayNode.get(0).textValue()).isEqualTo("java.lang.NumberFormatException: For input string: \"NOT_AN_INT\"");
+        assertThat(arrayNode.get(0).textValue()).isEqualTo("java.lang.NumberFormatException: For input string: \"NOT_AN_INT\"\r");
         assertThat(arrayNode.get(1).textValue()).startsWith("\t... suppressed");
         assertThat(arrayNode.get(2).textValue()).startsWith("\tat co.elastic.logging.log4j2.EcsLayoutWithStackTraceAsArrayTest.numberFormatException");
         assertThat(arrayNode.get(3).textValue()).startsWith("\tat co.elastic.logging.log4j2.EcsLayoutWithStackTraceAsArrayTest.testLogException");
@@ -75,7 +75,7 @@ public class EcsLayoutWithStackTraceAsArrayTest extends Log4j2EcsLayoutTest {
         assertThat(log.get("error.stack_trace").isArray()).isTrue();
         ArrayNode arrayNode = (ArrayNode) log.get("error.stack_trace");
         assertThat(arrayNode.size()).isEqualTo(4);
-        assertThat(arrayNode.get(0).textValue()).isEqualTo("java.lang.RuntimeException");
+        assertThat(arrayNode.get(0).textValue()).isEqualTo("java.lang.RuntimeException\r");
         assertThat(arrayNode.get(1).textValue()).startsWith("\tat co.elastic.logging.log4j2.EcsLayoutWithStackTraceAsArrayTest.testLogExceptionNullMessage");
     }
 }

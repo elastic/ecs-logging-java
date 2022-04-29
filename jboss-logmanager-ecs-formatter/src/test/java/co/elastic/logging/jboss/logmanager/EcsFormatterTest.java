@@ -85,8 +85,8 @@ class EcsFormatterTest {
         assertThat(result.get("error.type").textValue()).isEqualTo("co.elastic.logging.jboss.logmanager.EcsFormatterTest$1");
         assertThat(result.get("error.message").textValue()).isEqualTo("Example Exception Message");
         assertThat(result.get("error.stack_trace").textValue())
-                .isEqualTo("co.elastic.logging.jboss.logmanager.EcsFormatterTest$1: Example Exception Message\n" +
-                        "\tat co.elastic.logging.jboss.logmanager.EcsFormatterTest.testExceptionLogging(EcsFormatterTest.java:125)\n");
+                .isEqualTo("co.elastic.logging.jboss.logmanager.EcsFormatterTest$1: Example Exception Message" + System.lineSeparator() +
+                        "\tat co.elastic.logging.jboss.logmanager.EcsFormatterTest.testExceptionLogging(EcsFormatterTest.java:125)" + System.lineSeparator());
     }
 }
 
