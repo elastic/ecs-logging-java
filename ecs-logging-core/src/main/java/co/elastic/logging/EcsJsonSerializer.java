@@ -36,7 +36,7 @@ public class EcsJsonSerializer {
     private static final TimestampSerializer TIMESTAMP_SERIALIZER = new TimestampSerializer();
     private static final ThreadLocal<StringBuilder> messageStringBuilder = new ThreadLocal<StringBuilder>();
     private static final String NEW_LINE = System.getProperty("line.separator");
-    private static final Pattern NEW_LINE_PATTERN = Pattern.compile("\\R");
+    private static final Pattern NEW_LINE_PATTERN = Pattern.compile("\\r\\n|\\n|\\r");
 
     public static CharSequence toNullSafeString(final CharSequence s) {
         return s == null ? "" : s;
