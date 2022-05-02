@@ -72,7 +72,6 @@ public class EcsLayout extends AbstractStringLayout {
     private final boolean stackTraceAsArray;
     private final String serviceName;
     private final String serviceVersion;
-
     private final String serviceEnvironment;
     private final String serviceNodeName;
     private final String eventDataset;

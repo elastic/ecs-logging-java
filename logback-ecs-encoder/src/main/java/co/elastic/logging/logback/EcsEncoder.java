@@ -47,7 +47,6 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
     private boolean stackTraceAsArray = false;
     private String serviceName;
     private String serviceVersion;
-
     private String serviceEnvironment;
     private String serviceNodeName;
     private String eventDataset;

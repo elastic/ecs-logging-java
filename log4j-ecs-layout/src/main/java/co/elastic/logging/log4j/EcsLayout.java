@@ -41,7 +41,6 @@ public class EcsLayout extends Layout {
     private boolean stackTraceAsArray = false;
     private String serviceName;
     private String serviceVersion;
-
     private String serviceEnvironment;
     private String serviceNodeName;
     private boolean includeOrigin;

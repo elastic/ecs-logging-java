@@ -41,7 +41,6 @@ public class EcsFormatter extends Formatter {
     private boolean stackTraceAsArray;
     private String serviceName;
     private String serviceVersion;
-
     private String serviceEnvironment;
     private String serviceNodeName;
     private boolean includeOrigin;
