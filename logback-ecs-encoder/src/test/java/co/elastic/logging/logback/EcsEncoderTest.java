@@ -45,6 +45,7 @@ public class EcsEncoderTest extends AbstractEcsEncoderTest {
         EcsEncoder ecsEncoder = new EcsEncoder();
         ecsEncoder.setServiceName("test");
         ecsEncoder.setServiceVersion("test-version");
+        ecsEncoder.setServiceEnvironment("test-environment");
         ecsEncoder.setServiceNodeName("test-node");
         ecsEncoder.setIncludeMarkers(true);
         ecsEncoder.setIncludeOrigin(true);

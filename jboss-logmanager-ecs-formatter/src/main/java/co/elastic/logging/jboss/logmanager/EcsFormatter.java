@@ -37,6 +37,7 @@ public class EcsFormatter extends ExtFormatter {
 
     private String serviceName;
     private String serviceVersion;
+    private String serviceEnvironment;
     private String serviceNodeName;
     private String eventDataset;
     private List<AdditionalField> additionalFields = Collections.emptyList();
@@ -45,7 +46,8 @@ public class EcsFormatter extends ExtFormatter {
 
     public EcsFormatter() {
         serviceName = getProperty("co.elastic.logging.jboss.logmanager.EcsFormatter.serviceName", null);
-        serviceVersion = getProperty("co.elastic.logging.jboss.logmanager.EcsFormatter.serviceversion", null);
+        serviceVersion = getProperty("co.elastic.logging.jboss.logmanager.EcsFormatter.serviceVersion", null);
+        serviceEnvironment = getProperty("co.elastic.logging.jboss.logmanager.EcsFormatter.serviceEnvironment", null);
         serviceNodeName = getProperty("co.elastic.logging.jboss.logmanager.EcsFormatter.serviceNodeName", null);
         eventDataset = getProperty("co.elastic.logging.jboss.logmanager.EcsFormatter.eventDataset", null);
         eventDataset = EcsJsonSerializer.computeEventDataset(eventDataset, serviceName);
@@ -62,6 +64,7 @@ public class EcsFormatter extends ExtFormatter {
         EcsJsonSerializer.serializeEcsVersion(builder);
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
         EcsJsonSerializer.serializeServiceVersion(builder, serviceVersion);
+        EcsJsonSerializer.serializeServiceEnvironment(builder, serviceEnvironment);
         EcsJsonSerializer.serializeServiceNodeName(builder, serviceNodeName);
         EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
         EcsJsonSerializer.serializeThreadName(builder, record.getThreadName());
@@ -98,6 +101,10 @@ public class EcsFormatter extends ExtFormatter {
 
     public void setServiceVersion(final String serviceVersion) {
         this.serviceVersion = serviceVersion;
+    }
+
+    public void setServiceEnvironment(final String serviceEnvironment) {
+        this.serviceEnvironment = serviceEnvironment;
     }
 
     public void setServiceNodeName(final String serviceNodeName) {

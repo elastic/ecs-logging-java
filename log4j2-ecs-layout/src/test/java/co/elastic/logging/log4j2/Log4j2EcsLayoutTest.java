@@ -78,6 +78,7 @@ abstract class Log4j2EcsLayoutTest extends AbstractLog4j2EcsLayoutTest {
                 .setConfiguration(context.getConfiguration())
                 .setServiceName("test")
                 .setServiceVersion("test-version")
+                .setServiceEnvironment("test-environment")
                 .setServiceNodeName("test-node")
                 .setIncludeMarkers(true)
                 .setIncludeOrigin(true)

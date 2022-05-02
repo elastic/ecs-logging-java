@@ -5,6 +5,7 @@
         <layout class="co.elastic.logging.log4j.EcsLayout">
             <param name="serviceName" value="test"/>
             <param name="serviceVersion" value="test-version"/>
+            <param name="serviceEnvironment" value="test-environment"/>
             <param name="serviceNodeName" value="test-node"/>
             <param name="eventDataset" value="testdataset"/>
             <param name="includeOrigin" value="true"/>

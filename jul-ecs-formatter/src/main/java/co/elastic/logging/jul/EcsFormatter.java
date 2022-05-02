@@ -41,6 +41,7 @@ public class EcsFormatter extends Formatter {
     private boolean stackTraceAsArray;
     private String serviceName;
     private String serviceVersion;
+    private String serviceEnvironment;
     private String serviceNodeName;
     private boolean includeOrigin;
     private String eventDataset;
@@ -52,6 +53,7 @@ public class EcsFormatter extends Formatter {
     public EcsFormatter() {
         serviceName = getProperty("co.elastic.logging.jul.EcsFormatter.serviceName", null);
         serviceVersion= getProperty("co.elastic.logging.jul.EcsFormatter.serviceVersion", null);
+        serviceEnvironment= getProperty("co.elastic.logging.jul.EcsFormatter.serviceEnvironment", null);
         serviceNodeName = getProperty("co.elastic.logging.jul.EcsFormatter.serviceNodeName", null);
         includeOrigin = Boolean.parseBoolean(getProperty("co.elastic.logging.jul.EcsFormatter.includeOrigin", "false"));
         stackTraceAsArray = Boolean.parseBoolean(getProperty("co.elastic.logging.jul.EcsFormatter.stackTraceAsArray", "false"));
@@ -71,6 +73,7 @@ public class EcsFormatter extends Formatter {
         EcsJsonSerializer.serializeMDC(builder, mdcSupplier.getMDC());
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
         EcsJsonSerializer.serializeServiceVersion(builder, serviceVersion);
+        EcsJsonSerializer.serializeServiceEnvironment(builder, serviceEnvironment);
         EcsJsonSerializer.serializeServiceNodeName(builder, serviceNodeName);
         EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
         if (Thread.currentThread().getId() == record.getThreadID()) {
@@ -100,6 +103,10 @@ public class EcsFormatter extends Formatter {
 
     public void setServiceVersion(final String serviceVersion) {
         this.serviceVersion = serviceVersion;
+    }
+
+    public void setServiceEnvironment(final String serviceEnvironment) {
+        this.serviceEnvironment = serviceEnvironment;
     }
 
     public void setServiceNodeName(final String serviceNodeName) {

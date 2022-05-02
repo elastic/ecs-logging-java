@@ -52,6 +52,7 @@ class Log4jEcsLayoutTest extends AbstractEcsLoggingTest {
         ecsLayout = new EcsLayout();
         ecsLayout.setServiceName("test");
         ecsLayout.setServiceVersion("test-version");
+        ecsLayout.setServiceEnvironment("test-environment");
         ecsLayout.setServiceNodeName("test-node");
         ecsLayout.setIncludeOrigin(true);
         ecsLayout.setEventDataset("testdataset");
