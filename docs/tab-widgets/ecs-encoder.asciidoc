@@ -197,6 +197,15 @@ To include any custom field in the output, use following syntax:
 ----
 
 Custom fields are included in the order they are declared. The values support https://logging.apache.org/log4j/2.x/manual/lookups.html[lookups].
+This means that the `KeyValuePair` setting can be utilized to dynamically set predefined fields as well:
+
+[source,xml]
+----
+<EcsLayout serviceName="myService">
+  <KeyValuePair key="service.version" value="$${spring:project.version}"/>
+  <KeyValuePair key="service.node.name" value="${env:HOSTNAME}"/>
+</EcsLayout>
+----
 
 NOTE: The log4j2 `EcsLayout` does not allocate any memory (unless the log event contains an `Exception`) to reduce GC pressure.
 This is achieved by manually serializing JSON so that no intermediate JSON or map representation of a log event is needed.
