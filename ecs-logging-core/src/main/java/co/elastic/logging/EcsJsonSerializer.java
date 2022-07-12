@@ -191,7 +191,7 @@ public class EcsJsonSerializer {
         builder.append("},");
     }
 
-    public static void serializeMDC(StringBuilder builder, Map<String, ?> properties) { // usages of this method to write data from MDC
+    public static void serializeMDC(StringBuilder builder, Map<String, ?> properties) {
         if (properties != null && !properties.isEmpty()) {
             for (Map.Entry<String, ?> entry : properties.entrySet()) {
                 builder.append('\"');
