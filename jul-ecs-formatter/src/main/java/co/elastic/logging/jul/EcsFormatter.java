@@ -24,19 +24,19 @@
  */
 package co.elastic.logging.jul;
 
+import co.elastic.logging.AdditionalField;
+import co.elastic.logging.EcsJsonSerializer;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Formatter;
 import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
 
-import co.elastic.logging.AdditionalField;
-import co.elastic.logging.EcsJsonSerializer;
-
 public class EcsFormatter extends Formatter {
 
     private static final String UNKNOWN_FILE = "<Unknown>";
-    private static final MdcSupplier mdcSupplier = MdcSupplier.Resolver.INSTANCE.resolve();
+    private MdcSupplier mdcSupplier;
     
     private boolean stackTraceAsArray;
     private String serviceName;
@@ -60,6 +60,7 @@ public class EcsFormatter extends Formatter {
         eventDataset = getProperty("co.elastic.logging.jul.EcsFormatter.eventDataset", null);
         eventDataset = EcsJsonSerializer.computeEventDataset(eventDataset, serviceName);
         setAdditionalFields(getProperty("co.elastic.logging.jul.EcsFormatter.additionalFields", null));
+        mdcSupplier = MdcSupplier.Resolver.INSTANCE.resolve();
     }
 
     @Override
@@ -127,6 +128,10 @@ public class EcsFormatter extends Formatter {
 
     public void setAdditionalFields(List<AdditionalField> additionalFields) {
         this.additionalFields = additionalFields;
+    }
+
+    void setMdcSupplier(MdcSupplier supplier) {
+        mdcSupplier = supplier;
     }
 
     private String getProperty(final String name, final String defaultValue) {

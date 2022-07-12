@@ -43,16 +43,16 @@ public interface MdcSupplier {
                 // implementation. When no MDC bindings are available calls to MDC.put will be ignored by slf4j.
                 // That is why we want to ensure that the StaticMDCBinder exists
                 Class.forName("org.slf4j.impl.StaticMDCBinder");
-                return (MdcSupplier) Class.forName("co.elastic.logging.jul.MdcSupplier$Available").getEnumConstants()[0];
-            } catch (Exception e) {
-                return Unavailable.INSTANCE;
-            } catch (LinkageError e ) {
-                return Unavailable.INSTANCE;
+                return (MdcSupplier) Class.forName("co.elastic.logging.jul.MdcSupplier$Slf4j").getEnumConstants()[0];
+            } catch (Exception ignore) {
+            } catch (LinkageError ignore) {
             }
+            return Fallback.INSTANCE;
         }
     }
 
-    enum Available implements MdcSupplier {
+    enum Slf4j implements MdcSupplier {
+        @SuppressWarnings("unused") // called through Resolver.resolve()
         INSTANCE;
 
         @Override
@@ -65,15 +65,18 @@ public interface MdcSupplier {
         }
     }
 
-    enum Unavailable implements MdcSupplier {
+    /**
+     * Fallback to internal MDC
+     */
+    enum Fallback implements MdcSupplier {
         INSTANCE;
 
-        Unavailable() {
+        Fallback() {
         }
 
         @Override
         public Map<String, String> getMDC() {
-            return Collections.emptyMap();
+            return FallbackMdc.INSTANCE.getEntries();
         }
     }
 }

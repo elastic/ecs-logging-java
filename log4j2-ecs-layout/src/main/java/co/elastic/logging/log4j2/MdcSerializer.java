@@ -52,6 +52,8 @@ interface MdcSerializer {
      * Never reference directly in prod code so avoid linkage errors when TriConsumer or getContextData are not available
      */
     enum UsingContextData implements MdcSerializer {
+
+        @SuppressWarnings("unused")
         INSTANCE;
 
         private static final TriConsumer<String, Object, StringBuilder> WRITE_MDC = new TriConsumer<String, Object, StringBuilder>() {
