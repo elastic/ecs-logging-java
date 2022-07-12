@@ -54,7 +54,8 @@ public class FallbackMdc {
     }
 
     public Map<String, String> getEntries() {
-        return tlm.get();
+        Map<String, String> entries = tlm.get();
+        return entries == null ? Collections.<String,String>emptyMap(): entries;
     }
 
     private Map<String, String> getOrCreateMap() {
