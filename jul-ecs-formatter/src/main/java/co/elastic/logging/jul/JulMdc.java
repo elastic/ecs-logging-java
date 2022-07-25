@@ -33,6 +33,11 @@ import java.util.Map;
  */
 public class JulMdc {
 
+    /**
+     * This MDC is currently used with 3 key/values: trace,transaction and error IDs, thus
+     */
+    private static final int INITIAL_CAPACITY = 4;
+
     private static final InheritableThreadLocal<Map<String, String>> tlm = new InheritableThreadLocal<Map<String, String>>() {
         @Override
         protected Map<String, String> childValue(Map<String, String> parentValue) {
@@ -64,7 +69,7 @@ public class JulMdc {
     private static Map<String, String> getOrCreateMap() {
         Map<String, String> map = tlm.get();
         if (map == null || map.isEmpty()) {
-            map = new HashMap<String, String>();
+            map = new HashMap<String, String>(INITIAL_CAPACITY);
             tlm.set(map);
         }
         return map;
