@@ -36,7 +36,6 @@ import java.util.logging.LogRecord;
 public class EcsFormatter extends Formatter {
 
     private static final String UNKNOWN_FILE = "<Unknown>";
-    private final JulMdc mdc;
 
     private boolean stackTraceAsArray;
     private String serviceName;
@@ -60,7 +59,6 @@ public class EcsFormatter extends Formatter {
         eventDataset = getProperty("co.elastic.logging.jul.EcsFormatter.eventDataset", null);
         eventDataset = EcsJsonSerializer.computeEventDataset(eventDataset, serviceName);
         setAdditionalFields(getProperty("co.elastic.logging.jul.EcsFormatter.additionalFields", null));
-        mdc = JulMdc.getInstance();
     }
 
     @Override
@@ -71,7 +69,7 @@ public class EcsFormatter extends Formatter {
         EcsJsonSerializer.serializeFormattedMessage(builder, super.formatMessage(record));
         EcsJsonSerializer.serializeEcsVersion(builder);
         EcsJsonSerializer.serializeAdditionalFields(builder, additionalFields);
-        EcsJsonSerializer.serializeMDC(builder, mdc.getEntries());
+        EcsJsonSerializer.serializeMDC(builder, JulMdc.getEntries());
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
         EcsJsonSerializer.serializeServiceVersion(builder, serviceVersion);
         EcsJsonSerializer.serializeServiceEnvironment(builder, serviceEnvironment);

@@ -25,45 +25,74 @@
 package co.elastic.logging.jul;
 
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class JulMdcTest {
 
-    private JulMdc mdc;
-
-    @BeforeEach
-    void before() {
-        mdc = new JulMdc();
-    }
-
     @AfterEach
     void after() {
-        mdc.getEntries().clear();
-        assertThat(mdc.getEntries()).isEmpty();
+        JulMdc.getEntries().clear();
+        assertThat(JulMdc.getEntries()).isEmpty();
     }
 
     @Test
     void emptyMdc() {
-        Map<String, String> entries = mdc.getEntries();
+        Map<String, String> entries = JulMdc.getEntries();
         assertThat(entries).isEmpty();
 
-        assertThat(mdc.getEntries()).isSameAs(entries);
+        assertThat(JulMdc.getEntries()).isSameAs(entries);
 
         // should be a no-op
-        mdc.remove("missing");
+        JulMdc.remove("missing");
     }
 
     @Test
     void putRemoveSingleEntry() {
-        mdc.put("hello", "world");
-        assertThat(mdc.getEntries()).containsEntry("hello", "world");
+        JulMdc.put("hello", "world");
+        assertThat(JulMdc.getEntries()).containsEntry("hello", "world");
 
-        mdc.remove("hello");
-        assertThat(mdc.getEntries()).isEmpty();
+        JulMdc.remove("hello");
+        assertThat(JulMdc.getEntries()).isEmpty();
+    }
+
+    @Test
+    void threadInheritance_singleValue() throws InterruptedException {
+        JulMdc.put("main", "main-value");
+        assertThat(JulMdc.getEntries()).containsEntry("main", "main-value");
+
+        CountDownLatch childEnd = new CountDownLatch(1);
+        new Thread() {
+            @Override
+            public void run() {
+                assertThat(JulMdc.getEntries()).containsEntry("main", "main-value");
+                childEnd.countDown();
+            }
+        }.start();
+
+        childEnd.await(1, TimeUnit.SECONDS);
+    }
+
+    @Test
+    void threadInheritance_empty() throws InterruptedException {
+        JulMdc.put("main", "main-value");
+        JulMdc.remove("main");
+        assertThat(JulMdc.getEntries()).isEmpty();
+
+        CountDownLatch childEnd = new CountDownLatch(1);
+        new Thread() {
+            @Override
+            public void run() {
+                assertThat(JulMdc.getEntries()).isEmpty();
+                childEnd.countDown();
+            }
+        }.start();
+
+        childEnd.await(1, TimeUnit.SECONDS);
     }
 }

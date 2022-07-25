@@ -33,14 +33,7 @@ import java.util.Map;
  */
 public class JulMdc {
 
-    private static final JulMdc INSTANCE = new JulMdc();
-
-    // this method is used by APM agent in order to know if this MDC fallback is used or not
-    public static JulMdc getInstance() {
-        return INSTANCE;
-    }
-
-    private final InheritableThreadLocal<Map<String, String>> tlm = new InheritableThreadLocal<Map<String, String>>() {
+    private static final InheritableThreadLocal<Map<String, String>> tlm = new InheritableThreadLocal<Map<String, String>>() {
         @Override
         protected Map<String, String> childValue(Map<String, String> parentValue) {
             if (parentValue == null || parentValue.isEmpty()) {
@@ -51,26 +44,24 @@ public class JulMdc {
         }
     };
 
-    JulMdc() {
-    }
 
-    public void put(String key, String value) {
+    public static void put(String key, String value) {
         getOrCreateMap().put(key, value);
     }
 
-    public void remove(String key) {
+    public static void remove(String key) {
         Map<String, String> entries = tlm.get();
         if (entries != null) {
             entries.remove(key);
         }
     }
 
-    public Map<String, String> getEntries() {
+    public static Map<String, String> getEntries() {
         Map<String, String> entries = tlm.get();
         return entries == null ? Collections.<String, String>emptyMap() : entries;
     }
 
-    private Map<String, String> getOrCreateMap() {
+    private static Map<String, String> getOrCreateMap() {
         Map<String, String> map = tlm.get();
         if (map == null || map.isEmpty()) {
             map = new HashMap<String, String>();
@@ -78,6 +69,5 @@ public class JulMdc {
         }
         return map;
     }
-
 
 }

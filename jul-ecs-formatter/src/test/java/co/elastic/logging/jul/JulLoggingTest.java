@@ -84,7 +84,7 @@ public class JulLoggingTest extends AbstractEcsLoggingTest {
 
     @Override
     public boolean putMdc(String key, String value) {
-        JulMdc.getInstance().put(key, value);
+        JulMdc.put(key, value);
         return true;
     }
 
