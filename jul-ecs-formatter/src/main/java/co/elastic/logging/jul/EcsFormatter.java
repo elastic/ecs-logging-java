@@ -11,9 +11,9 @@
  * the Apache License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -36,8 +36,8 @@ import java.util.logging.LogRecord;
 public class EcsFormatter extends Formatter {
 
     private static final String UNKNOWN_FILE = "<Unknown>";
-    private MdcSupplier mdcSupplier;
-    
+    private final JulMdc mdc;
+
     private boolean stackTraceAsArray;
     private String serviceName;
     private String serviceVersion;
@@ -52,15 +52,15 @@ public class EcsFormatter extends Formatter {
      */
     public EcsFormatter() {
         serviceName = getProperty("co.elastic.logging.jul.EcsFormatter.serviceName", null);
-        serviceVersion= getProperty("co.elastic.logging.jul.EcsFormatter.serviceVersion", null);
-        serviceEnvironment= getProperty("co.elastic.logging.jul.EcsFormatter.serviceEnvironment", null);
+        serviceVersion = getProperty("co.elastic.logging.jul.EcsFormatter.serviceVersion", null);
+        serviceEnvironment = getProperty("co.elastic.logging.jul.EcsFormatter.serviceEnvironment", null);
         serviceNodeName = getProperty("co.elastic.logging.jul.EcsFormatter.serviceNodeName", null);
         includeOrigin = Boolean.parseBoolean(getProperty("co.elastic.logging.jul.EcsFormatter.includeOrigin", "false"));
         stackTraceAsArray = Boolean.parseBoolean(getProperty("co.elastic.logging.jul.EcsFormatter.stackTraceAsArray", "false"));
         eventDataset = getProperty("co.elastic.logging.jul.EcsFormatter.eventDataset", null);
         eventDataset = EcsJsonSerializer.computeEventDataset(eventDataset, serviceName);
         setAdditionalFields(getProperty("co.elastic.logging.jul.EcsFormatter.additionalFields", null));
-        mdcSupplier = MdcSupplier.Resolver.INSTANCE.resolve();
+        mdc = JulMdc.getInstance();
     }
 
     @Override
@@ -71,7 +71,7 @@ public class EcsFormatter extends Formatter {
         EcsJsonSerializer.serializeFormattedMessage(builder, super.formatMessage(record));
         EcsJsonSerializer.serializeEcsVersion(builder);
         EcsJsonSerializer.serializeAdditionalFields(builder, additionalFields);
-        EcsJsonSerializer.serializeMDC(builder, mdcSupplier.getMDC());
+        EcsJsonSerializer.serializeMDC(builder, mdc.getEntries());
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
         EcsJsonSerializer.serializeServiceVersion(builder, serviceVersion);
         EcsJsonSerializer.serializeServiceEnvironment(builder, serviceEnvironment);
@@ -117,7 +117,7 @@ public class EcsFormatter extends Formatter {
     public void setStackTraceAsArray(final boolean stackTraceAsArray) {
         this.stackTraceAsArray = stackTraceAsArray;
     }
-    
+
     public void setEventDataset(String eventDataset) {
         this.eventDataset = eventDataset;
     }
@@ -128,10 +128,6 @@ public class EcsFormatter extends Formatter {
 
     public void setAdditionalFields(List<AdditionalField> additionalFields) {
         this.additionalFields = additionalFields;
-    }
-
-    void setMdcSupplier(MdcSupplier supplier) {
-        mdcSupplier = supplier;
     }
 
     private String getProperty(final String name, final String defaultValue) {

@@ -29,11 +29,16 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Fallback MDC implementation to be used when JUL is deployed without one
+ * MDC implementation for JUL as it does not have one
  */
-public class FallbackMdc {
+public class JulMdc {
 
-    public static final FallbackMdc INSTANCE = new FallbackMdc();
+    private static final JulMdc INSTANCE = new JulMdc();
+
+    // this method is used by APM agent in order to know if this MDC fallback is used or not
+    public static JulMdc getInstance() {
+        return INSTANCE;
+    }
 
     private final InheritableThreadLocal<Map<String, String>> tlm = new InheritableThreadLocal<Map<String, String>>() {
         @Override
@@ -46,16 +51,23 @@ public class FallbackMdc {
         }
     };
 
-    FallbackMdc() {
+    JulMdc() {
     }
 
     public void put(String key, String value) {
         getOrCreateMap().put(key, value);
     }
 
+    public void remove(String key) {
+        Map<String, String> entries = tlm.get();
+        if (entries != null) {
+            entries.remove(key);
+        }
+    }
+
     public Map<String, String> getEntries() {
         Map<String, String> entries = tlm.get();
-        return entries == null ? Collections.<String,String>emptyMap(): entries;
+        return entries == null ? Collections.<String, String>emptyMap() : entries;
     }
 
     private Map<String, String> getOrCreateMap() {

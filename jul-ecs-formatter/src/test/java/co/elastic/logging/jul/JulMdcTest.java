@@ -24,6 +24,7 @@
  */
 package co.elastic.logging.jul;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -31,13 +32,19 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-public class FallbackMdcTest {
+public class JulMdcTest {
 
-    private FallbackMdc mdc;
+    private JulMdc mdc;
 
     @BeforeEach
     void before() {
-        mdc = new FallbackMdc();
+        mdc = new JulMdc();
+    }
+
+    @AfterEach
+    void after() {
+        mdc.getEntries().clear();
+        assertThat(mdc.getEntries()).isEmpty();
     }
 
     @Test
@@ -46,14 +53,17 @@ public class FallbackMdcTest {
         assertThat(entries).isEmpty();
 
         assertThat(mdc.getEntries()).isSameAs(entries);
+
+        // should be a no-op
+        mdc.remove("missing");
     }
 
     @Test
-    void putSingleEntry() {
+    void putRemoveSingleEntry() {
         mdc.put("hello", "world");
         assertThat(mdc.getEntries()).containsEntry("hello", "world");
 
-        mdc.getEntries().clear();
+        mdc.remove("hello");
         assertThat(mdc.getEntries()).isEmpty();
     }
 }
