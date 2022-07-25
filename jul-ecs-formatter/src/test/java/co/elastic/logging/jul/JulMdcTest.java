@@ -28,8 +28,6 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -61,38 +59,4 @@ public class JulMdcTest {
         assertThat(JulMdc.getEntries()).isEmpty();
     }
 
-    @Test
-    void threadInheritance_singleValue() throws InterruptedException {
-        JulMdc.put("main", "main-value");
-        assertThat(JulMdc.getEntries()).containsEntry("main", "main-value");
-
-        CountDownLatch childEnd = new CountDownLatch(1);
-        new Thread() {
-            @Override
-            public void run() {
-                assertThat(JulMdc.getEntries()).containsEntry("main", "main-value");
-                childEnd.countDown();
-            }
-        }.start();
-
-        childEnd.await(1, TimeUnit.SECONDS);
-    }
-
-    @Test
-    void threadInheritance_empty() throws InterruptedException {
-        JulMdc.put("main", "main-value");
-        JulMdc.remove("main");
-        assertThat(JulMdc.getEntries()).isEmpty();
-
-        CountDownLatch childEnd = new CountDownLatch(1);
-        new Thread() {
-            @Override
-            public void run() {
-                assertThat(JulMdc.getEntries()).isEmpty();
-                childEnd.countDown();
-            }
-        }.start();
-
-        childEnd.await(1, TimeUnit.SECONDS);
-    }
 }

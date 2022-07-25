@@ -38,20 +38,15 @@ public class JulMdc {
      */
     private static final int INITIAL_CAPACITY = 4;
 
-    private static final InheritableThreadLocal<Map<String, String>> tlm = new InheritableThreadLocal<Map<String, String>>() {
-        @Override
-        protected Map<String, String> childValue(Map<String, String> parentValue) {
-            if (parentValue == null || parentValue.isEmpty()) {
-                return Collections.emptyMap();
-            } else {
-                return new HashMap<String, String>(parentValue);
-            }
-        }
-    };
-
+    private static final ThreadLocal<Map<String, String>> tlm = new ThreadLocal<Map<String, String>>();
 
     public static void put(String key, String value) {
-        getOrCreateMap().put(key, value);
+        Map<String, String> map = tlm.get();
+        if (map == null) {
+            map = new HashMap<String, String>(INITIAL_CAPACITY);
+            tlm.set(map);
+        }
+        map.put(key, value);
     }
 
     public static void remove(String key) {
@@ -64,15 +59,6 @@ public class JulMdc {
     public static Map<String, String> getEntries() {
         Map<String, String> entries = tlm.get();
         return entries == null ? Collections.<String, String>emptyMap() : entries;
-    }
-
-    private static Map<String, String> getOrCreateMap() {
-        Map<String, String> map = tlm.get();
-        if (map == null || map.isEmpty()) {
-            map = new HashMap<String, String>(INITIAL_CAPACITY);
-            tlm.set(map);
-        }
-        return map;
     }
 
 }
