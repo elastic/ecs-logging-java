@@ -34,7 +34,7 @@ import java.util.Map;
 public class JulMdc {
 
     /**
-     * This MDC is currently used with 3 key/values: trace,transaction and error IDs, thus
+     * This MDC is currently used with 3 key/values: trace,transaction and error IDs.
      */
     private static final int INITIAL_CAPACITY = 4;
 
