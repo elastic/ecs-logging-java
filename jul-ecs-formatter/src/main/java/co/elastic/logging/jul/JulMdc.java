@@ -29,7 +29,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * MDC implementation for JUL as it does not have one
+ * MDC implementation for JUL as it does not have one.
+ * This MDC will be used by the APM agent for logs correlation.
  */
 public class JulMdc {
 
