@@ -25,6 +25,7 @@
 package co.elastic.logging.jul;
 
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -32,6 +33,12 @@ import java.util.Map;
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class JulMdcTest {
+
+    @BeforeEach
+    void before(){
+        // prevently empty if any other test have left something
+        JulMdc.getEntries().clear();
+    }
 
     @AfterEach
     void after() {
