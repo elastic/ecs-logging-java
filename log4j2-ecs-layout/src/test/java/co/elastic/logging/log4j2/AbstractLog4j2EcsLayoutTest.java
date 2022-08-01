@@ -120,7 +120,7 @@ abstract class AbstractLog4j2EcsLayoutTest extends AbstractEcsLoggingTest {
     }
 
     @Override
-    public boolean putNdc(String message) {
+    public boolean putMdc(String message) {
         ThreadContext.push(message);
         return true;
     }

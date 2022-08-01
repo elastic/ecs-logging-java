@@ -11,9 +11,9 @@
  * the Apache License, Version 2.0 (the "License"); you may
  * not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- * 
+ *
  *   http://www.apache.org/licenses/LICENSE-2.0
- * 
+ *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
@@ -30,7 +30,6 @@ import co.elastic.logging.ParameterizedLogSupport;
 import com.fasterxml.jackson.databind.JsonNode;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.MDC;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -71,9 +70,9 @@ public class JulLoggingTest extends AbstractEcsLoggingTest {
     }
 
     private EcsFormatter formatter;
-    
+
     private final Logger logger = Logger.getLogger("");
-    
+
     private final ByteArrayOutputStream out = new ByteArrayOutputStream();
 
     private LogRecord record;
@@ -85,7 +84,7 @@ public class JulLoggingTest extends AbstractEcsLoggingTest {
 
     @Override
     public boolean putMdc(String key, String value) {
-        MDC.put(key, value);
+        JulMdc.put(key, value);
         return true;
     }
 
@@ -103,7 +102,7 @@ public class JulLoggingTest extends AbstractEcsLoggingTest {
     public void error(String message, Throwable t) {
         logger.log(Level.SEVERE, message, t);
     }
-    
+
     @Override
     public JsonNode getLastLogLine() throws IOException {
         return objectMapper.readTree(out.toString());
@@ -153,7 +152,7 @@ public class JulLoggingTest extends AbstractEcsLoggingTest {
         formatter.setAdditionalFields(List.of(new AdditionalField("key1", "value1"), new AdditionalField("key2", "value2")));
         super.testAdditionalFields();
     }
-    
+
     private void clearHandlers() {
         for (Handler handler : logger.getHandlers()) {
             logger.removeHandler(handler);

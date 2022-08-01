@@ -71,7 +71,7 @@ class Log4jEcsLayoutIntegrationTest extends AbstractEcsLoggingTest {
     }
 
     @Override
-    public boolean putNdc(String message) {
+    public boolean putMdc(String message) {
         NDC.push(message);
         return true;
     }

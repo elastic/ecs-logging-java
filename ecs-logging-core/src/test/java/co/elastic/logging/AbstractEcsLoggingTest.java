@@ -171,7 +171,7 @@ public abstract class AbstractEcsLoggingTest {
 
     @Test
     void testThreadContextStack() throws Exception {
-        if (putNdc("foo")) {
+        if (putMdc("foo")) {
             debug("test");
             assertThat(getAndValidateLastLogLine().get("tags").iterator().next().textValue()).isEqualTo("foo");
         }
@@ -223,7 +223,7 @@ public abstract class AbstractEcsLoggingTest {
         return false;
     }
 
-    public boolean putNdc(String message) {
+    public boolean putMdc(String message) {
         return false;
     }
 
