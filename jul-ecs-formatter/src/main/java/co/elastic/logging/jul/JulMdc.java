@@ -57,7 +57,13 @@ public class JulMdc {
         }
     }
 
-    public static Map<String, String> getEntries() {
+    /**
+     * Get the MDC entries, the returned map should not escape the current thread as the map implementation is not
+     * thread-safe and thus concurrent modification is not supported.
+     *
+     * @return map of MDC entries
+     */
+    static Map<String, String> getEntries() {
         Map<String, String> entries = tlm.get();
         return entries == null ? Collections.<String, String>emptyMap() : entries;
     }
