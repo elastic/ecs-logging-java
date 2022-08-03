@@ -29,6 +29,7 @@ import co.elastic.logging.EcsJsonSerializer;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Formatter;
 import java.util.logging.LogManager;
 import java.util.logging.LogRecord;
@@ -69,7 +70,7 @@ public class EcsFormatter extends Formatter {
         EcsJsonSerializer.serializeFormattedMessage(builder, super.formatMessage(record));
         EcsJsonSerializer.serializeEcsVersion(builder);
         EcsJsonSerializer.serializeAdditionalFields(builder, additionalFields);
-        EcsJsonSerializer.serializeMDC(builder, JulMdc.getEntries());
+        EcsJsonSerializer.serializeMDC(builder, getMdcEntries());
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
         EcsJsonSerializer.serializeServiceVersion(builder, serviceVersion);
         EcsJsonSerializer.serializeServiceEnvironment(builder, serviceEnvironment);
@@ -90,6 +91,15 @@ public class EcsFormatter extends Formatter {
         }
         EcsJsonSerializer.serializeObjectEnd(builder);
         return builder.toString();
+    }
+
+    /**
+     * Allow sub-classes to override MDC resolution.
+     *
+     * @return MDC entries
+     */
+    protected Map<String, String> getMdcEntries() {
+        return JulMdc.getEntries();
     }
 
     public void setIncludeOrigin(final boolean includeOrigin) {
