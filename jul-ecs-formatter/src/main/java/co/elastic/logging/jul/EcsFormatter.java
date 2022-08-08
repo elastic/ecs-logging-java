@@ -94,12 +94,12 @@ public class EcsFormatter extends Formatter {
     }
 
     /**
-     * Allow sub-classes to override MDC resolution.
+     * Used by APM agent to provide MDC for JUL through instrumentation
      *
      * @return MDC entries
      */
-    protected Map<String, String> getMdcEntries() {
-        return JulMdc.getEntries();
+    private Map<String, String> getMdcEntries() {
+        return Collections.emptyMap();
     }
 
     public void setIncludeOrigin(final boolean includeOrigin) {
