@@ -24,12 +24,15 @@
  */
 package co.elastic.logging.jul;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.time.Instant;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.LogRecord;
 
@@ -40,7 +43,7 @@ public class EcsFormatterTest {
     private final EcsFormatter formatter = new EcsFormatter();
 
     private final LogRecord record = new LogRecord(Level.INFO, "Example Message");
-    private final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper = new ObjectMapper();
 
     @BeforeEach
     void setUp() {
@@ -57,13 +60,13 @@ public class EcsFormatterTest {
 
         final String result = formatter.format(record);
 
-        assertThat(objectMapper.readTree(result).at("/log/origin/file/name").textValue()).isEqualTo("ExampleClass.java");
-        assertThat(objectMapper.readTree(result).at("/log/origin/function").textValue()).isEqualTo("exampleMethod");
+        assertThat(parseJson(result).at("/log/origin/file/name").textValue()).isEqualTo("ExampleClass.java");
+        assertThat(parseJson(result).at("/log/origin/function").textValue()).isEqualTo("exampleMethod");
     }
 
     @Test
     public void testFormatWithoutIncludeOriginFlag() throws Exception {
-        final JsonNode result = objectMapper.readTree(formatter.format(record));
+        final JsonNode result = parseJson(formatter.format(record));
         assertThat(result.get("log.origin")).isNull();
     }
 
@@ -71,7 +74,7 @@ public class EcsFormatterTest {
     public void testFormatWithoutLoggerName() throws Exception {
         record.setLoggerName(null);
 
-        final JsonNode result = objectMapper.readTree(formatter.format(record));
+        final JsonNode result = parseJson(formatter.format(record));
 
         assertThat(result.get("log.logger")).isNull();
     }
@@ -80,7 +83,7 @@ public class EcsFormatterTest {
     public void testFormatWithEmptyLoggerName() throws Exception {
         record.setLoggerName("");
 
-        final JsonNode result = objectMapper.readTree(formatter.format(record));
+        final JsonNode result = parseJson(formatter.format(record));
 
         assertThat(result.get("log.logger").textValue()).isEmpty();
     }
@@ -90,7 +93,7 @@ public class EcsFormatterTest {
         formatter.setIncludeOrigin(true);
         record.setSourceClassName("test.ExampleClass$InnerClass");
 
-        JsonNode result = objectMapper.readTree(formatter.format(record));
+        JsonNode result = parseJson(formatter.format(record));
         assertThat(result.at("/log/origin/file/name").textValue()).isEqualTo("ExampleClass.java");
         assertThat(result.at("/log/origin/function").textValue()).isEqualTo("exampleMethod");
     }
@@ -100,9 +103,39 @@ public class EcsFormatterTest {
         formatter.setIncludeOrigin(true);
         record.setSourceClassName("$test.ExampleClass");
 
-        JsonNode result = objectMapper.readTree(formatter.format(record));
+        JsonNode result = parseJson(formatter.format(record));
         assertThat(result.at("/log/origin/file/name").textValue()).isEqualTo("<Unknown>");
         assertThat(result.at("/log/origin/function").textValue()).isEqualTo("exampleMethod");
+    }
+
+    @Test
+    void testMdcSerialization_singleEntry() {
+        Map<String,String> mdc = new HashMap<>();
+        TestMdcEcsFormatter mdcFormatter = new TestMdcEcsFormatter(mdc);
+        mdc.put("mdc.key", "value");
+        JsonNode result = parseJson(mdcFormatter.format(record));
+        assertThat(result.get("mdc.key").textValue()).isEqualTo("value");
+    }
+
+    private static JsonNode parseJson(String formatter) {
+        try {
+            return objectMapper.readTree(formatter);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private static class TestMdcEcsFormatter extends EcsFormatter {
+        private final Map<String, String> mdc;
+
+        public TestMdcEcsFormatter(Map<String, String> mdc) {
+            this.mdc = mdc;
+        }
+
+        @Override
+        protected Map<String, String> getMdcEntries() {
+            return mdc;
+        }
     }
 
 }

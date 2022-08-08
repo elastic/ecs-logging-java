@@ -94,11 +94,12 @@ public class EcsFormatter extends Formatter {
     }
 
     /**
-     * Used by APM agent to provide MDC for JUL through instrumentation
+     * Used by APM agent to provide MDC for JUL through instrumentation and to allow testing without an actual MDC
+     * implementation.
      *
      * @return MDC entries
      */
-    private Map<String, String> getMdcEntries() {
+    protected Map<String, String> getMdcEntries() {
         return Collections.emptyMap();
     }
 
