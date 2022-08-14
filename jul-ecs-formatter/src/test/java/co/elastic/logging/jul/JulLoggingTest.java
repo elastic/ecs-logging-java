@@ -83,12 +83,6 @@ public class JulLoggingTest extends AbstractEcsLoggingTest {
     }
 
     @Override
-    public boolean putMdc(String key, String value) {
-        JulMdc.put(key, value);
-        return true;
-    }
-
-    @Override
     public ParameterizedLogSupport getParameterizedLogSettings() {
         return ParameterizedLogSupport.NUMBER_AND_BRACKETS;
     }
