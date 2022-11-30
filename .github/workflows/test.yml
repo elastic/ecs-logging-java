@@ -43,11 +43,12 @@ jobs:
         cache: 'maven'
     - run: ./mvnw ${{ matrix.goal }}
     - name: Store test results
-      if: success() || failure()
+      if: contains(${{ matrix.goal }}, 'test') && success() || failure()
       uses: actions/upload-artifact@v3
       with:
         name: test-results
-        path: target/**/surefire-reports
+        path: '**/target/surefire-reports'
     - uses: actions/upload-artifact@v3
+      if: contains(${{ matrix.goal }}, 'license')
       with:
         path: target/site/aggregate-third-party-report.html
