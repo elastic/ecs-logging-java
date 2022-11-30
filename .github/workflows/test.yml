@@ -24,9 +24,17 @@ jobs:
     steps:
     - uses: elastic/apm-pipeline-library/.github/actions/pre-commit@current
 
-  build:
+  goals:
     runs-on: ubuntu-latest
     timeout-minutes: 5
+    strategy:
+      matrix:
+        goal:
+        - 'clean install -DskipTests=true -Dmaven.javadoc.skip=true'
+        - 'license:aggregate-third-party-report -Dlicense.excludedGroups=^co\\.elastic\\.'
+        - 'test'
+        - 'compile javadoc:javadoc'
+      fail-fast: false
     steps:
     - uses: actions/checkout@v3
     - name: Set up JDK ${{ env.JAVA_VERSION }}
@@ -36,43 +44,13 @@ jobs:
         distribution: ${{ env.JAVA_DIST }}
         cache: 'maven'
     - name: Build
-      run: ./mvnw clean install -DskipTests=true -Dmaven.javadoc.skip=true
-    - name: License
-      run: ./mvnw license:aggregate-third-party-report -Dlicense.excludedGroups=^co\\.elastic\\.
-    - uses: actions/upload-artifact@v3
-      with:
-        path: target/site/aggregate-third-party-report.html
-
-  test:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up JDK ${{ env.JAVA_VERSION }}
-      uses: actions/setup-java@v3
-      with:
-        java-version: ${{ env.JAVA_VERSION }}
-        distribution: ${{ env.JAVA_DIST }}
-        cache: 'maven'
-    - name: Test
-      run: ./mvnw test
+      run: ./mvnw ${{ matrix.goal }}
     - name: Store test results
       if: success() || failure()
       uses: actions/upload-artifact@v3
       with:
         name: test-results
         path: target/*.xml
-
-  javadoc:
-    runs-on: ubuntu-latest
-    timeout-minutes: 5
-    steps:
-    - uses: actions/checkout@v3
-    - name: Set up JDK ${{ env.JAVA_VERSION }}
-      uses: actions/setup-java@v3
+    - uses: actions/upload-artifact@v3
       with:
-        java-version: ${{ env.JAVA_VERSION }}
-        distribution: ${{ env.JAVA_DIST }}
-        cache: 'maven'
-    - name: Javadoc
-      run: ./mvnw compile javadoc:javadoc
+        path: target/site/aggregate-third-party-report.html
