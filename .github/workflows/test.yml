@@ -47,7 +47,7 @@ jobs:
       uses: actions/upload-artifact@v3
       with:
         name: test-results
-        path: target/*.xml
+        path: target/**/surefire-reports
     - uses: actions/upload-artifact@v3
       with:
         path: target/site/aggregate-third-party-report.html
