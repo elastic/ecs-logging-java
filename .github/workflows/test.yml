@@ -31,7 +31,7 @@ jobs:
       matrix:
         goal:
         - 'clean install -DskipTests=true -Dmaven.javadoc.skip=true'
-        - 'license:aggregate-third-party-report -Dlicense.excludedGroups=^co\\.elastic\\.'
+        - 'compile license:aggregate-third-party-report -Dlicense.excludedGroups=^co\\.elastic\\.'
         - 'test'
         - 'compile javadoc:javadoc'
       fail-fast: false
