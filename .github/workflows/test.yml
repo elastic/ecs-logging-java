@@ -1,0 +1,78 @@
+name: test
+
+on:
+  push:
+    branches: [ "main" ]
+    paths-ignore: [ '*.md', '*.asciidoc' ]
+  pull_request:
+    branches: [ "main" ]
+    paths-ignore: [ '*.md', '*.asciidoc' ]
+
+permissions:
+  contents: read
+
+env:
+  MAVEN_CONFIG: "-V -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dhttps.protocols=TLSv1.2 -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.httpconnectionManager.ttlSeconds=25"
+  JAVA_VERSION: 11
+  JAVA_DIST: adopt
+
+jobs:
+
+  pre-commit:
+    name: Run pre-commit
+    runs-on: ubuntu-latest
+    steps:
+    - uses: elastic/apm-pipeline-library/.github/actions/pre-commit@current
+
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v3
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: ${{ env.JAVA_DIST }}
+        cache: 'maven'
+    - name: Build
+      run: ./mvnw clean install -DskipTests=true -Dmaven.javadoc.skip=true
+    - name: License
+      run: ./mvnw license:aggregate-third-party-report -Dlicense.excludedGroups=^co\\.elastic\\.
+    - uses: actions/upload-artifact@v3
+      with:
+        path: target/site/aggregate-third-party-report.html
+
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v3
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: ${{ env.JAVA_DIST }}
+        cache: 'maven'
+    - name: Test
+      run: ./mvnw test
+    - name: Store test results
+      if: success() || failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: target/*.xml
+
+  javadoc:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+    - uses: actions/checkout@v3
+    - name: Set up JDK ${{ env.JAVA_VERSION }}
+      uses: actions/setup-java@v3
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: ${{ env.JAVA_DIST }}
+        cache: 'maven'
+    - name: Javadoc
+      run: ./mvnw compile javadoc:javadoc
