@@ -1,0 +1,55 @@
+name: test
+
+on:
+  push:
+    branches: [ "main" ]
+    paths-ignore: [ '*.md', '*.asciidoc' ]
+  pull_request:
+    branches: [ "main" ]
+    paths-ignore: [ '*.md', '*.asciidoc' ]
+
+permissions:
+  contents: read
+
+env:
+  MAVEN_CONFIG: "-V -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dhttps.protocols=TLSv1.2 -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.httpconnectionManager.ttlSeconds=25"
+  JAVA_VERSION: 11
+  JAVA_DIST: adopt
+
+jobs:
+
+  pre-commit:
+    name: Run pre-commit
+    runs-on: ubuntu-latest
+    steps:
+    - uses: elastic/apm-pipeline-library/.github/actions/pre-commit@current
+
+  goals:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    strategy:
+      matrix:
+        goal:
+        - 'clean install -DskipTests=true -Dmaven.javadoc.skip=true license:aggregate-third-party-report -Dlicense.excludedGroups=^co.elastic.'
+        - 'test'
+        - 'compile javadoc:javadoc'
+      fail-fast: false
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-java@v3
+      with:
+        java-version: ${{ env.JAVA_VERSION }}
+        distribution: ${{ env.JAVA_DIST }}
+        cache: 'maven'
+    - run: ./mvnw ${{ matrix.goal }}
+    - name: Store test results
+      if: ${{ matrix.goal == 'test' }} && (success() || failure())
+      uses: actions/upload-artifact@v3
+      with:
+        name: test-results
+        path: '**/target/surefire-reports'
+    - uses: actions/upload-artifact@v3
+      if: contains(${{ matrix.goal }}, 'license')
+      with:
+        name: license-report
+        path: target/site/aggregate-third-party-report.html
