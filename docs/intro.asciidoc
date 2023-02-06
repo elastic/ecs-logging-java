@@ -13,4 +13,4 @@ See the {ecs-logging-ref}/intro.html[ECS logging guide].
 
 Want to learn more about the Elastic APM Java agent logging features?
 See {apm-java-ref}/logs.html[Logs].
------
+----
