@@ -9,11 +9,11 @@ set -e
 
 echo "--- Prepare vault context"
 set +x
-VAULT_ROLE_ID_SECRET=$(vault read -field=role-id secret/ci/elastic-apm-agent-android/internal-ci-approle)
+VAULT_ROLE_ID_SECRET=$(vault read -field=role-id secret/ci/elastic-ecs-logging-java/internal-ci-approle)
 export VAULT_ROLE_ID_SECRET
-VAULT_SECRET_ID_SECRET=$(vault read -field=secret-id secret/ci/elastic-apm-agent-android/internal-ci-approle)
+VAULT_SECRET_ID_SECRET=$(vault read -field=secret-id secret/ci/elastic-ecs-logging-java/internal-ci-approle)
 export VAULT_SECRET_ID_SECRET
-VAULT_ADDR=$(vault read -field=vault-url secret/ci/elastic-apm-agent-android/internal-ci-approle)
+VAULT_ADDR=$(vault read -field=vault-url secret/ci/elastic-ecs-logging-java/internal-ci-approle)
 export VAULT_ADDR
 
 # Delete the vault specific accessing the ci vault

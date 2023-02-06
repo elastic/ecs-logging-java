@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-## This script runs the release given the different environment variables
+##  This script runs the release given the different environment variables
 ##  branch_specifier
 ##  dry_run
 ##
@@ -11,11 +11,11 @@ set -e
 
 echo "--- Prepare vault context"
 set +x
-VAULT_ROLE_ID_SECRET=$(vault read -field=role-id secret/ci/elastic-apm-agent-android/internal-ci-approle)
+VAULT_ROLE_ID_SECRET=$(vault read -field=role-id secret/ci/elastic-ecs-logging-java/internal-ci-approle)
 export VAULT_ROLE_ID_SECRET
-VAULT_SECRET_ID_SECRET=$(vault read -field=secret-id secret/ci/elastic-apm-agent-android/internal-ci-approle)
+VAULT_SECRET_ID_SECRET=$(vault read -field=secret-id secret/ci/elastic-ecs-logging-java/internal-ci-approle)
 export VAULT_SECRET_ID_SECRET
-VAULT_ADDR=$(vault read -field=vault-url secret/ci/elastic-apm-agent-android/internal-ci-approle)
+VAULT_ADDR=$(vault read -field=vault-url secret/ci/elastic-ecs-logging-java/internal-ci-approle)
 export VAULT_ADDR
 
 # Delete the vault specific accessing the ci vault
@@ -46,18 +46,6 @@ echo "--- Prepare keys context"
 set +x
 VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$VAULT_ROLE_ID_SECRET" secret_id="$VAULT_SECRET_ID_SECRET")
 export VAULT_TOKEN
-# Nexus credentials (they cannot use the _SECRET pattern since they are in-memory based)
-# See https://docs.gradle.org/current/userguide/signing_plugin.html#sec:in-memory-keys
-ORG_GRADLE_PROJECT_sonatypeUsername=$(vault read -field=username secret/release/nexus)
-export ORG_GRADLE_PROJECT_sonatypeUsername
-ORG_GRADLE_PROJECT_sonatypePassword=$(vault read -field=password secret/release/nexus)
-export ORG_GRADLE_PROJECT_sonatypePassword
-
-# Gradle Plugin portal credentials
-PLUGIN_PORTAL_KEY=$(vault read secret/release/gradle-plugin-portal -format=json  | jq -r .data.key)
-export PLUGIN_PORTAL_KEY
-PLUGIN_PORTAL_SECRET=$(vault read secret/release/gradle-plugin-portal -format=json  | jq -r .data.secret)
-export PLUGIN_PORTAL_SECRET
 
 # Signing keys
 vault read -field=key secret/release/signing >$KEY_FILE
