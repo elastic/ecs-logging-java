@@ -1,0 +1,15 @@
+agents:
+  provider: "gcp"
+
+steps:
+  - label: "Run the snapshot"
+    key: "release"
+    commands: .ci/snapshot.sh | tee snapshot.out
+    artifact_paths:
+      - "snapshot.out"
+      - "**/target/*"
+
+notify:
+  - slack:
+      channels:
+        - "#apm-agent-java"
