@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
-##  This script prepares the Vault context for the release and snapshot pipelines.
+##  This script prepares the Vault context and required tooling
+##  for the release and snapshot pipelines.
 ##
-##  NOTE: *_SECRET env variables are masked, hence if you'd like to avoid any
-##        surprises please use the suffix _SECRET for those values that contain
+##  NOTE: *_SECRET or *_TOKEN env variables are masked, hence if you'd like to avoid any
+##        surprises please use the suffix _SECRET or _TOKEN for those values that contain
 ##        any sensitive data. Buildkite can mask those values automatically
 
 set -eo pipefail
