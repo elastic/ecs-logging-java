@@ -1,9 +1,10 @@
 #!/usr/bin/env bash
-##  This script runs the snapshot
+##  This script runs the snapshot given the different environment variables
+##    dry_run
 ##
-##  NOTE: *_SECRET env variables are masked, hence if you'd like to avoid any
-##        surprises please use the suffix _SECRET for those values that contain
-##        any sensitive data. Buildkite can mask those values automatically
+##  It relies on the .buildkite/hooks/pre-command so the Vault and other tooling
+##  are prepared automatically by buildkite.
+##
 
 set -e
 
@@ -19,4 +20,8 @@ trap clean_up EXIT
 
 set +x
 echo "--- Deploy the snapshot"
-./mvnw -s .ci/settings.xml -Pgpg clean deploy --batch-mode
+if [[ "$dry_run" == "true" ]] ; then
+  echo './mvnw -s .ci/settings.xml -Pgpg clean deploy --batch-mode'
+else
+  ./mvnw -s .ci/settings.xml -Pgpg clean deploy --batch-mode
+fi

@@ -5,6 +5,12 @@ on:
   push:
     branches:
       - "main"
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: If set, run a dry-run snapshot
+        default: false
+        type: boolean
 
 jobs:
   deploy:
@@ -22,6 +28,8 @@ jobs:
           pipeline: ecs-logging-java-snapshot
           waitFor: false
           printBuildLogs: false
+          buildEnvVars: |
+            dry_run=${{ inputs.dry_run || 'false' }}
 
       - if: ${{ failure() }}
         uses: elastic/apm-pipeline-library/.github/actions/slack-message@current

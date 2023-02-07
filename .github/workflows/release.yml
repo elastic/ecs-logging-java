@@ -14,7 +14,7 @@ on:
         type: string
 
       dry_run:
-        description: If set, this will not run a release but run a dry-run
+        description: If set, run a dry-run release
         default: false
         type: boolean
 
