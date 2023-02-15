@@ -19,7 +19,7 @@ clean_up () {
 trap clean_up EXIT
 
 set +x
-echo "--- Deploy the snapshot"
+echo "--- Deploy the snapshot :package:"
 if [[ "$dry_run" == "true" ]] ; then
   echo './mvnw -s .ci/settings.xml -Pgpg clean deploy --batch-mode'
 else

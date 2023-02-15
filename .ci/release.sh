@@ -22,7 +22,7 @@ trap clean_up EXIT
 git checkout -f "${branch_specifier}"
 
 set +x
-echo "--- Release the binaries to Maven Central"
+echo "--- Release the binaries to Maven Central :maven:"
 if [[ "$dry_run" == "true" ]] ; then
   echo './mvnw release:prepare release:perform --settings .ci/settings.xml --batch-mode'
 else
