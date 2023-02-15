@@ -10,7 +10,5 @@ steps:
       - "**/target/*"
 
 notify:
-  - slack:
-    if: build.state == "failed"
-      channels:
-        - "#apm-agent-java"
+  - slack: "#apm-agent-java"
+    if: 'build.state != "passed"'
