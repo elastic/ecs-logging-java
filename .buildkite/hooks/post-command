@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+##  This script reverts the Vault context for the release and snapshot pipelines.
+##
+##  NOTE: *_SECRET or *_TOKEN env variables are masked, hence if you'd like to avoid any
+##        surprises please use the suffix _SECRET or _TOKEN for those values that contain
+##        any sensitive data. Buildkite can mask those values automatically
+
+set -euo pipefail
+
+VAULT_TOKEN=$PREVIOUS_VAULT_TOKEN
+export VAULT_TOKEN
