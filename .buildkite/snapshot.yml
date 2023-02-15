@@ -4,9 +4,9 @@ agents:
 steps:
   - label: "Run the snapshot"
     key: "release"
-    commands: .ci/snapshot.sh | tee snapshot.out
+    commands: .ci/snapshot.sh
     artifact_paths:
-      - "snapshot.out"
+      - "snapshot.txt"
       - "**/target/*"
 
 notify:

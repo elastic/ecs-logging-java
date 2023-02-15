@@ -4,8 +4,8 @@ agents:
 steps:
   - label: "Run the release"
     key: "release"
-    commands: .ci/release.sh | tee release.out
-    artifact_paths: "release.out"
+    commands: .ci/release.sh
+    artifact_paths: "release.txt"
 
 notify:
   - slack:
