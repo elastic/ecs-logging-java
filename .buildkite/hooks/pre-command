@@ -52,6 +52,12 @@ export KEY_ID_SECRET=D88E42B4
 # Import the key into the keyring
 echo "$KEYPASS_SECRET" | gpg --batch --import "$KEY_FILE"
 
+echo "--- Configure git context :git:"
+# Configure the committer since the maven release requires to push changes to GitHub
+# This will help with the SLSA requirements.
+git config --global user.email "infra-root+apmmachine@elastic.co"
+git config --global user.name "apmmachine"
+
 echo "--- Install JDK17"
 JAVA_URL=https://jvm-catalog.elastic.co/jdk
 JAVA_HOME=$(pwd)/.openjdk17
