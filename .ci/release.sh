@@ -3,10 +3,10 @@
 ##    branch_specifier
 ##    dry_run
 ##
-##  It relies on the .buildkite/hooks/pre-command so the Vault is prepared
-##  automatically by buildkite.
-
-set -e
+##  It relies on the .buildkite/hooks/pre-command so the Vault and other tooling
+##  are prepared automatically by buildkite.
+##
+set -eo pipefail
 
 # Make sure we delete this folder before leaving even in case of failure
 clean_up () {
@@ -27,5 +27,5 @@ if [[ "$dry_run" == "true" ]] ; then
   echo './mvnw release:prepare release:perform --settings .ci/settings.xml --batch-mode'
 else
   # providing settings in arguments to make sure they are propagated to the forked maven release process
-  ./mvnw release:prepare release:perform --settings .ci/settings.xml -Darguments="--settings .ci/settings.xml" --batch-mode
+  ./mvnw release:prepare release:perform --settings .ci/settings.xml -Darguments="--settings .ci/settings.xml" --batch-mode | tee release.txt
 fi

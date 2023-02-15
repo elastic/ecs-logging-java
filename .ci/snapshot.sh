@@ -6,7 +6,7 @@
 ##  are prepared automatically by buildkite.
 ##
 
-set -e
+set -eo pipefail
 
 # Make sure we delete this folder before leaving even in case of failure
 clean_up () {
@@ -23,5 +23,5 @@ echo "--- Deploy the snapshot"
 if [[ "$dry_run" == "true" ]] ; then
   echo './mvnw -s .ci/settings.xml -Pgpg clean deploy --batch-mode'
 else
-  ./mvnw -s .ci/settings.xml -Pgpg clean deploy --batch-mode
+  ./mvnw -s .ci/settings.xml -Pgpg clean deploy --batch-mode | tee snapshot.txt
 fi
