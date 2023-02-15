@@ -49,6 +49,12 @@ echo "$KEYPASS_SECRET" | gpg --batch --import "$KEY_FILE"
 export SECRING_FILE=$GNUPGHOME"/secring.gpg"
 gpg --pinentry-mode=loopback --passphrase "$KEYPASS_SECRET" --export-secret-key $KEY_ID_SECRET > "$SECRING_FILE"
 
+# Nexus credentials
+SERVER_USERNAME=$(vault read -field username secret/release/nexus)
+export SERVER_USERNAME
+SERVER_PASSWORD=$(vault read -field password secret/release/nexus)
+export SERVER_PASSWORD
+
 echo "--- Configure git context"
 # Configure the committer since the maven release requires to push changes to GitHub
 # This will help with the SLSA requirements.
