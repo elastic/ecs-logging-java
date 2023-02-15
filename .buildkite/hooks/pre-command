@@ -8,7 +8,7 @@
 
 set -eo pipefail
 
-echo "--- Prepare vault context"
+echo "--- Prepare vault context :vault:"
 VAULT_ROLE_ID_SECRET=$(vault read -field=role-id secret/ci/elastic-ecs-logging-java/internal-ci-approle)
 export VAULT_ROLE_ID_SECRET
 
@@ -23,10 +23,7 @@ PREVIOUS_VAULT_TOKEN=$VAULT_TOKEN
 export PREVIOUS_VAULT_TOKEN
 unset VAULT_TOKEN
 
-echo "--- Prepare keys context"
-VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$VAULT_ROLE_ID_SECRET" secret_id="$VAULT_SECRET_ID_SECRET")
-export VAULT_TOKEN
-
+echo "--- Prepare a secure temp :closed_lock_with_key:"
 # Prepare a secure temp folder not shared between other jobs to store the key ring
 export TMP_WORKSPACE=/tmp/secured
 export KEY_FILE=$TMP_WORKSPACE"/private.key"
@@ -36,6 +33,16 @@ export GNUPGHOME=$TMP_WORKSPACE"/keyring"
 mkdir -p $GNUPGHOME
 chmod -R 700 $TMP_WORKSPACE
 
+echo "--- Prepare keys context :key:"
+VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$VAULT_ROLE_ID_SECRET" secret_id="$VAULT_SECRET_ID_SECRET")
+export VAULT_TOKEN
+
+# Nexus credentials
+SERVER_USERNAME=$(vault read -field username secret/release/nexus)
+export SERVER_USERNAME
+SERVER_PASSWORD=$(vault read -field password secret/release/nexus)
+export SERVER_PASSWORD
+
 # Signing keys
 vault read -field=key secret/release/signing >$KEY_FILE
 KEYPASS_SECRET=$(vault read -field=passphrase secret/release/signing)
@@ -44,22 +51,6 @@ export KEY_ID_SECRET=D88E42B4
 
 # Import the key into the keyring
 echo "$KEYPASS_SECRET" | gpg --batch --import "$KEY_FILE"
-
-# Export secring
-export SECRING_FILE=$GNUPGHOME"/secring.gpg"
-gpg --pinentry-mode=loopback --passphrase "$KEYPASS_SECRET" --export-secret-key $KEY_ID_SECRET > "$SECRING_FILE"
-
-# Nexus credentials
-SERVER_USERNAME=$(vault read -field username secret/release/nexus)
-export SERVER_USERNAME
-SERVER_PASSWORD=$(vault read -field password secret/release/nexus)
-export SERVER_PASSWORD
-
-echo "--- Configure git context"
-# Configure the committer since the maven release requires to push changes to GitHub
-# This will help with the SLSA requirements.
-git config --global user.email "infra-root+apmmachine@elastic.co"
-git config --global user.name "apmmachine"
 
 echo "--- Install JDK17"
 JAVA_URL=https://jvm-catalog.elastic.co/jdk
@@ -71,4 +62,3 @@ tar --extract --file /tmp/jdk.tar.gz --directory "$JAVA_HOME" --strip-components
 
 export JAVA_HOME
 export PATH=$JAVA_HOME/bin:$PATH
-
