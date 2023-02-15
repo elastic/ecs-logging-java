@@ -31,16 +31,16 @@ export VAULT_TOKEN
 export TMP_WORKSPACE=/tmp/secured
 export KEY_FILE=$TMP_WORKSPACE"/private.key"
 
+# Secure home for our keyring
+export GNUPGHOME=$TMP_WORKSPACE"/keyring"
+mkdir -p $GNUPGHOME
+chmod -R 700 $TMP_WORKSPACE
+
 # Signing keys
 vault read -field=key secret/release/signing >$KEY_FILE
 KEYPASS_SECRET=$(vault read -field=passphrase secret/release/signing)
 export KEYPASS_SECRET
 export KEY_ID_SECRET=D88E42B4
-
-# Secure home for our keyring
-export GNUPGHOME=$TMP_WORKSPACE"/keyring"
-mkdir -p $GNUPGHOME
-chmod -R 700 $TMP_WORKSPACE
 
 # Import the key into the keyring
 echo "$KEYPASS_SECRET" | gpg --batch --import "$KEY_FILE"
