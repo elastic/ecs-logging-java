@@ -27,15 +27,16 @@ echo "--- Prepare keys context"
 VAULT_TOKEN=$(vault write -field=token auth/approle/login role_id="$VAULT_ROLE_ID_SECRET" secret_id="$VAULT_SECRET_ID_SECRET")
 export VAULT_TOKEN
 
+# Prepare a secure temp folder not shared between other jobs to store the key ring
+export TMP_WORKSPACE=/tmp/secured
+export KEY_FILE=$TMP_WORKSPACE"/private.key"
+
 # Signing keys
 vault read -field=key secret/release/signing >$KEY_FILE
 KEYPASS_SECRET=$(vault read -field=passphrase secret/release/signing)
 export KEYPASS_SECRET
 export KEY_ID_SECRET=D88E42B4
 
-# Prepare a secure temp folder not shared between other jobs to store the key ring
-export TMP_WORKSPACE=/tmp/secured
-export KEY_FILE=$TMP_WORKSPACE"/private.key"
 # Secure home for our keyring
 export GNUPGHOME=$TMP_WORKSPACE"/keyring"
 mkdir -p $GNUPGHOME
