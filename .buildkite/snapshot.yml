@@ -11,5 +11,6 @@ steps:
 
 notify:
   - slack:
+    if: build.state == "failed"
       channels:
         - "#apm-agent-java"
