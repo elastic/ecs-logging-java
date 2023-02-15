@@ -1,0 +1,13 @@
+agents:
+  provider: "gcp"
+
+steps:
+  - label: "Run the release"
+    key: "release"
+    commands: .ci/release.sh | tee release.out
+    artifact_paths: "release.out"
+
+notify:
+  - slack:
+      channels:
+        - "#apm-agent-java"

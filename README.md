@@ -1,4 +1,4 @@
-[![Build Status](https://apm-ci.elastic.co/buildStatus/icon?job=apm-agent-java%2Fecs-logging-java-mbp%2Fmain)](https://apm-ci.elastic.co/job/apm-agent-java/job/ecs-logging-java-mbp/job/main/)
+[![Build Status](https://github.com/elastic/ecs-logging-java/actions/workflows/test.yml/badge.svg)](https://github.com/elastic/ecs-logging-java/actions/workflows/test.yml)
 [![Maven Central](https://img.shields.io/maven-central/v/co.elastic.logging/ecs-logging-java-parent.svg)](https://search.maven.org/search?q=g:co.elastic.logging)
 
 # ECS-based logging for Java applications
