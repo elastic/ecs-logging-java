@@ -67,7 +67,8 @@ mkdir -p "$JAVA_HOME"
 tar --extract --file /tmp/jdk.tar.gz --directory "$JAVA_HOME" --strip-components 1
 
 export JAVA_HOME
-export PATH=$JAVA_HOME/bin:$PATH
+PATH=$JAVA_HOME/bin:$PATH
+export PATH
 
 echo "--- Debug JDK installation :coffee:"
 tree "$JAVA_HOME" || true
