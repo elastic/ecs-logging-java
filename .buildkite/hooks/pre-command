@@ -58,7 +58,7 @@ echo "--- Configure git context :git:"
 git config --global user.email "infra-root+apmmachine@elastic.co"
 git config --global user.name "apmmachine"
 
-echo "--- Install JDK17"
+echo "--- Install JDK17 :java:"
 JAVA_URL=https://jvm-catalog.elastic.co/jdk
 JAVA_HOME=$(pwd)/.openjdk17
 JAVA_PKG="$JAVA_URL/latest_openjdk_17_linux.tar.gz"
@@ -69,4 +69,6 @@ tar --extract --file /tmp/jdk.tar.gz --directory "$JAVA_HOME" --strip-components
 export JAVA_HOME
 export PATH=$JAVA_HOME/bin:$PATH
 
-java -version
+echo "--- Debug JDK installation :coffee:"
+tree "$JAVA_HOME" || true
+java -version || true
