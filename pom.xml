@@ -52,7 +52,7 @@
 
     <properties>
         <version.junit-jupiter>5.5.1</version.junit-jupiter>
-        <maven.compiler.target>6</maven.compiler.target>
+        <maven.compiler.target>7</maven.compiler.target>
         <maven.compiler.testTarget>10</maven.compiler.testTarget>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
