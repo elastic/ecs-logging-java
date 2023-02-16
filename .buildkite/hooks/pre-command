@@ -70,6 +70,4 @@ export JAVA_HOME
 PATH=$JAVA_HOME/bin:$PATH
 export PATH
 
-echo "--- Debug JDK installation :coffee:"
-tree "$JAVA_HOME" || true
 java -version || true
