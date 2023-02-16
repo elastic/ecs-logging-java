@@ -21,6 +21,11 @@ trap clean_up EXIT
 # Avoid detached HEAD since the release plugin requires to be on a branch
 git checkout -f "${branch_specifier}"
 
+echo "--- Debug JDK installation :coffee:"
+echo $JAVA_HOME
+echo $PATH
+java -version
+
 set +x
 echo "--- Release the binaries to Maven Central :maven:"
 if [[ "$dry_run" == "true" ]] ; then

@@ -18,6 +18,11 @@ clean_up () {
 }
 trap clean_up EXIT
 
+echo "--- Debug JDK installation :coffee:"
+echo $JAVA_HOME
+echo $PATH
+java -version
+
 set +x
 echo "--- Deploy the snapshot :package:"
 if [[ "$dry_run" == "true" ]] ; then
