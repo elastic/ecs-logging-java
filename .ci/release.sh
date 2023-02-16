@@ -24,7 +24,7 @@ git checkout -f "${branch_specifier}"
 set +x
 echo "--- Release the binaries to Maven Central :maven:"
 if [[ "$dry_run" == "true" ]] ; then
-  echo './mvnw release:prepare release:perform --settings .ci/settings.xml --batch-mode'
+  echo './mvnw -V release:prepare release:perform --settings .ci/settings.xml --batch-mode'
 else
   # providing settings in arguments to make sure they are propagated to the forked maven release process
   ./mvnw -V release:prepare release:perform --settings .ci/settings.xml -Darguments="--settings .ci/settings.xml" --batch-mode | tee release.txt
