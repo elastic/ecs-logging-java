@@ -22,7 +22,8 @@
                 <activeByDefault>true</activeByDefault>
             </activation>
             <properties>
-                <gpg.passphrase>${env.KEYPASS}</gpg.passphrase>
+                <!-- this env variable is defined in .buildkite/hooks/pre-command -->
+                <gpg.passphrase>${env.KEYPASS_SECRET}</gpg.passphrase>
             </properties>
         </profile>
     </profiles>
