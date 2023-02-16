@@ -27,5 +27,5 @@ if [[ "$dry_run" == "true" ]] ; then
   echo './mvnw release:prepare release:perform --settings .ci/settings.xml --batch-mode'
 else
   # providing settings in arguments to make sure they are propagated to the forked maven release process
-  ./mvnw release:prepare release:perform --settings .ci/settings.xml -Darguments="--settings .ci/settings.xml" --batch-mode | tee release.txt
+  ./mvnw -V release:prepare release:perform --settings .ci/settings.xml -Darguments="--settings .ci/settings.xml" --batch-mode | tee release.txt
 fi

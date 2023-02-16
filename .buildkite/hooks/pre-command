@@ -68,3 +68,5 @@ tar --extract --file /tmp/jdk.tar.gz --directory "$JAVA_HOME" --strip-components
 
 export JAVA_HOME
 export PATH=$JAVA_HOME/bin:$PATH
+
+java -version
