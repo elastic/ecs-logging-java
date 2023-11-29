@@ -55,7 +55,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
     private boolean includeOrigin;
     private final List<AdditionalField> additionalFields = new ArrayList<AdditionalField>();
     private OutputStream os;
-    protected Layout<ILoggingEvent> layout;
+    protected Layout<ILoggingEvent> messageLayout;
 
     @Override
     public byte[] headerBytes() {
@@ -139,10 +139,10 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
     }
 
     private void serializeMessage(ILoggingEvent event, StringBuilder builder) {
-        if(layout == null) {
+        if (messageLayout == null) {
             EcsJsonSerializer.serializeFormattedMessage(builder, event.getFormattedMessage());
         } else {
-            EcsJsonSerializer.serializeFormattedMessage(builder, this.layout.doLayout(event));
+            EcsJsonSerializer.serializeFormattedMessage(builder, this.messageLayout.doLayout(event));
         }
     }
 
@@ -151,7 +151,8 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
      * The last character in the StringBuilder will be comma when this is called.
      * You must add a comma after each custom field.
      */
-    protected void addCustomFields(ILoggingEvent event, StringBuilder builder) {}
+    protected void addCustomFields(ILoggingEvent event, StringBuilder builder) {
+    }
 
     private void serializeMarkers(ILoggingEvent event, StringBuilder builder) {
         Marker marker = event.getMarker();
@@ -208,11 +209,13 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
     public void setThrowableConverter(ThrowableHandlingConverter throwableConverter) {
         this.throwableConverter = throwableConverter;
     }
-    public Layout<ILoggingEvent> getLayout() {
-        return this.layout;
-    }
 
-    public void setLayout(Layout<ILoggingEvent> layout) {
-        this.layout = layout;
+    /**
+     * The supplied Layout will be applied specifically to format the <code>message</code> field based on the logging event.
+     *
+     * @param messageLayout
+     */
+    public void setMessageLayout(Layout<ILoggingEvent> messageLayout) {
+        this.messageLayout = messageLayout;
     }
 }
