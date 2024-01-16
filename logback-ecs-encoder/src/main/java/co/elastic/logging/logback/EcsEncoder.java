@@ -142,7 +142,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         if (messageLayout == null) {
             EcsJsonSerializer.serializeFormattedMessage(builder, event.getFormattedMessage());
         } else {
-            EcsJsonSerializer.serializeFormattedMessage(builder, this.messageLayout.doLayout(event));
+            EcsJsonSerializer.serializeFormattedMessage(builder, messageLayout.doLayout(event));
         }
     }
 
