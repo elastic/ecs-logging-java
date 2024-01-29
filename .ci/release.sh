@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 ##  This script runs the release given the different environment variables
-##    branch_specifier
+##    ref
 ##    dry_run
 ##
 ##  It relies on the .buildkite/hooks/pre-command so the Vault and other tooling
@@ -19,7 +19,7 @@ clean_up () {
 trap clean_up EXIT
 
 # Avoid detached HEAD since the release plugin requires to be on a branch
-git checkout -f "${branch_specifier}"
+git checkout -f "${ref}"
 
 echo "--- Debug JDK installation :coffee:"
 echo $JAVA_HOME
@@ -28,9 +28,8 @@ java -version
 
 set +x
 echo "--- Release the binaries to Maven Central :maven:"
-if [[ "$dry_run" == "true" ]] ; then
-  echo './mvnw -V release:prepare release:perform --settings .ci/settings.xml --batch-mode'
+if [[ "${dry_run}" == "true" ]] ; then
+  echo './mvnw -V -s .ci/settings.xml -Pgpg clean deploy --batch-mode'
 else
-  # providing settings in arguments to make sure they are propagated to the forked maven release process
-  ./mvnw -V release:prepare release:perform --settings .ci/settings.xml -Darguments="--settings .ci/settings.xml" --batch-mode | tee release.txt
+  ./mvnw -V -s .ci/settings.xml -Pgpg clean deploy --batch-mode | tee release.txt
 fi
