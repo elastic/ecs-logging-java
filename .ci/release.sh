@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 ##  This script runs the release given the different environment variables
-##    ref
-##    dry_run
+##    ref      : git reference (commit,branch, tag, ...)
+##    dry_run  : dry-run when set to 'true'
 ##
 ##  It relies on the .buildkite/hooks/pre-command so the Vault and other tooling
 ##  are prepared automatically by buildkite.
