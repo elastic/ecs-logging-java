@@ -115,4 +115,4 @@ jobs:
         run: git push origin "post-release-v${{ env.RELEASE_VERSION }}"
 
       - name: Create the post release PR
-        run: gh pr create --title="Post release process" --base main --head "post-release-v${{ env.RELEASE_VERSION }}" -b "Prepare for next iteration"
+        run: gh pr create --title="Post Release v${{ env.RELEASE_VERSION }}" --base main --head "post-release-v${{ env.RELEASE_VERSION }}" -b "Prepare for next iteration"

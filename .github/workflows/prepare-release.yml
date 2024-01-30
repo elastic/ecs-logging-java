@@ -67,4 +67,4 @@ jobs:
         run: git push origin prepare-release-v${{ env.RELEASE_VERSION }}
 
       - name: Create the prepare release PR
-        run: gh pr create --title="Prepare Release Version v${{ env.RELEASE_VERSION }}" --base main --head prepare-release-v${{ env.RELEASE_VERSION }} -b "New Release v${{ env.RELEASE_VERSION }}"
+        run: gh pr create --title="Prepare Release v${{ env.RELEASE_VERSION }}" --base main --head prepare-release-v${{ env.RELEASE_VERSION }} -b "New Release v${{ env.RELEASE_VERSION }}"
