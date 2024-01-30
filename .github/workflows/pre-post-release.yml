@@ -1,0 +1,98 @@
+---
+name: Pre/Post Release
+
+on:
+  workflow_call:
+    ref:
+      description: 'Branch or tag ref to run the workflow on'
+      required: true
+      default: 'main'
+    version:
+      description: 'The version to release (e.g. 1.2.3). This workflow will automatically perform the required version bumps'
+      required: true
+    phase:
+      description: 'Pre or post release phase'
+      type: choice
+      options:
+        - pre
+        - post
+      required: true
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Branch or tag ref to run the workflow on'
+        required: true
+        default: 'main'
+      version:
+        description: 'The version to release (e.g. 1.2.3). This workflow will automatically perform the required version bumps'
+        required: true
+      phase:
+        description: 'Pre or post release phase'
+        type: choice
+        options:
+          - pre
+          - post
+        default: 'pre'
+
+env:
+  RELEASE_VERSION: ${{ inputs.version }}
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}
+
+jobs:
+  create_pr:
+    name: "Bump versions and create PR"
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: elastic/apm-pipeline-library/.github/actions/github-token@current
+        with:
+          url: ${{ secrets.VAULT_ADDR }}
+          roleId: ${{ secrets.VAULT_ROLE_ID }}
+          secretId: ${{ secrets.VAULT_SECRET_ID }}
+
+      - uses: elastic/apm-pipeline-library/.github/actions/setup-git@current
+        with:
+          username: ${{ env.GIT_USER }}
+          email: ${{ env.GIT_EMAIL }}
+          token: ${{ env.GITHUB_TOKEN }}
+
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref || 'main' }}
+          token: ${{ env.GITHUB_TOKEN }}
+
+      - name: Create the release tag
+        if: inputs.phase == 'post'
+        run: |
+          git tag "v${{ env.RELEASE_VERSION }}"
+          git push origin "v${{ env.RELEASE_VERSION }}"
+
+      - name: Create a ${{ inputs.phase }} release branch
+        run: git checkout -b ${{ inputs.phase }}-release-v${{ env.RELEASE_VERSION }}
+
+      - name: Pre bump versions
+        if: inputs.phase == 'pre'
+        uses: ./.github/workflows/maven-goal
+        with:
+          command: ./mvnw -V versions:set -DprocessAllModules=true -DgenerateBackupPoms=false -DnewVersion=${{ env.RELEASE_VERSION }}
+
+      - name: Post bump versions
+        if: inputs.phase == 'post'
+        uses: ./.github/workflows/maven-goal
+        with:
+          command: ./mvnw -V versions:set -DprocessAllModules=true -DgenerateBackupPoms=false -nextSnapshot=true
+
+      - name: Push the ${{ inputs.phase }} release branch
+        run: |
+          git add --all
+          git commit -m "release(${{ inputs.phase }}): ecs-logging-java v${{ env.RELEASE_VERSION }}"
+          git push origin ${{ inputs.phase }}-release-v${{ env.RELEASE_VERSION }}
+
+      - name: Create the ${{ inputs.phase }} release PR
+        run: gh pr create --title="${{ inputs.phase }} release v${{ env.RELEASE_VERSION }}" --base main --head ${{ inputs.phase }}-release-v${{ env.RELEASE_VERSION }} -b "${{ inputs.phase }} release v${{ env.RELEASE_VERSION }}"
