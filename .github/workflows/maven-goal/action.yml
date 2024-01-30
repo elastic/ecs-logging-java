@@ -4,6 +4,10 @@ name: maven-goal
 description: Install specific JDK and run a command
 
 inputs:
+  version:
+    description: 'Java version'
+    required: true
+    default: '17'
   distribution:
     description: 'Java distribution'
     required: true
@@ -22,7 +26,7 @@ runs:
     - name: Set up JDK
       uses: actions/setup-java@v4
       with:
-        java-version: .java-version
+        java-version: ${{ inputs.version }}
         distribution: ${{ inputs.distribution }}
         cache: 'maven'
     - run: ${{ inputs.command }}
