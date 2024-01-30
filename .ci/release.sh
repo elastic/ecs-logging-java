@@ -29,7 +29,7 @@ java -version
 set +x
 echo "--- Release the binaries to Maven Central :maven:"
 if [[ "${dry_run}" == "true" ]] ; then
-  echo './mvnw -V -s .ci/settings.xml -Pgpg clean deploy --batch-mode'
+  ./mvnw -V -s .ci/settings.xml -Pgpg clean package --batch-mode
 else
   ./mvnw -V -s .ci/settings.xml -Pgpg clean deploy --batch-mode | tee release.txt
 fi
