@@ -1,15 +1,11 @@
 ---
 
-name: common build tasks
+name: maven-goal
 description: Install specific JDK and run a command
 
 inputs:
-  test-java-version:
-    description: 'Testing Java version'
-    required: true
-    default: '17'
-  test-java-distribution:
-    description: 'Testing Java distribution'
+  distribution:
+    description: 'Java distribution'
     required: true
     default: 'temurin'
   command:
@@ -23,23 +19,11 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Set up testing JDK
-      if: ${{ inputs.test-java-version != '17' }}
+    - name: Set up JDK
       uses: actions/setup-java@v4
       with:
-        java-version: ${{ inputs.test-java-version}}
-        distribution: ${{ inputs.test-java-distribution}}
-    - name: Set up build JDK
-      uses: actions/setup-java@v4
-      with:
-        java-version: 17 # NOTE: This version is also defined in .buildkite/hooks/pre-command
-        distribution: temurin
+        java-version: .java-version
+        distribution: ${{ inputs.distribution }}
         cache: 'maven'
-    - name: Set up TEST_JAVA_BINARY environment variable
-      shell: bash
-      run: |
-        major_version="$(echo '${{ inputs.test-java-version }}' | sed 's/\([0-9]*\).*/\1/')"
-        java_home_var=JAVA_HOME_${major_version}_${{ runner.arch }}
-        echo "TEST_JAVA_BINARY=${!java_home_var}/bin/java" >> $GITHUB_ENV
     - run: ${{ inputs.command }}
       shell: ${{ inputs.shell }}

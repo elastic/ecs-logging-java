@@ -20,8 +20,6 @@ on:
         type: boolean
 
 env:
-  JAVA_VERSION: 17
-  JAVA_DIST: temurin
   RELEASE_VERSION: ${{ inputs.version }}
 
 jobs:
@@ -89,13 +87,6 @@ jobs:
           ref: ${{ inputs.ref || 'main' }}
           token: ${{ env.GITHUB_TOKEN }}
 
-      - name: Set up JDK ${{ env.JAVA_VERSION }}
-        uses: actions/setup-java@v3
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: ${{ env.JAVA_DIST }}
-          cache: 'maven'
-
       - name: Create the release tag
         run: |
           git tag "v${{ env.RELEASE_VERSION }}"
@@ -106,13 +97,15 @@ jobs:
           git checkout -b "post-release-v${{ env.RELEASE_VERSION }}"
 
       - name: Bump versions
-        run: |
-          ./mvnw -V versions:set -DprocessAllModules=true -DgenerateBackupPoms=false -nextSnapshot=true
-          git add --all
-          git commit -m "chore: prepare for next iteration"
+        uses: ./.github/workflows/maven-goal
+        with:
+          command: ./mvnw -V versions:set -DprocessAllModules=true -DgenerateBackupPoms=false -nextSnapshot=true
 
       - name: Push the post release branch
-        run: git push origin "post-release-v${{ env.RELEASE_VERSION }}"
+        run: |
+          git add --all
+          git commit -m "chore: prepare for next iteration"
+          git push origin "post-release-v${{ env.RELEASE_VERSION }}"
 
       - name: Create the post release PR
         run: gh pr create --title="Post Release v${{ env.RELEASE_VERSION }}" --base main --head "post-release-v${{ env.RELEASE_VERSION }}" -b "Prepare for next iteration"

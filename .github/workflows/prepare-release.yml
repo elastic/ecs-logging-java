@@ -13,8 +13,6 @@ on:
         required: true
 
 env:
-  JAVA_VERSION: 17
-  JAVA_DIST: temurin
   RELEASE_VERSION: ${{ inputs.version }}
 
 permissions:
@@ -47,24 +45,19 @@ jobs:
           ref: ${{ inputs.ref || 'main' }}
           token: ${{ env.GITHUB_TOKEN }}
 
-      - name: Set up JDK ${{ env.JAVA_VERSION }}
-        uses: actions/setup-java@v3
-        with:
-          java-version: ${{ env.JAVA_VERSION }}
-          distribution: ${{ env.JAVA_DIST }}
-          cache: 'maven'
-
       - name: Create a prepare release branch
         run: git checkout -b prepare-release-v${{ env.RELEASE_VERSION }}
 
       - name: Bump versions
-        run: |
-          ./mvnw -V versions:set -DprocessAllModules=true -DgenerateBackupPoms=false -DnewVersion=${{ env.RELEASE_VERSION }}
-          git add --all
-          git commit -m "release: ecs-logging-java v${{ env.RELEASE_VERSION }}"
+        uses: ./.github/workflows/maven-goal
+        with:
+          command: ./mvnw -V versions:set -DprocessAllModules=true -DgenerateBackupPoms=false -DnewVersion=${{ env.RELEASE_VERSION }}
 
       - name: Push the prepare release branch
-        run: git push origin prepare-release-v${{ env.RELEASE_VERSION }}
+        run: |
+          git add --all
+          git commit -m "release: ecs-logging-java v${{ env.RELEASE_VERSION }}"
+          git push origin prepare-release-v${{ env.RELEASE_VERSION }}
 
       - name: Create the prepare release PR
         run: gh pr create --title="Prepare Release v${{ env.RELEASE_VERSION }}" --base main --head prepare-release-v${{ env.RELEASE_VERSION }} -b "New Release v${{ env.RELEASE_VERSION }}"
