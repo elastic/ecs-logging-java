@@ -67,7 +67,7 @@ jobs:
       contents: write
     uses: ./.github/workflows/pre-post-release.yml
     with:
-      ref: ${{ inputs.ref || 'main' }}
+      ref: ${{ inputs.ref }}
       version: ${{ inputs.version }}
       phase: 'post'
     secrets: inherit

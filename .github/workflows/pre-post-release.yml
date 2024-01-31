@@ -36,6 +36,7 @@ on:
 
 env:
   RELEASE_VERSION: ${{ inputs.version }}
+  BRANCH_NAME: ${{ inputs.phase }}-release-v${{ inputs.version }}
 
 permissions:
   contents: read
@@ -64,25 +65,25 @@ jobs:
 
       - uses: actions/checkout@v4
         with:
-          ref: ${{ inputs.ref || 'main' }}
+          ref: ${{ inputs.ref }}
           token: ${{ env.GITHUB_TOKEN }}
 
-      - name: Create the release tag
+      - name: Create the release tag (post phase)
         if: inputs.phase == 'post'
         run: |
           git tag "v${{ env.RELEASE_VERSION }}"
           git push origin "v${{ env.RELEASE_VERSION }}"
 
       - name: Create a ${{ inputs.phase }} release branch
-        run: git checkout -b ${{ inputs.phase }}-release-v${{ env.RELEASE_VERSION }}
+        run: git checkout -b ${{ env.BRANCH_NAME }}
 
-      - name: Pre bump versions
+      - name: Pre bump versions (pre phase)
         if: inputs.phase == 'pre'
         uses: ./.github/workflows/maven-goal
         with:
           command: ./mvnw -V versions:set -DprocessAllModules=true -DgenerateBackupPoms=false -DnewVersion=${{ env.RELEASE_VERSION }}
 
-      - name: Post bump versions
+      - name: Post bump versions (post phase)
         if: inputs.phase == 'post'
         uses: ./.github/workflows/maven-goal
         with:
@@ -92,7 +93,7 @@ jobs:
         run: |
           git add --all
           git commit -m "release(${{ inputs.phase }}): ecs-logging-java v${{ env.RELEASE_VERSION }}"
-          git push origin ${{ inputs.phase }}-release-v${{ env.RELEASE_VERSION }}
+          git push origin ${{ env.BRANCH_NAME }}
 
       - name: Create the ${{ inputs.phase }} release PR
-        run: gh pr create --title="${{ inputs.phase }} release v${{ env.RELEASE_VERSION }}" --base main --head ${{ inputs.phase }}-release-v${{ env.RELEASE_VERSION }} -b "${{ inputs.phase }} release v${{ env.RELEASE_VERSION }}"
+        run: gh pr create --title="${{ inputs.phase }} release v${{ env.RELEASE_VERSION }}" --base main --head ${{ env.BRANCH_NAME }} -b "${{ inputs.phase }} release v${{ env.RELEASE_VERSION }}"
