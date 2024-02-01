@@ -75,13 +75,13 @@ jobs:
       - name: Create a ${{ inputs.phase }} release branch
         run: git checkout -b ${{ env.BRANCH_NAME }}
 
-      - name: Pre bump versions (pre phase)
+      - name: Set release version (pre release)
         if: inputs.phase == 'pre'
         uses: ./.github/workflows/maven-goal
         with:
           command: ./mvnw -V versions:set -DprocessAllModules=true -DgenerateBackupPoms=false -DnewVersion=${{ env.RELEASE_VERSION }}
 
-      - name: Post bump versions (post phase)
+      - name: Set next snapshot version (post release)
         if: inputs.phase == 'post'
         uses: ./.github/workflows/maven-goal
         with:
@@ -90,7 +90,7 @@ jobs:
       - name: Push the ${{ inputs.phase }} release branch
         run: |
           git add --all
-          git commit -m "release(${{ inputs.phase }}): ecs-logging-java v${{ env.RELEASE_VERSION }}"
+          git commit -m "${{ inputs.phase }} release: ecs-logging-java v${{ env.RELEASE_VERSION }}"
           git push origin ${{ env.BRANCH_NAME }}
 
       - name: Create the ${{ inputs.phase }} release PR
