@@ -39,7 +39,7 @@ jobs:
       - name: Validate tag does not exist on current commit
         uses: ./.github/workflows/validate-tag
         with:
-          tag: ${{ env.RELEASE_VERSION }}
+          tag: v${{ env.RELEASE_VERSION }}
 
   create-pr:
     name: "Bump versions and create PR"
