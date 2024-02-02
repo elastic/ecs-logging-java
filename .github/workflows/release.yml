@@ -1,28 +1,48 @@
 ---
-name: release
-
-permissions:
-  contents: read
+name: Release
 
 on:
   workflow_dispatch:
     inputs:
-      branch_specifier:
-        description: The branch to release ex. main or 0.6.
+      ref:
+        description: 'Branch or tag ref to run the workflow on'
         required: true
         default: "main"
-        type: string
-
+      version:
+        description: 'The version to release (e.g. 1.2.3). This workflow will automatically perform the required version bumps'
+        required: true
       dry_run:
         description: If set, run a dry-run release
         default: false
         type: boolean
 
+permissions:
+  contents: read
+
 jobs:
+  validate-tag:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Validate tag does not exist on current commit
+        uses: ./.github/workflows/validate-tag
+        with:
+          tag: v${{ env.RELEASE_VERSION }}
+      - name: Validate tag match current version
+        run: |
+          if [ "$(mvn -q help:evaluate -Dexpression=project.version -DforceStdout)" != "${{ env.RELEASE_VERSION }}" ]; then
+            echo "Tag should match pom.xml project.version"
+            exit 1
+          fi
+
   release:
     name: Release
     runs-on: ubuntu-latest
-
+    needs:
+      - validate-tag
     steps:
       - id: buildkite
         name: Run Release
@@ -32,10 +52,10 @@ jobs:
           vaultRoleId: ${{ secrets.VAULT_ROLE_ID }}
           vaultSecretId: ${{ secrets.VAULT_SECRET_ID }}
           pipeline: ecs-logging-java-release
-          waitFor: false
+          waitFor: true
           printBuildLogs: false
           buildEnvVars: |
-            branch_specifier=${{ inputs.branch_specifier || 'main' }}
+            ref=${{ inputs.ref }}
             dry_run=${{ inputs.dry_run || 'false' }}
 
       - if: ${{ success() }}
@@ -58,3 +78,15 @@ jobs:
           message: |
             :ghost: [${{ github.repository }}] Release *${{ github.ref_name }}* didn't get triggered in Buildkite.
             Build: (<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|here>)
+
+  post-release:
+    name: "Bump versions and create PR"
+    needs:
+      - release
+    uses: ./.github/workflows/pre-post-release.yml
+    if: inputs.dry_run == 'false'
+    with:
+      ref: ${{ inputs.ref }}
+      version: ${{ inputs.version }}
+      phase: 'post'
+    secrets: inherit

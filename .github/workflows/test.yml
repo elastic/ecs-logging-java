@@ -11,11 +11,6 @@ on:
 permissions:
   contents: read
 
-env:
-  MAVEN_CONFIG: "-V -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn -Dhttps.protocols=TLSv1.2 -Dmaven.wagon.http.retryHandler.count=3 -Dmaven.wagon.httpconnectionManager.ttlSeconds=25"
-  JAVA_VERSION: 17
-  JAVA_DIST: adopt
-
 jobs:
 
   pre-commit:
@@ -36,12 +31,9 @@ jobs:
       fail-fast: false
     steps:
     - uses: actions/checkout@v3
-    - uses: actions/setup-java@v3
+    - uses: ./.github/workflows/maven-goal
       with:
-        java-version: ${{ env.JAVA_VERSION }}
-        distribution: ${{ env.JAVA_DIST }}
-        cache: 'maven'
-    - run: ./mvnw ${{ matrix.goal }}
+        command: ./mvnw ${{ matrix.goal }}
     - name: Store test results
       if: ${{ matrix.goal == 'test' }} && (success() || failure())
       uses: actions/upload-artifact@v3

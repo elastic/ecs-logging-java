@@ -1,0 +1,33 @@
+---
+
+name: maven-goal
+description: Install specific JDK and run a command
+
+inputs:
+  version:
+    description: 'Java version'
+    required: true
+    default: '17'
+  distribution:
+    description: 'Java distribution'
+    required: true
+    default: 'temurin'
+  command:
+    description: 'Command to execute'
+    required: true
+  shell:
+    description: 'Default shell'
+    default: 'bash'
+    required: false
+
+runs:
+  using: "composite"
+  steps:
+    - name: Set up JDK
+      uses: actions/setup-java@v4
+      with:
+        java-version: ${{ inputs.version }}
+        distribution: ${{ inputs.distribution }}
+        cache: 'maven'
+    - run: ${{ inputs.command }}
+      shell: ${{ inputs.shell }}
