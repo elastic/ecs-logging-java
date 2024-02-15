@@ -19,6 +19,10 @@ on:
 permissions:
   contents: read
 
+
+concurrency:
+  group: ${{ github.workflow }}
+
 jobs:
   validate-tag:
     runs-on: ubuntu-latest
