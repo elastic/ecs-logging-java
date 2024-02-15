@@ -90,6 +90,8 @@ jobs:
     needs:
       - release
     uses: ./.github/workflows/pre-post-release.yml
+    permissions:
+      contents: write
     if: inputs.dry_run == false
     with:
       ref: ${{ inputs.ref }}
