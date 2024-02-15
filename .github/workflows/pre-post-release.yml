@@ -6,17 +6,16 @@ on:
     inputs:
       ref:
         description: 'Branch or tag ref to run the workflow on'
+        type: string
         required: true
         default: 'main'
       version:
         description: 'The version to release (e.g. 1.2.3). This workflow will automatically perform the required version bumps'
+        type: string
         required: true
       phase:
         description: 'Pre or post release phase'
-        type: choice
-        options:
-          - pre
-          - post
+        type: string #valid values are 'pre' or 'post'
         required: true
 
 env:
