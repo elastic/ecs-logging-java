@@ -19,9 +19,11 @@ on:
 permissions:
   contents: read
 
-
 concurrency:
   group: ${{ github.workflow }}
+
+env:
+  RELEASE_VERSION: ${{ inputs.version }}
 
 jobs:
   validate-tag:
@@ -88,7 +90,7 @@ jobs:
     needs:
       - release
     uses: ./.github/workflows/pre-post-release.yml
-    if: inputs.dry_run == 'false'
+    if: inputs.dry_run == false
     with:
       ref: ${{ inputs.ref }}
       version: ${{ inputs.version }}

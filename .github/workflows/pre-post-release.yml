@@ -15,7 +15,7 @@ on:
         required: true
       phase:
         description: 'Pre or post release phase'
-        type: string #valid values are 'pre' or 'post'
+        type: string # valid values are 'pre' or 'post'
         required: true
 
 env:
@@ -82,7 +82,7 @@ jobs:
         if: inputs.phase == 'post'
         uses: ./.github/workflows/maven-goal
         with:
-          command: ./mvnw -V versions:set -DprocessAllModules=true -DgenerateBackupPoms=false -nextSnapshot=true
+          command: ./mvnw -V versions:set -DprocessAllModules=true -DgenerateBackupPoms=false -DnextSnapshot=true
 
       - name: Push the ${{ inputs.phase }} release branch
         run: |
