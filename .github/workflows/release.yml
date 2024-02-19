@@ -51,9 +51,6 @@ jobs:
             echo "Tag should match pom.xml project.version"
             exit 1
           fi
-      - uses: ./.github/workflows/maven-goal
-        with:
-          command: './mvnw -q help:evaluate -Dexpression=project.version -DforceStdout'
       - name: Validate version is a release version
         run: |
           if [[ "$(./mvnw -q help:evaluate -Dexpression=project.version -DforceStdout)" =~ "-SNAPSHOT" ]]; then
