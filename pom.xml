@@ -11,11 +11,21 @@
         <module>log4j-ecs-layout</module>
         <module>log4j2-ecs-layout</module>
         <module>logback-ecs-encoder</module>
-        <module>jul-ecs-formatter</module>
         <module>jboss-logmanager-ecs-formatter</module>
         <module>log4j2-legacy-tests</module>
         <module>log4j-legacy-tests</module>
         <module>logback-legacy-tests</module>
+        <module>jul-ecs-formatter</module>
+        <!-- IMPORTANT:
+            For the nexus deployment to work correctly, the last project in the build order needs to have deployment
+            enabled (maven-deploy-plugin.skip must be false).
+            The reason is that for SNAPSHOT builds the upload is performed by the nexus-staging-maven-plugin
+            after the last project build and EVERYTHING is skipped if this project is not part of the deployment.
+            See the documentation (https://github.com/sonatype/nexus-maven-plugins/tree/main/staging/maven-plugin#plugin-flags)
+            and the related issue (https://issues.sonatype.org/browse/NEXUS-9138).
+
+            You can verify the build order by executing ./mvnw clean and looking for the "Reactor Build Order log".
+        -->
     </modules>
     <packaging>pom</packaging>
     <inceptionYear>2019</inceptionYear>
@@ -127,9 +137,16 @@
                 <version>2.16.2</version>
             </plugin>
             <plugin>
-                <artifactId>maven-deploy-plugin</artifactId>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <extensions>true</extensions>
                 <configuration>
-                    <skip>${maven-deploy-plugin.skip}</skip>
+                    <!-- The Base URL of Nexus instance where we want to stage -->
+                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
+                    <!-- The server "id" element from settings to use authentication from -->
+                    <serverId>sonatype-nexus-staging</serverId>
+                    <skipNexusStagingDeployMojo>${maven-deploy-plugin.skip}</skipNexusStagingDeployMojo>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
                 </configuration>
             </plugin>
             <plugin>
@@ -297,8 +314,9 @@
                     <version>2.5.3</version>
                 </plugin>
                 <plugin>
-                    <artifactId>maven-deploy-plugin</artifactId>
-                    <version>2.8.2</version>
+                    <groupId>org.sonatype.plugins</groupId>
+                    <artifactId>nexus-staging-maven-plugin</artifactId>
+                    <version>1.6.13</version>
                 </plugin>
                 <plugin>
                     <groupId>org.codehaus.mojo</groupId>
