@@ -19,6 +19,9 @@ jobs:
       is-snapshot: ${{ steps.validate.outputs.is-snapshot }}
     steps:
       - uses: actions/checkout@v4
+      - uses: ./.github/workflows/maven-goal
+        with:
+          command: './mvnw -q help:evaluate -Dexpression=project.version -DforceStdout'
       - name: Validate version is a snapshot version
         id: validate
         run: |
