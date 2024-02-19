@@ -15,6 +15,14 @@ on:
         description: If set, run a dry-run release
         default: false
         type: boolean
+      skip_maven_deploy:
+        description: |
+          If enabled, the deployment to maven central will be skipped.
+          Select this if the deployment job for this release failed in a previous version but the release was actually published.
+          Check manually on maven central beforehand!
+        type: boolean
+        required: true
+        default: false
 
 permissions:
   contents: read
@@ -47,6 +55,7 @@ jobs:
   release:
     name: Release
     runs-on: ubuntu-latest
+    if: ${{ ! inputs.skip_maven_deploy }}
     needs:
       - validate-tag
     steps:
@@ -85,10 +94,22 @@ jobs:
             :ghost: [${{ github.repository }}] Release *${{ github.ref_name }}* didn't get triggered in Buildkite.
             Build: (<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|here>)
 
+  await-maven-central-artifact:
+    runs-on: ubuntu-latest
+    name: Wait for release to be available on maven-central
+    needs:
+      - validate-tag
+    steps:
+      - uses: elastic/apm-pipeline-library/.github/actions/await-maven-artifact@current
+        with:
+          groupid: 'co.elastic.logging'
+          artifactid: 'ecs-logging-core'
+          version: ${{ inputs.version }}
+
   post-release:
     name: "Bump versions and create PR"
     needs:
-      - release
+      - await-maven-central-artifact
     uses: ./.github/workflows/pre-post-release.yml
     permissions:
       contents: write
