@@ -40,6 +40,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          ref: ${{ inputs.ref }}
           fetch-depth: 0
       - name: Validate tag does not exist on current commit
         uses: ./.github/workflows/validate-tag
