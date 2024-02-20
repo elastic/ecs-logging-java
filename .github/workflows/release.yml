@@ -40,6 +40,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          ref: ${{ inputs.ref }}
           fetch-depth: 0
       - name: Validate tag does not exist on current commit
         uses: ./.github/workflows/validate-tag
@@ -49,6 +50,12 @@ jobs:
         run: |
           if [ "$(mvn -q help:evaluate -Dexpression=project.version -DforceStdout)" != "${{ env.RELEASE_VERSION }}" ]; then
             echo "Tag should match pom.xml project.version"
+            exit 1
+          fi
+      - name: Validate version is a release version
+        run: |
+          if [[ "$(./mvnw -q help:evaluate -Dexpression=project.version -DforceStdout)" =~ "-SNAPSHOT" ]]; then
+            echo "This is a snapshot version"
             exit 1
           fi
 
