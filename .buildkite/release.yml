@@ -9,6 +9,6 @@ steps:
     artifact_paths: "release.txt"
 
 notify:
-  - slack:
-      channels:
-        - "#apm-agent-java"
+  - slack: "#apm-agent-java"
+    # skip slack messages if no failures and dry-run mode
+    if: 'build.state != "passed" && build.env("dry_run") == "false"'
