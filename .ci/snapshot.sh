@@ -25,7 +25,7 @@ java -version
 
 set +x
 # Default in dry-run mode
-GOAL="install"
+GOAL="package"
 DRY_RUN_MSG="(dry-run)"
 # Otherwise, a RELEASE
 if [[ "$dry_run" == "false" ]] ; then
@@ -34,4 +34,4 @@ if [[ "$dry_run" == "false" ]] ; then
 fi
 
 echo "--- Deploy the snapshot :package: [./mvnw $GOAL)] $DRY_RUN_MSG"
-./mvnw -V -s .ci/settings.xml -Pgpg clean $GOAL -DskipTests --batch-mode | tee release.txt
+./mvnw -V -s .ci/settings.xml -Pgpg clean $GOAL -DskipTests --batch-mode | tee snapshot.txt

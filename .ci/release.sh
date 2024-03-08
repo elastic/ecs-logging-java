@@ -28,7 +28,7 @@ java -version
 
 set +x
 # Default in dry-run mode
-GOAL="install"
+GOAL="package"
 DRY_RUN_MSG="(dry-run)"
 # Otherwise, a RELEASE
 if [[ "$dry_run" == "false" ]] ; then
