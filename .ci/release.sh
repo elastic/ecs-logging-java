@@ -27,9 +27,14 @@ echo $PATH
 java -version
 
 set +x
-echo "--- Release the binaries to Maven Central :maven:"
-if [[ "${dry_run}" == "true" ]] ; then
-  ./mvnw -V -s .ci/settings.xml -Pgpg clean package --batch-mode | tee release.txt
-else
-  ./mvnw -V -s .ci/settings.xml -Pgpg clean deploy --batch-mode | tee release.txt
+# Default in dry-run mode
+GOAL="package"
+DRY_RUN_MSG="(dry-run)"
+# Otherwise, a RELEASE
+if [[ "$dry_run" == "false" ]] ; then
+  GOAL="deploy"
+  DRY_RUN_MSG=""
 fi
+
+echo "--- Release the binaries to Maven Central :maven: [./mvnw ${GOAL})] ${DRY_RUN_MSG}"
+./mvnw -V -s .ci/settings.xml -Pgpg clean $GOAL -DskipTests --batch-mode | tee release.txt

@@ -24,9 +24,14 @@ echo $PATH
 java -version
 
 set +x
-echo "--- Deploy the snapshot :package:"
-if [[ "$dry_run" == "true" ]] ; then
-  ./mvnw -V -s .ci/settings.xml -Pgpg clean package --batch-mode | tee snapshot.txt
-else
-  ./mvnw -V -s .ci/settings.xml -Pgpg clean deploy --batch-mode | tee snapshot.txt
+# Default in dry-run mode
+GOAL="package"
+DRY_RUN_MSG="(dry-run)"
+# Otherwise, a RELEASE
+if [[ "$dry_run" == "false" ]] ; then
+  GOAL="deploy"
+  DRY_RUN_MSG=""
 fi
+
+echo "--- Deploy the snapshot :package: [./mvnw ${GOAL})] ${DRY_RUN_MSG}"
+./mvnw -V -s .ci/settings.xml -Pgpg clean ${GOAL} -DskipTests --batch-mode | tee snapshot.txt
