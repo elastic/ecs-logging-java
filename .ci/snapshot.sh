@@ -33,5 +33,5 @@ if [[ "$dry_run" == "false" ]] ; then
   DRY_RUN_MSG=""
 fi
 
-echo "--- Deploy the snapshot :package: [./mvnw $GOAL)] $DRY_RUN_MSG"
-./mvnw -V -s .ci/settings.xml -Pgpg clean $GOAL -DskipTests --batch-mode | tee snapshot.txt
+echo "--- Deploy the snapshot :package: [./mvnw ${GOAL})] ${DRY_RUN_MSG}"
+./mvnw -V -s .ci/settings.xml -Pgpg clean ${GOAL} -DskipTests --batch-mode | tee snapshot.txt
