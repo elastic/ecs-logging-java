@@ -32,6 +32,7 @@ concurrency:
 
 env:
   RELEASE_VERSION: ${{ inputs.version }}
+  RELEASE_VERSION_TAG: v${{ inputs.version }}
 
 jobs:
   validate-tag:
@@ -45,7 +46,7 @@ jobs:
       - name: Validate tag does not exist on current commit
         uses: ./.github/workflows/validate-tag
         with:
-          tag: v${{ env.RELEASE_VERSION }}
+          tag: ${{ env.RELEASE_VERSION_TAG }}
       - name: Validate tag match current version
         run: |
           if [ "$(mvn -q help:evaluate -Dexpression=project.version -DforceStdout)" != "${{ env.RELEASE_VERSION }}" ]; then
@@ -112,6 +113,27 @@ jobs:
           groupid: 'co.elastic.logging'
           artifactid: 'ecs-logging-core'
           version: ${{ inputs.version }}
+
+  create-github-release:
+    name: "Create GitHub Release"
+    needs:
+      - await-maven-central-artifact
+    runs-on: ubuntu-latest
+    if: inputs.dry_run == false
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ inputs.ref }}
+
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create ${{ env.RELEASE_VERSION_TAG }} \
+            --title="Release ${{ env.RELEASE_VERSION }}" \
+            --generate-notes
 
   post-release:
     name: "Bump versions and create PR"
