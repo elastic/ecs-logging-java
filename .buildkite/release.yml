@@ -2,11 +2,16 @@ agents:
   provider: "gcp"
   image: "family/ecs-logging-java-ubuntu-2204"
 
+env:
+  TARBALL_FILE: ${TARBALL_FILE:-dist.tar}
+
 steps:
   - label: "Run the release"
     key: "release"
     commands: .ci/release.sh
-    artifact_paths: "release.txt"
+    artifact_paths:
+      - "release.txt"
+      - "${TARBALL_FILE}"
 
 notify:
   - slack: "#apm-agent-java"

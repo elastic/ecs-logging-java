@@ -66,6 +66,11 @@ jobs:
     if: ${{ ! inputs.skip_maven_deploy }}
     needs:
       - validate-tag
+    permissions:
+      contents: write
+      id-token: write
+    env:
+      TARBALL_FILE: dist.tar
     steps:
       - id: buildkite
         name: Run Release
@@ -75,11 +80,26 @@ jobs:
           vaultRoleId: ${{ secrets.VAULT_ROLE_ID }}
           vaultSecretId: ${{ secrets.VAULT_SECRET_ID }}
           pipeline: ecs-logging-java-release
+          artifactName: releases
+          artifactPath: ${{ env.TARBALL_FILE }}
           waitFor: true
           printBuildLogs: false
           buildEnvVars: |
             ref=${{ inputs.ref }}
             dry_run=${{ inputs.dry_run || 'false' }}
+            TARBALL_FILE=${{ env.TARBALL_FILE }}
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: releases
+
+      - name: untar the buildkite tarball
+        run: tar xvf ${{ env.TARBALL_FILE }}
+
+      - name: generate build provenance
+        uses: github-early-access/generate-build-provenance@main
+        with:
+          subject-path: "${{ github.workspace }}/**/target/*.jar"
 
       - if: ${{ success() }}
         uses: elastic/apm-pipeline-library/.github/actions/slack-message@current
