@@ -53,6 +53,7 @@ jobs:
           pipeline: ecs-logging-java-snapshot
           artifactName: snapshots
           artifactPath: ${{ env.TARBALL_FILE }}
+          pipelineBranch: ${{ github.ref_name }}
           waitFor: true
           printBuildLogs: false
           buildEnvVars: |
