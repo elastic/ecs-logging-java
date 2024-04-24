@@ -38,3 +38,7 @@ fi
 
 echo "--- Release the binaries to Maven Central :maven: [./mvnw ${GOAL})] ${DRY_RUN_MSG}"
 ./mvnw -V -s .ci/settings.xml -Pgpg clean $GOAL -DskipTests --batch-mode | tee release.txt
+
+echo "--- Archive the target folder with jar files"
+.ci/published-artifacts-list.sh | tee artifacts.list
+tar -cvf "${TARBALL_FILE:-artifacts.tar}" -T artifacts.list
