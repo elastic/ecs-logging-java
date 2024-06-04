@@ -44,25 +44,16 @@ jobs:
     env:
       TARBALL_FILE: artifacts.tar
     steps:
-      - id: buildkite
+      - id: buildkite-run
         name: Run Deploy
-        uses: elastic/apm-pipeline-library/.github/actions/buildkite@current
+        uses: elastic/oblt-actions/buildkite/run@v1.5.0
         with:
-          vaultUrl: ${{ secrets.VAULT_ADDR }}
-          vaultRoleId: ${{ secrets.VAULT_ROLE_ID }}
-          vaultSecretId: ${{ secrets.VAULT_SECRET_ID }}
           pipeline: ecs-logging-java-snapshot
-          artifactName: snapshots
-          artifactPath: ${{ env.TARBALL_FILE }}
-          waitFor: true
-          printBuildLogs: false
-          buildEnvVars: |
+          token: ${{ secrets.BUILDKITE_TOKEN }}
+          wait-for: true
+          env-vars: |
             dry_run=${{ inputs.dry_run || 'false' }}
             TARBALL_FILE=${{ env.TARBALL_FILE }}
-
-      - uses: actions/download-artifact@v3
-        with:
-          name: snapshots
 
       - name: untar the buildkite tarball
         run: tar xvf ${{ env.TARBALL_FILE }}
@@ -73,7 +64,7 @@ jobs:
           subject-path: "${{ github.workspace }}/**/target/*.jar"
 
       - if: ${{ failure() }}
-        uses: elastic/oblt-actions/slack/send@v1.2.0
+        uses: elastic/oblt-actions/slack/send@v1.5.0
         with:
           bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
           channel-id: "#apm-agent-java"
