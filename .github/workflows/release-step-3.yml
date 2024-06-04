@@ -66,6 +66,12 @@ jobs:
     if: ${{ ! inputs.skip_maven_deploy }}
     needs:
       - validate-tag
+    permissions:
+      attestations: write
+      contents: write
+      id-token: write
+    env:
+      TARBALL_FILE: artifacts.tar
     steps:
       - id: buildkite
         name: Run Release
@@ -75,29 +81,40 @@ jobs:
           vaultRoleId: ${{ secrets.VAULT_ROLE_ID }}
           vaultSecretId: ${{ secrets.VAULT_SECRET_ID }}
           pipeline: ecs-logging-java-release
+          artifactName: releases
+          artifactPath: ${{ env.TARBALL_FILE }}
           waitFor: true
           printBuildLogs: false
           buildEnvVars: |
             ref=${{ inputs.ref }}
             dry_run=${{ inputs.dry_run || 'false' }}
+            TARBALL_FILE=${{ env.TARBALL_FILE }}
+
+      - uses: actions/download-artifact@v3
+        with:
+          name: releases
+
+      - name: untar the buildkite tarball
+        run: tar xvf ${{ env.TARBALL_FILE }}
+
+      - name: generate build provenance
+        uses: actions/attest-build-provenance@951c0c5f8e375ad4efad33405ab77f7ded2358e4  # v1.1.1
+        with:
+          subject-path: "${{ github.workspace }}/**/target/*.jar"
 
       - if: ${{ success() }}
-        uses: elastic/apm-pipeline-library/.github/actions/slack-message@current
+        uses: elastic/oblt-actions/slack/send@v1.2.0
         with:
-          url: ${{ secrets.VAULT_ADDR }}
-          roleId: ${{ secrets.VAULT_ROLE_ID }}
-          secretId: ${{ secrets.VAULT_SECRET_ID }}
-          channel: "#apm-agent-java"
+          bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel-id: "#apm-agent-java"
           message: |
             :runner: [${{ github.repository }}] Release *${{ github.ref_name }}* has been triggered in Buildkite: (<${{ steps.buildkite.outputs.build }}|build>)
 
       - if: ${{ failure() }}
-        uses: elastic/apm-pipeline-library/.github/actions/slack-message@current
+        uses: elastic/oblt-actions/slack/send@v1.2.0
         with:
-          url: ${{ secrets.VAULT_ADDR }}
-          roleId: ${{ secrets.VAULT_ROLE_ID }}
-          secretId: ${{ secrets.VAULT_SECRET_ID }}
-          channel: "#apm-agent-java"
+          bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
+          channel-id: "#apm-agent-java"
           message: |
             :ghost: [${{ github.repository }}] Release *${{ github.ref_name }}* didn't get triggered in Buildkite.
             Build: (<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|here>)
