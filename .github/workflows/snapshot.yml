@@ -66,7 +66,7 @@ jobs:
         run: tar xvf ${{ env.TARBALL_FILE }}
 
       - name: generate build provenance
-        uses: actions/attest-build-provenance@951c0c5f8e375ad4efad33405ab77f7ded2358e4  # v1.1.1
+        uses: actions/attest-build-provenance@210c1913531870065f03ce1f9440dd87bc0938cd  # v1.4.0
         with:
           subject-path: "${{ github.workspace }}/**/target/*.jar"
 
