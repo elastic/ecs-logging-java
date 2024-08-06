@@ -208,22 +208,21 @@ public class EcsJsonSerializer {
         if (thrown != null) {
             builder.append("\"error.type\":\"");
             JsonUtils.quoteAsString(thrown.getClass().getName(), builder);
-            builder.append("\",");
+            builder.append('\"');
 
             String message = thrown.getMessage();
             if (message != null) {
-                builder.append("\"error.message\":\"");
+                builder.append(",\"error.message\":\"");
                 JsonUtils.quoteAsString(message, builder);
-                builder.append("\",");
+                builder.append('\"');
             }
-            if (stackTraceAsArray) {
-                builder.append("\"error.stack_trace\":[").append(NEW_LINE);
-                formatThrowableAsArray(builder, thrown);
-                builder.append("]");
+
+            int prevLength = builder.length();
+            builder.append(",\"error.stack_trace\":").append(stackTraceAsArray ? '[' : "\"");
+            if (formatThrowable(builder, thrown, stackTraceAsArray)) {
+                builder.append(stackTraceAsArray ? ']' : '\"');
             } else {
-                builder.append("\"error.stack_trace\":\"");
-                JsonUtils.quoteAsString(formatThrowable(thrown), builder);
-                builder.append("\"");
+                builder.setLength(prevLength); // reset if no stacktrace was written
             }
         }
     }
@@ -249,30 +248,38 @@ public class EcsJsonSerializer {
         }
     }
 
-    private static CharSequence formatThrowable(final Throwable throwable) {
-        StringBuilder buffer = getMessageStringBuilder();
-        final PrintWriter pw = new PrintWriter(new StringBuilderWriter(buffer));
-        throwable.printStackTrace(pw);
-        pw.flush();
-        return buffer;
-    }
-
-    private static void formatThrowableAsArray(final StringBuilder jsonBuilder, final Throwable throwable) {
+    private static boolean formatThrowable(final StringBuilder jsonBuilder, final Throwable throwable, final boolean stackTraceAsArray) {
         final StringBuilder buffer = getMessageStringBuilder();
+        final int initialLength = jsonBuilder.length();
         final PrintWriter pw = new PrintWriter(new StringBuilderWriter(buffer), true) {
+            private int lines = 0;
+
             @Override
             public void println() {
                 flush();
-                jsonBuilder.append("\t\"");
-                JsonUtils.quoteAsString(buffer, jsonBuilder);
-                jsonBuilder.append("\",");
-                jsonBuilder.append(NEW_LINE);
+                if (stackTraceAsArray) {
+                    if (lines > 0) jsonBuilder.append(',');
+                    jsonBuilder.append(NEW_LINE).append("\t\"");
+                    JsonUtils.quoteAsString(buffer, jsonBuilder);
+                    jsonBuilder.append('\"');
+                } else {
+                    JsonUtils.quoteAsString(buffer, jsonBuilder);
+                    JsonUtils.quoteAsString(NEW_LINE, jsonBuilder);
+                }
                 buffer.setLength(0);
+                lines++;
+            }
+
+            @Override
+            public void close() {
+                if (lines <= 1) {
+                    jsonBuilder.setLength(initialLength); // skip the first line (message) if no stacktrace follows
+                }
             }
         };
         throwable.printStackTrace(pw);
-        removeIfEndsWith(jsonBuilder, NEW_LINE);
-        removeIfEndsWith(jsonBuilder, ",");
+        pw.close();
+        return jsonBuilder.length() > initialLength;
     }
 
     private static void formatStackTraceAsArray(StringBuilder builder, CharSequence stackTrace) {
