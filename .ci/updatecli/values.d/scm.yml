@@ -3,6 +3,7 @@ scm:
   owner: elastic
   repository: ecs-logging-java
   branch: main
+  commitusingapi: true
   # begin update-compose policy values
   user: obltmachine
   email: obltmachine@users.noreply.github.com
