@@ -36,11 +36,11 @@ jobs:
         command: ./mvnw ${{ matrix.goal }}
     - name: Store test results
       if: ${{ matrix.goal == 'test' }} && (success() || failure())
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: test-results
         path: '**/target/surefire-reports'
-    - uses: actions/upload-artifact@v3
+    - uses: actions/upload-artifact@v4
       if: contains(${{ matrix.goal }}, 'license')
       with:
         name: license-report
