@@ -123,10 +123,10 @@ jobs:
     needs:
       - validate-tag
     steps:
-      - uses: elastic/apm-pipeline-library/.github/actions/await-maven-artifact@current
+      - uses: elastic/oblt-actions/maven/await-artifact@v1
         with:
-          groupid: 'co.elastic.logging'
-          artifactid: 'ecs-logging-core'
+          group-id: 'co.elastic.logging'
+          artifact-id: 'ecs-logging-core'
           version: ${{ inputs.version }}
 
   create-github-release:
