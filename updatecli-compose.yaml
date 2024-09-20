@@ -2,12 +2,12 @@
 # https://www.updatecli.io/docs/core/compose/
 policies:
   - name: Handle ecs-logging specs
-    policy: ghcr.io/elastic/oblt-updatecli-policies/apm/ecs-logging-specs:0.4.0@sha256:2b2b2293b43da931356f22c2d1484c6236dc579d5ac64342f2daa421755067ba
+    policy: ghcr.io/elastic/oblt-updatecli-policies/apm/ecs-logging-specs:0.5.0@sha256:fbe1697bb32f0d5222ce5267cb8ed9b8e079bf17bee06fb16b4e5c2c3351549e
     values:
       - .ci/updatecli/values.d/scm.yml
       - .ci/updatecli/values.d/ecs-logging-specs.yml
   - name: Update Updatecli policies
-    policy: ghcr.io/updatecli/policies/autodiscovery/updatecli:0.6.0@sha256:6bd6999620674b2fbb1d374f7a1a5e9740d042667f0592900b44259f3e1ae98f
+    policy: ghcr.io/updatecli/policies/autodiscovery/updatecli:0.8.0@sha256:99e9e61b501575c2c176c39f2275998d198b590a3f6b1fe829f7315f8d457e7f
     values:
       - .ci/updatecli/values.d/scm.yml
       - .ci/updatecli/values.d/update-compose.yml
