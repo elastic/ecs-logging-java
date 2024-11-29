@@ -24,25 +24,40 @@
  */
 package co.elastic.logging.log4j2;
 
+import java.util.ServiceLoader;
+
 import co.elastic.logging.EcsJsonSerializer;
 import co.elastic.logging.JsonUtils;
 import org.apache.logging.log4j.core.LogEvent;
 import org.apache.logging.log4j.util.TriConsumer;
 
-interface MdcSerializer {
+public interface MdcSerializer {
 
     void serializeMdc(LogEvent event, StringBuilder builder);
 
     class Resolver {
 
         public static MdcSerializer resolve() {
+            MdcSerializer serializer = resolveUserDefinedMdcSerializer();
+            if (serializer != null) {
+                return serializer;
+            }
             try {
                 LogEvent.class.getMethod("getContextData");
                 return (MdcSerializer) Class.forName("co.elastic.logging.log4j2.MdcSerializer$UsingContextData").getEnumConstants()[0];
-            } catch (Exception ignore) {
-            } catch (LinkageError ignore) {
+            } catch (Exception | LinkageError ignore) {
             }
             return UsingContextMap.INSTANCE;
+        }
+
+        private static MdcSerializer resolveUserDefinedMdcSerializer() {
+            for (MdcSerializerFactory factory : ServiceLoader.load(MdcSerializerFactory.class)) {
+                MdcSerializer serializer = factory.create();
+                if (serializer != null) {
+                    return serializer;
+                }
+            }
+            return null;
         }
 
     }
