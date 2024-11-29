@@ -37,6 +37,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.List;
 
+import static co.elastic.logging.log4j2.CustomMdcSerializer.CUSTOM_MDC_SERIALIZER_TEST_KEY;
 import static org.assertj.core.api.Assertions.assertThat;
 
 abstract class AbstractLog4j2EcsLayoutTest extends AbstractEcsLoggingTest {
@@ -52,6 +53,7 @@ abstract class AbstractLog4j2EcsLayoutTest extends AbstractEcsLoggingTest {
     void testAdditionalFieldsWithLookup() throws Exception {
         putMdc("trace.id", "foo");
         putMdc("foo", "bar");
+        putMdc(CUSTOM_MDC_SERIALIZER_TEST_KEY, "some_text_lower_case");
         debug("test");
         assertThat(getAndValidateLastLogLine().get("cluster.uuid").textValue()).isEqualTo("9fe9134b-20b0-465e-acf9-8cc09ac9053b");
         assertThat(getAndValidateLastLogLine().get("node.id").textValue()).isEqualTo("foo");
@@ -60,6 +62,7 @@ abstract class AbstractLog4j2EcsLayoutTest extends AbstractEcsLoggingTest {
         assertThat(getAndValidateLastLogLine().get("clazz").textValue()).startsWith(getClass().getPackageName());
         assertThat(getAndValidateLastLogLine().get("404")).isNull();
         assertThat(getAndValidateLastLogLine().get("foo").textValue()).isEqualTo("bar");
+        assertThat(getAndValidateLastLogLine().get(CUSTOM_MDC_SERIALIZER_TEST_KEY).textValue()).isEqualTo("some_text_lower_case");
     }
 
     @Test
