@@ -13,11 +13,12 @@ ECS JSON file appender logback configuration provided for import, similar to the
         </encoder>
         <file>${LOG_FILE}.json</file>
         <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
-            <cleanHistoryOnStart>${LOG_FILE_CLEAN_HISTORY_ON_START:-false}</cleanHistoryOnStart>
-            <fileNamePattern>${ROLLING_FILE_NAME_PATTERN:-${LOG_FILE}.json.%d{yyyy-MM-dd}.%i.gz}</fileNamePattern>
-            <maxFileSize>${LOG_FILE_MAX_SIZE:-10MB}</maxFileSize>
-            <maxHistory>${LOG_FILE_MAX_HISTORY:-7}</maxHistory>
-            <totalSizeCap>${LOG_FILE_TOTAL_SIZE_CAP:-0}</totalSizeCap>
+            <!-- LOGBACK_ROLLINGPOLICY_ env variables are for Spring Boot 3+, the LOG_FILE_ variables for spring boot 2 -->
+            <cleanHistoryOnStart>${LOG_FILE_CLEAN_HISTORY_ON_START:-${LOGBACK_ROLLINGPOLICY_CLEAN_HISTORY_ON_START:-false}}</cleanHistoryOnStart>
+            <fileNamePattern>${ROLLING_FILE_NAME_PATTERN:-${LOGBACK_ROLLINGPOLICY_FILE_NAME_PATTERN:-${LOG_FILE}.json.%d{yyyy-MM-dd}.%i.gz}}</fileNamePattern>
+            <maxFileSize>${LOG_FILE_MAX_SIZE:-${LOGBACK_ROLLINGPOLICY_MAX_FILE_SIZE:-10MB}}</maxFileSize>
+            <maxHistory>${LOG_FILE_MAX_HISTORY:-${LOGBACK_ROLLINGPOLICY_MAX_HISTORY:-7}}</maxHistory>
+            <totalSizeCap>${LOG_FILE_TOTAL_SIZE_CAP:-${LOGBACK_ROLLINGPOLICY_TOTAL_SIZE_CAP:-0}}</totalSizeCap>
         </rollingPolicy>
     </appender>
 </included>
