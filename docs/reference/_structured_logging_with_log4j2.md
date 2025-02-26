@@ -51,7 +51,7 @@ A common pitfall is how dots in field names are handled in Elasticsearch and how
 }
 ```
 
-The property `foo` would be mapped to the [Object datatype](/reference/elasticsearch/mapping-reference/object.md).
+The property `foo` would be mapped to the [Object datatype](elasticsearch://docs/reference/elasticsearch/mapping-reference/object.md).
 
 This means that you can’t index a document where `foo` would be a different datatype, as in shown in the following example:
 
