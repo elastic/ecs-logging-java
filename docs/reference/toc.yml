@@ -1,0 +1,4 @@
+toc:
+  - file: index.md
+  - file: setup.md
+  - file: _structured_logging_with_log4j2.md
