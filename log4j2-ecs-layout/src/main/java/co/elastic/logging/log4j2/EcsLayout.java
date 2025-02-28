@@ -62,7 +62,6 @@ public class EcsLayout extends AbstractStringLayout {
 
     public static final Charset UTF_8 = Charset.forName("UTF-8");
     private static final ObjectMessageJacksonSerializer JACKSON_SERIALIZER = ObjectMessageJacksonSerializer.Resolver.resolve();
-    private static final MdcSerializer MDC_SERIALIZER = MdcSerializer.Resolver.resolve();
     private static final MultiFormatHandler MULTI_FORMAT_HANDLER = MultiFormatHandler.Resolver.resolve();
     private static final boolean FORMAT_MESSAGES_PATTERN_DISABLE_LOOKUPS = PropertiesUtil.getProperties().getBooleanProperty(
             "log4j2.formatMsgNoLookups", false);
@@ -79,9 +78,10 @@ public class EcsLayout extends AbstractStringLayout {
     private final boolean includeOrigin;
     private final PatternFormatter[] exceptionPatternFormatter;
     private final ConcurrentMap<Class<? extends MultiformatMessage>, Boolean> supportsJson = new ConcurrentHashMap<Class<? extends MultiformatMessage>, Boolean>();
+    private final MdcSerializer mdcSerializer;
 
     private EcsLayout(Configuration config, String serviceName, String serviceVersion, String serviceEnvironment, String serviceNodeName, String eventDataset, boolean includeMarkers,
-                      KeyValuePair[] additionalFields, boolean includeOrigin, String exceptionPattern, boolean stackTraceAsArray) {
+                      KeyValuePair[] additionalFields, boolean includeOrigin, String exceptionPattern, boolean stackTraceAsArray, String mdcSerializerFullClassName) {
         super(config, UTF_8, null, null);
         this.serviceName = serviceName;
         this.serviceVersion = serviceVersion;
@@ -109,6 +109,7 @@ public class EcsLayout extends AbstractStringLayout {
         } else {
             exceptionPatternFormatter = null;
         }
+        mdcSerializer = MdcSerializerResolver.resolve(mdcSerializerFullClassName);
     }
 
     @PluginBuilderFactory
@@ -193,7 +194,7 @@ public class EcsLayout extends AbstractStringLayout {
                 }
             }
         }
-        MDC_SERIALIZER.serializeMdc(event, builder);
+        mdcSerializer.serializeMdc(event, builder);
     }
 
     private static void formatPattern(LogEvent event, PatternFormatter[] formatters, StringBuilder buffer) {
@@ -377,6 +378,8 @@ public class EcsLayout extends AbstractStringLayout {
         private KeyValuePair[] additionalFields = new KeyValuePair[]{};
         @PluginBuilderAttribute("includeOrigin")
         private boolean includeOrigin = false;
+        @PluginBuilderAttribute("mdcSerializer")
+        private String mdcSerializerFullClassName = "";
 
         Builder() {
         }
@@ -426,6 +429,10 @@ public class EcsLayout extends AbstractStringLayout {
 
         public String getExceptionPattern() {
             return exceptionPattern;
+        }
+
+        public String getMdcSerializerFullClassName() {
+            return mdcSerializerFullClassName;
         }
 
         /**
@@ -483,11 +490,16 @@ public class EcsLayout extends AbstractStringLayout {
             return this;
         }
 
+        public EcsLayout.Builder setMdcSerializerFullClassName(String mdcSerializerFullClassName) {
+            this.mdcSerializerFullClassName = mdcSerializerFullClassName;
+            return this;
+        }
+
         @Override
         public EcsLayout build() {
             return new EcsLayout(getConfiguration(), serviceName, serviceVersion, serviceEnvironment, serviceNodeName,
                     EcsJsonSerializer.computeEventDataset(eventDataset, serviceName),
-                    includeMarkers, additionalFields, includeOrigin, exceptionPattern, stackTraceAsArray);
+                    includeMarkers, additionalFields, includeOrigin, exceptionPattern, stackTraceAsArray, mdcSerializerFullClassName);
         }
     }
 }
