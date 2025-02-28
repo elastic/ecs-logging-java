@@ -9,7 +9,7 @@ navigation_title: Get started
 
 ## Step 1: Configure application logging [setup-step-1]
 
-If you are using the Elastic APM Java agent, the easiest way to transform your logs into ECS-compatible JSON format is through the [`log_ecs_reformatting`](apm-agent-java://docs/reference/config-logging.md#config-log-ecs-reformatting) configuration option. By only setting this option, the Java agent will automatically import the correct ECS-logging library and configure your logging framework to use it instead (`OVERRIDE`/`REPLACE`) or in addition to (`SHADE`) your current configuration. No other changes required! Make sure to check out other [Logging configuration options](apm-agent-java://docs/reference/config-logging.md) to unlock the full potential of this option.
+If you are using the Elastic APM Java agent, the easiest way to transform your logs into ECS-compatible JSON format is through the [`log_ecs_reformatting`](apm-agent-java://reference/config-logging.md#config-log-ecs-reformatting) configuration option. By only setting this option, the Java agent will automatically import the correct ECS-logging library and configure your logging framework to use it instead (`OVERRIDE`/`REPLACE`) or in addition to (`SHADE`) your current configuration. No other changes required! Make sure to check out other [Logging configuration options](apm-agent-java://reference/config-logging.md) to unlock the full potential of this option.
 
 Otherwise, follow the steps below to manually apply ECS-formatting through your logging framework configuration. The following logging frameworks are supported:
 
@@ -185,9 +185,9 @@ All you have to do is to use the `co.elastic.logging.logback.EcsEncoder` instead
 | `serviceEnvironment` | String |  | Sets the `service.environment` field so you can filter your logs by a particular service environment |
 | `serviceNodeName` | String |  | Sets the `service.node.name` field so you can filter your logs by a particular node of your clustered service |
 | `eventDataset` | String | `${serviceName}` | Sets the `event.dataset` field used by the machine learning job of the Logs app to look for anomalies in the log rate. |
-| `includeMarkers` | boolean | `false` | Log [Markers](https://logging.apache.org/log4j/2.0/manual/markers.md) as [`tags`](ecs://docs/reference/ecs-base.md) |
-| `stackTraceAsArray` | boolean | `false` | Serializes the [`error.stack_trace`](ecs://docs/reference/ecs-error.md) as a JSON array where each element is in a new line to improve readability.Note that this requires a slightly more complex [Filebeat configuration](#setup-stack-trace-as-array). |
-| `includeOrigin` | boolean | `false` | If `true`, adds the [`log.origin.file.name`](ecs://docs/reference/ecs-log.md), [`log.origin.file.line`](ecs://docs/reference/ecs-log.md) and [`log.origin.function`](ecs://docs/reference/ecs-log.md) fields. Note that you also have to set `<includeCallerData>true</includeCallerData>` on your appenders if you are using the async ones. |
+| `includeMarkers` | boolean | `false` | Log [Markers](https://logging.apache.org/log4j/2.0/manual/markers.md) as [`tags`](ecs://reference/ecs-base.md) |
+| `stackTraceAsArray` | boolean | `false` | Serializes the [`error.stack_trace`](ecs://reference/ecs-error.md) as a JSON array where each element is in a new line to improve readability.Note that this requires a slightly more complex [Filebeat configuration](#setup-stack-trace-as-array). |
+| `includeOrigin` | boolean | `false` | If `true`, adds the [`log.origin.file.name`](ecs://reference/ecs-log.md), [`log.origin.file.line`](ecs://reference/ecs-log.md) and [`log.origin.function`](ecs://reference/ecs-log.md) fields. Note that you also have to set `<includeCallerData>true</includeCallerData>` on your appenders if you are using the async ones. |
 
 To include any custom field in the output, use following syntax:
 
@@ -235,9 +235,9 @@ Instead of the usual `<PatternLayout/>`, use `<EcsLayout serviceName="my-app"/>`
 | `serviceEnvironment` | String |  | Sets the `service.environment` field so you can filter your logs by a particular service environment |
 | `serviceNodeName` | String |  | Sets the `service.node.name` field so you can filter your logs by a particular node of your clustered service |
 | `eventDataset` | String | `${serviceName}` | Sets the `event.dataset` field used by the machine learning job of the Logs app to look for anomalies in the log rate. |
-| `includeMarkers` | boolean | `false` | Log [Markers](https://logging.apache.org/log4j/2.0/manual/markers.md) as [`tags`](ecs://docs/reference/ecs-base.md) |
-| `stackTraceAsArray` | boolean | `false` | Serializes the [`error.stack_trace`](ecs://docs/reference/ecs-error.md) as a JSON array where each element is in a new line to improve readability. Note that this requires a slightly more complex [Filebeat configuration](#setup-stack-trace-as-array). |
-| `includeOrigin` | boolean | `false` | If `true`, adds the [`log.origin.file.name`](ecs://docs/reference/ecs-log.md) fields. Note that you also have to set `includeLocation="true"` on your loggers and appenders if you are using the async ones. |
+| `includeMarkers` | boolean | `false` | Log [Markers](https://logging.apache.org/log4j/2.0/manual/markers.md) as [`tags`](ecs://reference/ecs-base.md) |
+| `stackTraceAsArray` | boolean | `false` | Serializes the [`error.stack_trace`](ecs://reference/ecs-error.md) as a JSON array where each element is in a new line to improve readability. Note that this requires a slightly more complex [Filebeat configuration](#setup-stack-trace-as-array). |
+| `includeOrigin` | boolean | `false` | If `true`, adds the [`log.origin.file.name`](ecs://reference/ecs-log.md) fields. Note that you also have to set `includeLocation="true"` on your loggers and appenders if you are using the async ones. |
 
 To include any custom field in the output, use following syntax:
 
@@ -300,8 +300,8 @@ Instead of the usual layout class `"org.apache.log4j.PatternLayout"`, use `"co.e
 | `serviceEnvironment` | String |  | Sets the `service.environment` field so you can filter your logs by a particular service environment |
 | `serviceNodeName` | String |  | Sets the `service.node.name` field so you can filter your logs by a particular node of your clustered service |
 | `eventDataset` | String | `${serviceName}` | Sets the `event.dataset` field used by the machine learning job of the Logs app to look for anomalies in the log rate. |
-| `stackTraceAsArray` | boolean | `false` | Serializes the [`error.stack_trace`](ecs://docs/reference/ecs-error.md) as a JSON array where each element is in a new line to improve readability.Note that this requires a slightly more complex [Filebeat configuration](#setup-stack-trace-as-array). |
-| `includeOrigin` | boolean | `false` | If `true`, adds the [`log.origin.file.name`](ecs://docs/reference/ecs-log.md) fields.Note that you also have to set `<param name="LocationInfo" value="true"/>` if you are using `AsyncAppender`. |
+| `stackTraceAsArray` | boolean | `false` | Serializes the [`error.stack_trace`](ecs://reference/ecs-error.md) as a JSON array where each element is in a new line to improve readability.Note that this requires a slightly more complex [Filebeat configuration](#setup-stack-trace-as-array). |
+| `includeOrigin` | boolean | `false` | If `true`, adds the [`log.origin.file.name`](ecs://reference/ecs-log.md) fields.Note that you also have to set `<param name="LocationInfo" value="true"/>` if you are using `AsyncAppender`. |
 
 To include any custom field in the output, use following syntax:
 
@@ -338,8 +338,8 @@ co.elastic.logging.jul.EcsFormatter.serviceNodeName=my-app-cluster-node
 | `serviceEnvironment` | String |  | Sets the `service.environment` field so you can filter your logs by a particular service environment |
 | `serviceNodeName` | String |  | Sets the `service.node.name` field so you can filter your logs by a particular node of your clustered service |
 | `eventDataset` | String | `${serviceName}` | Sets the `event.dataset` field used by the machine learning job of the Logs app to look for anomalies in the log rate. |
-| `stackTraceAsArray` | boolean | `false` | Serializes the [`error.stack_trace`](ecs://docs/reference/ecs-error.md) as a JSON array where each element is in a new line to improve readability. Note that this requires a slightly more complex Filebeat configuration. |
-| `includeOrigin` | boolean | `false` | If `true`, adds the [`log.origin.file.name`](ecs://docs/reference/ecs-log.md) fields. Note that JUL does not stores line number and `log.origin.file.line` will have *1* value. |
+| `stackTraceAsArray` | boolean | `false` | Serializes the [`error.stack_trace`](ecs://reference/ecs-error.md) as a JSON array where each element is in a new line to improve readability. Note that this requires a slightly more complex Filebeat configuration. |
+| `includeOrigin` | boolean | `false` | If `true`, adds the [`log.origin.file.name`](ecs://reference/ecs-log.md) fields. Note that JUL does not stores line number and `log.origin.file.line` will have *1* value. |
 | `additionalFields` | String |  | Adds additional static fields to all log events. The fields are specified as comma-separated key-value pairs. Example: `co.elastic.logging.jul.EcsFormatter.additionalFields=key1=value1,key2=value2`. |
 ::::::
 
@@ -369,8 +369,8 @@ class=co.elastic.logging.jboss.logmanager.EcsFormatter, properties={serviceName=
 | `serviceEnvironment` | String |  | Sets the `service.environment` field so you can filter your logs by a particular service environment |
 | `serviceNodeName` | String |  | Sets the `service.node.name` field so you can filter your logs by a particular node of your clustered service |
 | `eventDataset` | String | `${serviceName}` | Sets the `event.dataset` field used by the machine learning job of the Logs app to look for anomalies in the log rate. |
-| `stackTraceAsArray` | boolean | `false` | Serializes the [`error.stack_trace`](ecs://docs/reference/ecs-error.md) as a JSON array where each element is in a new line to improve readability. Note that this requires a slightly more complex [Filebeat configuration](#setup-stack-trace-as-array). |
-| `includeOrigin` | boolean | `false` | If `true`, adds the [`log.origin.file.name`](ecs://docs/reference/ecs-log.md) fields. |
+| `stackTraceAsArray` | boolean | `false` | Serializes the [`error.stack_trace`](ecs://reference/ecs-error.md) as a JSON array where each element is in a new line to improve readability. Note that this requires a slightly more complex [Filebeat configuration](#setup-stack-trace-as-array). |
+| `includeOrigin` | boolean | `false` | If `true`, adds the [`log.origin.file.name`](ecs://reference/ecs-log.md) fields. |
 | `additionalFields` | String |  | Adds additional static fields to all log events. The fields are specified as comma-separated key-value pairs. Example: `additionalFields=key1=value1,key2=value2`. |
 ::::::
 
@@ -386,7 +386,7 @@ If you’re using the Elastic APM Java agent, log correlation is enabled by defa
 :::::::{tab-set}
 
 ::::::{tab-item} Log file
-1. Follow the [Filebeat quick start](beats://docs/reference/filebeat/filebeat-installation-configuration.md)
+1. Follow the [Filebeat quick start](beats://reference/filebeat/filebeat-installation-configuration.md)
 2. Add the following configuration to your `filebeat.yaml` file.
 
 For Filebeat 7.16+
@@ -412,7 +412,7 @@ processors: <5>
 2. Values from the decoded JSON object overwrite the fields that {{filebeat}} normally adds (type, source, offset, etc.) in case of conflicts.
 3. {{filebeat}} adds an "error.message" and "error.type: json" key in case of JSON unmarshalling errors.
 4. {{filebeat}} will recursively de-dot keys in the decoded JSON, and expand them into a hierarchical object structure.
-5. Processors enhance your data. See [processors](beats://docs/reference/filebeat/filtering-enhancing-data.md) to learn more.
+5. Processors enhance your data. See [processors](beats://reference/filebeat/filtering-enhancing-data.md) to learn more.
 
 
 For Filebeat < 7.16
@@ -436,8 +436,8 @@ processors:
 
 ::::::{tab-item} Kubernetes
 1. Make sure your application logs to stdout/stderr.
-2. Follow the [Run Filebeat on Kubernetes](beats://docs/reference/filebeat/running-on-kubernetes.md) guide.
-3. Enable [hints-based autodiscover](beats://docs/reference/filebeat/configuration-autodiscover-hints.md) (uncomment the corresponding section in `filebeat-kubernetes.yaml`).
+2. Follow the [Run Filebeat on Kubernetes](beats://reference/filebeat/running-on-kubernetes.md) guide.
+3. Enable [hints-based autodiscover](beats://reference/filebeat/configuration-autodiscover-hints.md) (uncomment the corresponding section in `filebeat-kubernetes.yaml`).
 4. Add these annotations to your pods that log using ECS loggers. This will make sure the logs are parsed appropriately.
 
 ```yaml
@@ -454,8 +454,8 @@ annotations:
 
 ::::::{tab-item} Docker
 1. Make sure your application logs to stdout/stderr.
-2. Follow the [Run Filebeat on Docker](beats://docs/reference/filebeat/running-on-docker.md) guide.
-3. Enable [hints-based autodiscover](beats://docs/reference/filebeat/configuration-autodiscover-hints.md).
+2. Follow the [Run Filebeat on Docker](beats://reference/filebeat/running-on-docker.md) guide.
+3. Enable [hints-based autodiscover](beats://reference/filebeat/configuration-autodiscover-hints.md).
 4. Add these labels to your containers that log using ECS loggers. This will make sure the logs are parsed appropriately.
 
 ```yaml
@@ -471,7 +471,7 @@ labels:
 ::::::
 
 :::::::
-For more information, see the [Filebeat reference](beats://docs/reference/filebeat/configuring-howto-filebeat.md).
+For more information, see the [Filebeat reference](beats://reference/filebeat/configuring-howto-filebeat.md).
 
 
 ### When `stackTraceAsArray` is enabled [setup-stack-trace-as-array]

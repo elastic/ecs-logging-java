@@ -28,7 +28,7 @@ Using either will merge the object at the top-level (not nested under `message`)
 
 ## Tips [_tips]
 
-We recommend using existing [ECS fields](ecs://docs/reference/ecs-field-reference.md).
+We recommend using existing [ECS fields](ecs://reference/ecs-field-reference.md).
 
 If there is no appropriate ECS field, consider prefixing your fields with `labels.`, as in `labels.foo`, for simple key/value pairs. For nested structures, consider prefixing with `custom.`. This approach protects against conflicts in case ECS later adds the same fields but with a different mapping.
 
@@ -51,7 +51,7 @@ A common pitfall is how dots in field names are handled in Elasticsearch and how
 }
 ```
 
-The property `foo` would be mapped to the [Object datatype](elasticsearch://docs/reference/elasticsearch/mapping-reference/object.md).
+The property `foo` would be mapped to the [Object datatype](elasticsearch://reference/elasticsearch/mapping-reference/object.md).
 
 This means that you can’t index a document where `foo` would be a different datatype, as in shown in the following example:
 
