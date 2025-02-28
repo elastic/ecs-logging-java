@@ -11,9 +11,9 @@ ECS loggers are formatter/encoder plugins for your favorite logging libraries. T
 Ready to jump into `ecs-logging-java`? [Get started](/reference/setup.md).
 
 ::::{tip}
-Want to learn more about ECS, ECS logging, and other available language plugins? See the [ECS logging guide](ecs-logging://docs/reference/intro.md).
+Want to learn more about ECS, ECS logging, and other available language plugins? See the [ECS logging guide](ecs-logging://reference/intro.md).
 
-Want to learn more about the Elastic APM Java agent logging features? See [Logs](apm-agent-java://docs/reference/logs.md).
+Want to learn more about the Elastic APM Java agent logging features? See [Logs](apm-agent-java://reference/logs.md).
 
 ::::
 
