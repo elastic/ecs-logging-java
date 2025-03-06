@@ -185,7 +185,7 @@ All you have to do is to use the `co.elastic.logging.logback.EcsEncoder` instead
 | `serviceEnvironment` | String |  | Sets the `service.environment` field so you can filter your logs by a particular service environment |
 | `serviceNodeName` | String |  | Sets the `service.node.name` field so you can filter your logs by a particular node of your clustered service |
 | `eventDataset` | String | `${serviceName}` | Sets the `event.dataset` field used by the machine learning job of the Logs app to look for anomalies in the log rate. |
-| `includeMarkers` | boolean | `false` | Log [Markers](https://logging.apache.org/log4j/2.0/manual/markers.md) as [`tags`](ecs://reference/ecs-base.md) |
+| `includeMarkers` | boolean | `false` | Log [Markers](https://logging.apache.org/log4j/2.0/manual/markers.html) as [`tags`](ecs://reference/ecs-base.md) |
 | `stackTraceAsArray` | boolean | `false` | Serializes the [`error.stack_trace`](ecs://reference/ecs-error.md) as a JSON array where each element is in a new line to improve readability.Note that this requires a slightly more complex [Filebeat configuration](#setup-stack-trace-as-array). |
 | `includeOrigin` | boolean | `false` | If `true`, adds the [`log.origin.file.name`](ecs://reference/ecs-log.md), [`log.origin.file.line`](ecs://reference/ecs-log.md) and [`log.origin.function`](ecs://reference/ecs-log.md) fields. Note that you also have to set `<includeCallerData>true</includeCallerData>` on your appenders if you are using the async ones. |
 
@@ -235,7 +235,7 @@ Instead of the usual `<PatternLayout/>`, use `<EcsLayout serviceName="my-app"/>`
 | `serviceEnvironment` | String |  | Sets the `service.environment` field so you can filter your logs by a particular service environment |
 | `serviceNodeName` | String |  | Sets the `service.node.name` field so you can filter your logs by a particular node of your clustered service |
 | `eventDataset` | String | `${serviceName}` | Sets the `event.dataset` field used by the machine learning job of the Logs app to look for anomalies in the log rate. |
-| `includeMarkers` | boolean | `false` | Log [Markers](https://logging.apache.org/log4j/2.0/manual/markers.md) as [`tags`](ecs://reference/ecs-base.md) |
+| `includeMarkers` | boolean | `false` | Log [Markers](https://logging.apache.org/log4j/2.0/manual/markers.html) as [`tags`](ecs://reference/ecs-base.md) |
 | `stackTraceAsArray` | boolean | `false` | Serializes the [`error.stack_trace`](ecs://reference/ecs-error.md) as a JSON array where each element is in a new line to improve readability. Note that this requires a slightly more complex [Filebeat configuration](#setup-stack-trace-as-array). |
 | `includeOrigin` | boolean | `false` | If `true`, adds the [`log.origin.file.name`](ecs://reference/ecs-log.md) fields. Note that you also have to set `includeLocation="true"` on your loggers and appenders if you are using the async ones. |
 
@@ -248,7 +248,7 @@ To include any custom field in the output, use following syntax:
   </EcsLayout>
 ```
 
-Custom fields are included in the order they are declared. The values support [lookups](https://logging.apache.org/log4j/2.x/manual/lookups.md). This means that the `KeyValuePair` setting can be utilized to dynamically set predefined fields as well:
+Custom fields are included in the order they are declared. The values support [lookups](https://logging.apache.org/log4j/2.x/manual/lookups.html). This means that the `KeyValuePair` setting can be utilized to dynamically set predefined fields as well:
 
 ```xml
 <EcsLayout serviceName="myService">
