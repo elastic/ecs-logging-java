@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - name: Add agent-java label
-      uses: AlexanderWert/issue-labeler@v2.3
+      uses: AlexanderWert/issue-labeler@32be4a3c3d8f009c2741af471994337c34b4cb6f  # v2.3
       with:
         repo-token: "${{ secrets.GITHUB_TOKEN }}"
         configuration-path: .github/labeler-config.yml
@@ -49,7 +49,7 @@ jobs:
         echo "::debug::isExcluded: ${{ steps.checkUserMember.outputs.isExcluded }}"
     - name: Add community and triage lables
       if: steps.checkUserMember.outputs.isTeamMember != 'true' && steps.checkUserMember.outputs.isExcluded != 'true'
-      uses: AlexanderWert/issue-labeler@v2.3
+      uses: AlexanderWert/issue-labeler@32be4a3c3d8f009c2741af471994337c34b4cb6f  # v2.3
       with:
         repo-token: "${{ secrets.GITHUB_TOKEN }}"
         configuration-path: .github/community-label.yml
