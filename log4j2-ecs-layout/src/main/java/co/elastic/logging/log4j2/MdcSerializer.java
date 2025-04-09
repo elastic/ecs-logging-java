@@ -24,65 +24,23 @@
  */
 package co.elastic.logging.log4j2;
 
-import co.elastic.logging.EcsJsonSerializer;
-import co.elastic.logging.JsonUtils;
 import org.apache.logging.log4j.core.LogEvent;
-import org.apache.logging.log4j.util.TriConsumer;
 
-interface MdcSerializer {
-
+/**
+ * Interface for serializing MDC (Mapped Diagnostic Context) data from a {@link LogEvent}.
+ * <p>
+ * Implementations must have a public no-argument constructor to allow dynamic instantiation.
+ * </p>
+ */
+public interface MdcSerializer {
+    /**
+     * Add MDC data for the give log event to the provided output string builder. The output written to the string
+     * builder must be a valid JSON-object without the surrounding curly braces and with a trailing comma. If this MDC
+     * serializer does not append any content, no comma shall be added. For example, the serializer could output the
+     * following content: "foo":"bar","key":"value",
+     *
+     * @param event   the log event to write the MDC content for
+     * @param builder the output JSON string builder
+     */
     void serializeMdc(LogEvent event, StringBuilder builder);
-
-    class Resolver {
-
-        public static MdcSerializer resolve() {
-            try {
-                LogEvent.class.getMethod("getContextData");
-                return (MdcSerializer) Class.forName("co.elastic.logging.log4j2.MdcSerializer$UsingContextData").getEnumConstants()[0];
-            } catch (Exception ignore) {
-            } catch (LinkageError ignore) {
-            }
-            return UsingContextMap.INSTANCE;
-        }
-
-    }
-
-    /**
-     * Garbage free MDC serialization for log4j2 2.7+
-     * Never reference directly in prod code so avoid linkage errors when TriConsumer or getContextData are not available
-     */
-    enum UsingContextData implements MdcSerializer {
-
-        @SuppressWarnings("unused")
-        INSTANCE;
-
-        private static final TriConsumer<String, Object, StringBuilder> WRITE_MDC = new TriConsumer<String, Object, StringBuilder>() {
-            @Override
-            public void accept(final String key, final Object value, final StringBuilder stringBuilder) {
-                stringBuilder.append('\"');
-                JsonUtils.quoteAsString(key, stringBuilder);
-                stringBuilder.append("\":\"");
-                JsonUtils.quoteAsString(EcsJsonSerializer.toNullSafeString(String.valueOf(value)), stringBuilder);
-                stringBuilder.append("\",");
-            }
-        };
-
-
-        @Override
-        public void serializeMdc(LogEvent event, StringBuilder builder) {
-            event.getContextData().forEach(WRITE_MDC, builder);
-        }
-    }
-
-    /**
-     * Fallback for log4j2 <= 2.6
-     */
-    enum UsingContextMap implements MdcSerializer {
-        INSTANCE;
-
-        @Override
-        public void serializeMdc(LogEvent event, StringBuilder builder) {
-            EcsJsonSerializer.serializeMDC(builder, event.getContextMap());
-        }
-    }
 }
