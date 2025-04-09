@@ -40,7 +40,7 @@ class MdcSerializerResolver {
             Class<?> clazz = Class.forName(mdcSerializerFullClassName);
             return (MdcSerializer) clazz.getDeclaredConstructor().newInstance();
         } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | NoSuchMethodException |
-                 InvocationTargetException e) {
+                 InvocationTargetException e) { //build failure?
             throw new IllegalArgumentException("Could not create MdcSerializer " + mdcSerializerFullClassName, e);
         }
     }
