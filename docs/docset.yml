@@ -1,4 +1,6 @@
 project: 'ECS Logging Java'
+products:
+  - id: ecs-logging
 cross_links:
   - apm-agent-java
   - beats
