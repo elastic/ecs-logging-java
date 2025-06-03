@@ -46,7 +46,7 @@ jobs:
     steps:
       - id: buildkite-run
         name: Run Deploy
-        uses: elastic/oblt-actions/buildkite/run@v1.5.0
+        uses: elastic/oblt-actions/buildkite/run@v1
         with:
           pipeline: ecs-logging-java-snapshot
           token: ${{ secrets.BUILDKITE_TOKEN }}
@@ -55,7 +55,7 @@ jobs:
             dry_run=${{ inputs.dry_run || 'false' }}
             TARBALL_FILE=${{ env.TARBALL_FILE }}
 
-      - uses: elastic/oblt-actions/buildkite/download-artifact@v1.5.0
+      - uses: elastic/oblt-actions/buildkite/download-artifact@v1
         with:
           build-number: ${{ steps.buildkite-run.outputs.number }}
           path: ${{ env.TARBALL_FILE }}
@@ -66,12 +66,12 @@ jobs:
         run: tar xvf ${{ env.TARBALL_FILE }}
 
       - name: generate build provenance
-        uses: actions/attest-build-provenance@951c0c5f8e375ad4efad33405ab77f7ded2358e4  # v1.1.1
+        uses: actions/attest-build-provenance@db473fddc028af60658334401dc6fa3ffd8669fd  # v2.3.0
         with:
           subject-path: "${{ github.workspace }}/**/target/*.jar"
 
       - if: ${{ failure() }}
-        uses: elastic/oblt-actions/slack/send@v1.5.0
+        uses: elastic/oblt-actions/slack/send@v1
         with:
           bot-token: ${{ secrets.SLACK_BOT_TOKEN }}
           channel-id: "#apm-agent-java"

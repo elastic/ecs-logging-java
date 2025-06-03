@@ -1,0 +1,63 @@
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: ecs-logging-java-release
+  description: 'The ECS logging Java Release :pipeline:'
+  links:
+    - title: Pipeline
+      url: https://buildkite.com/elastic/ecs-logging-java-release 
+
+spec:
+  implementation:
+    apiVersion: buildkite.elastic.dev/v1
+    kind: Pipeline
+    metadata:
+      description: 'The ECS logging Java Release :pipeline:'
+      name: ecs-logging-java-release
+    spec:
+      default_branch: null
+      pipeline_file: .buildkite/release.yml
+      provider_settings:
+        trigger_mode: none
+      repository: elastic/ecs-logging-java
+      teams:
+        apm-agent-java: {}
+        everyone:
+          access_level: READ_ONLY
+        observablt-robots: {}
+        observablt-robots-automation: {}
+  owner: group:observablt-robots
+  type: buildkite-pipeline
+
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: ecs-logging-java-snapshot
+  description: 'The ECS logging Java Snapshot :pipeline:'
+  links:
+    - title: Pipeline
+      url: https://buildkite.com/elastic/ecs-logging-java-snapshot
+
+spec:
+  implementation:
+    apiVersion: buildkite.elastic.dev/v1
+    kind: Pipeline
+    metadata:
+      description: 'The ECS logging Java Snapshot :pipeline:'
+      name: ecs-logging-java-snapshot
+    spec:
+      default_branch: null
+      pipeline_file: .buildkite/snapshot.yml
+      provider_settings:
+        trigger_mode: none
+      repository: elastic/ecs-logging-java
+      teams:
+        apm-agent-java: {}
+        everyone:
+          access_level: READ_ONLY
+        observablt-robots: {}
+        observablt-robots-automation: {}
+  owner: group:observablt-robots
+  type: buildkite-pipeline

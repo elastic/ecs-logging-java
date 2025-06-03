@@ -1,0 +1,13 @@
+project: 'ECS Logging Java'
+products:
+  - id: ecs-logging
+cross_links:
+  - apm-agent-java
+  - beats
+  - ecs
+  - ecs-logging
+  - elasticsearch
+toc:
+  - toc: reference
+subs:
+  filebeat:   "Filebeat"

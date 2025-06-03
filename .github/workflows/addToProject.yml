@@ -4,8 +4,6 @@ name: Auto Assign to Project(s)
 on:
   issues:
     types: [opened, edited, milestoned]
-env:
-  MY_GITHUB_TOKEN: ${{ secrets.APM_TECH_USER_TOKEN }}
 
 permissions:
   contents: read
@@ -15,6 +13,18 @@ jobs:
     runs-on: ubuntu-latest
     name: Assign milestoned to Project
     steps:
+    - name: Get token
+      id: get_token
+      uses: tibdex/github-app-token@3beb63f4bd073e61482598c45c71c1019b59b73a # v2.1.0
+      with:
+        app_id: ${{ secrets.OBS_AUTOMATION_APP_ID }}
+        private_key: ${{ secrets.OBS_AUTOMATION_APP_PEM }}
+        permissions: >-
+          {
+            "organization_projects": "write",
+            "issues": "read"
+          }
+
     - name: Assign issues with milestones to project
       uses: elastic/assign-one-project-github-action@1.2.2
       if: github.event.issue && github.event.issue.milestone
@@ -22,3 +32,5 @@ jobs:
         project: 'https://github.com/orgs/elastic/projects/454'
         project_id: '5882982'
         column_name: 'Planned'
+      env:
+        MY_GITHUB_TOKEN: ${{ steps.get_token.outputs.token }}
