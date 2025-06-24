@@ -68,6 +68,7 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <parent.base.dir>${project.basedir}</parent.base.dir>
         <maven-deploy-plugin.skip>false</maven-deploy-plugin.skip>
+        <surefire.useModulePath>false</surefire.useModulePath>
     </properties>
 
     <distributionManagement>
