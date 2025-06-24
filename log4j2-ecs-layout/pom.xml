@@ -27,6 +27,7 @@
                         </goals>
                         <phase>process-classes</phase>
                         <configuration>
+                            <release>${maven.compiler.target}</release>
                             <proc>only</proc>
                             <annotationProcessors>
                                 <annotationProcessor>org.apache.logging.log4j.core.config.plugins.processor.PluginProcessor
