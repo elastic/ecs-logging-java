@@ -16,16 +16,6 @@
         <module>log4j-legacy-tests</module>
         <module>logback-legacy-tests</module>
         <module>jul-ecs-formatter</module>
-        <!-- IMPORTANT:
-            For the nexus deployment to work correctly, the last project in the build order needs to have deployment
-            enabled (maven-deploy-plugin.skip must be false).
-            The reason is that for SNAPSHOT builds the upload is performed by the nexus-staging-maven-plugin
-            after the last project build and EVERYTHING is skipped if this project is not part of the deployment.
-            See the documentation (https://github.com/sonatype/nexus-maven-plugins/tree/main/staging/maven-plugin#plugin-flags)
-            and the related issue (https://issues.sonatype.org/browse/NEXUS-9138).
-
-            You can verify the build order by executing ./mvnw clean and looking for the "Reactor Build Order log".
-        -->
     </modules>
     <packaging>pom</packaging>
     <inceptionYear>2019</inceptionYear>
@@ -67,19 +57,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
         <parent.base.dir>${project.basedir}</parent.base.dir>
-        <maven-deploy-plugin.skip>false</maven-deploy-plugin.skip>
     </properties>
-
-    <distributionManagement>
-        <snapshotRepository>
-            <id>sonatype-nexus-snapshots</id>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
-        </snapshotRepository>
-        <repository>
-            <id>sonatype-nexus-staging</id>
-            <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
-        </repository>
-    </distributionManagement>
 
     <profiles>
         <!--
@@ -137,16 +115,14 @@
                 <version>2.16.2</version>
             </plugin>
             <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <groupId>org.sonatype.central</groupId>
+                <artifactId>central-publishing-maven-plugin</artifactId>
+                <version>0.8.0</version>
                 <extensions>true</extensions>
                 <configuration>
-                    <!-- The Base URL of Nexus instance where we want to stage -->
-                    <nexusUrl>https://oss.sonatype.org/</nexusUrl>
-                    <!-- The server "id" element from settings to use authentication from -->
-                    <serverId>sonatype-nexus-staging</serverId>
-                    <skipNexusStagingDeployMojo>${maven-deploy-plugin.skip}</skipNexusStagingDeployMojo>
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                    <publishingServerId>central</publishingServerId>
+                    <autoPublish>true</autoPublish>
+                    <excludeArtifacts>log4j-legacy-tests,log4j2-legacy-tests,logback-legacy-tests</excludeArtifacts>
                 </configuration>
             </plugin>
             <plugin>
