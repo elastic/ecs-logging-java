@@ -30,7 +30,7 @@ jobs:
         - 'compile javadoc:javadoc'
       fail-fast: false
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - uses: ./.github/workflows/maven-goal
       with:
         command: ./mvnw ${{ matrix.goal }}
