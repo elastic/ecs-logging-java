@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
       - name: Validate tag does not exist on current commit
@@ -66,7 +66,7 @@ jobs:
           repositories: >-
             ["ecs-logging-java"]
 
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           ref: ${{ inputs.ref }}
           token: ${{ steps.get_token.outputs.token }}
