@@ -62,6 +62,25 @@ class EcsJsonSerializerTest {
     }
 
     @Test
+    void serializeExceptionWithoutStacktraceAsString() throws IOException {
+        Exception exception = new Exception("no stacktrace"){
+            @Override
+            public synchronized Throwable fillInStackTrace() {
+                return this;
+            }
+        };
+        StringBuilder jsonBuilder = new StringBuilder();
+        jsonBuilder.append('{');
+        EcsJsonSerializer.serializeException(jsonBuilder, exception, false);
+        jsonBuilder.append('}');
+        JsonNode jsonNode = objectMapper.readTree(jsonBuilder.toString());
+
+        assertThat(jsonNode.get(ERROR_TYPE).textValue()).isEqualTo(exception.getClass().getName());
+        assertThat(jsonNode.get(ERROR_MESSAGE).textValue()).isEqualTo("no stacktrace");
+        assertThat(jsonNode.get(ERROR_STACK_TRACE)).isNull();
+    }
+
+    @Test
     void testEscaping() throws IOException {
         String loggerName = "logger\"";
         String serviceName = "test\"";
@@ -123,6 +142,26 @@ class EcsJsonSerializerTest {
                 .map(JsonNode::textValue)
                 .collect(Collectors.joining(System.lineSeparator(), "", System.lineSeparator())))
                 .isEqualTo(stringWriter.toString());
+    }
+
+    @Test
+    void serializeExceptionWithoutStacktraceAsArray() throws IOException {
+        Exception exception = new Exception("no stacktrace"){
+            @Override
+            public synchronized Throwable fillInStackTrace() {
+                return this;
+            }
+        };
+        StringBuilder jsonBuilder = new StringBuilder();
+        jsonBuilder.append('{');
+        EcsJsonSerializer.serializeException(jsonBuilder, exception, true);
+        jsonBuilder.append('}');
+        System.out.println(jsonBuilder);
+        JsonNode jsonNode = objectMapper.readTree(jsonBuilder.toString());
+
+        assertThat(jsonNode.get(ERROR_TYPE).textValue()).isEqualTo(exception.getClass().getName());
+        assertThat(jsonNode.get(ERROR_MESSAGE).textValue()).isEqualTo("no stacktrace");
+        assertThat(jsonNode.get(ERROR_STACK_TRACE)).isNull();
     }
 
     @Test
