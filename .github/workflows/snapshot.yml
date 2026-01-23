@@ -38,6 +38,7 @@ jobs:
     needs: validate
     if: ${{ contains(needs.validate.outputs.is-snapshot, 'true') }}
     permissions:
+      artifact-metadata: write
       attestations: write
       contents: write
       id-token: write
