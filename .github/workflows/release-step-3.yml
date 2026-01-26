@@ -67,6 +67,7 @@ jobs:
     needs:
       - validate-tag
     permissions:
+      artifact-metadata: write
       attestations: write
       contents: write
       id-token: write
