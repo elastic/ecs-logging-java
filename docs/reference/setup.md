@@ -1,7 +1,12 @@
 ---
+applies_to:
+  stack: ga
+  serverless: ga
 mapped_pages:
   - https://www.elastic.co/guide/en/ecs-logging/java/current/setup.html
 navigation_title: Get started
+products:
+  - id: ecs-logging
 ---
 
 # Get started with ECS Logging Java [setup]
@@ -383,6 +388,11 @@ If you’re using the Elastic APM Java agent, log correlation is enabled by defa
 
 ## Step 2: Configure Filebeat [setup-step-2]
 
+```{applies_to}
+stack: ga
+serverless: unavailable
+```
+
 :::::::{tab-set}
 
 ::::::{tab-item} Log file
@@ -475,6 +485,11 @@ For more information, see the [Filebeat reference](beats://reference/filebeat/co
 
 
 ### When `stackTraceAsArray` is enabled [setup-stack-trace-as-array]
+
+```{applies_to}
+stack: ga
+serverless: unavailable
+```
 
 Filebeat can normally only decode JSON if there is one JSON object per line. When `stackTraceAsArray` is enabled, there will be a new line for each stack trace element which improves readability. But when combining the multiline settings with a `decode_json_fields` we can also handle multi-line JSON:
 
