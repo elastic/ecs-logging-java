@@ -1,7 +1,12 @@
 ---
+applies_to:
+  stack: ga
+  serverless: ga
 mapped_pages:
   - https://www.elastic.co/guide/en/ecs-logging/java/current/intro.html
   - https://www.elastic.co/guide/en/ecs-logging/java/current/index.html
+products:
+  - id: ecs-logging
 ---
 
 # ECS Logging Java [intro]
