@@ -9,6 +9,10 @@ updates:
       interval: "weekly"
       day: "sunday"
       time: "22:00"
+    exclude-paths:
+      - "log4j2-legacy-tests"
+      - "log4j-legacy-tests"
+      - "logback-legacy-tests"
     groups:
       github-actions:
         patterns:
