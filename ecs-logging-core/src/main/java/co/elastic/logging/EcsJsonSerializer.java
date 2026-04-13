@@ -302,6 +302,10 @@ public class EcsJsonSerializer {
             if (index < length) {
                 // append remaining line
                 appendStackTraceLine(builder, stackTrace, index, length);
+            } else {
+                // stack trace ends with newline, remove trailing comma and newline
+                removeIfEndsWith(builder, NEW_LINE);
+                removeIfEndsWith(builder, ",");
             }
         } else {
             // no newlines found, add entire stack trace as single element
