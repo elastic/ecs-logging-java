@@ -37,6 +37,8 @@ public class EcsJsonSerializer {
     private static final ThreadLocal<StringBuilder> messageStringBuilder = new ThreadLocal<StringBuilder>();
     private static final String NEW_LINE = System.getProperty("line.separator");
     private static final Pattern NEW_LINE_PATTERN = Pattern.compile("\\r\\n|\\n|\\r");
+    private static final int INITIAL_BUFFER_CAPACITY = 1024;
+    static final int MAX_BUFFER_CAPACITY = 8192;
 
     public static CharSequence toNullSafeString(final CharSequence s) {
         return s == null ? "" : s;
@@ -339,13 +341,23 @@ public class EcsJsonSerializer {
         return true;
     }
 
+    /**
+     * Returns a thread-local {@link StringBuilder} for temporary message formatting.
+     * <p>
+     * If the buffer has grown beyond {@link #MAX_BUFFER_CAPACITY} (e.g. due to a large stack trace),
+     * it is discarded and replaced with a fresh instance to prevent unbounded memory retention in
+     * long-lived thread-pool threads.
+     *
+     * @see <a href="https://github.com/elastic/ecs-logging-java/issues/381">#381</a>
+     */
     public static StringBuilder getMessageStringBuilder() {
         StringBuilder result = messageStringBuilder.get();
-        if (result == null) {
-            result = new StringBuilder(1024);
+        if (result == null || result.capacity() > MAX_BUFFER_CAPACITY) {
+            result = new StringBuilder(INITIAL_BUFFER_CAPACITY);
             messageStringBuilder.set(result);
+        } else {
+            result.setLength(0);
         }
-        result.setLength(0);
         return result;
     }
 

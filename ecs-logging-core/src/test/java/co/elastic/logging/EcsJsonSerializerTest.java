@@ -192,6 +192,38 @@ class EcsJsonSerializerTest {
         assertThat(jsonNode.get(ERROR_MESSAGE)).isNull();
     }
 
+    @Test
+    void getMessageStringBuilderDiscardsOversizedBuffer()  {
+        // First call: initializes the thread-local StringBuilder
+        StringBuilder sb1 = EcsJsonSerializer.getMessageStringBuilder();
+        assertThat(sb1.capacity()).isLessThanOrEqualTo(EcsJsonSerializer.MAX_BUFFER_CAPACITY);
+
+        // Simulate a large log message / stack trace that bloats the buffer
+        sb1.append("x".repeat(EcsJsonSerializer.MAX_BUFFER_CAPACITY + 1));
+        assertThat(sb1.capacity()).isGreaterThan(EcsJsonSerializer.MAX_BUFFER_CAPACITY);
+
+        // Next call should detect the oversized buffer and replace it
+        StringBuilder sb2 = EcsJsonSerializer.getMessageStringBuilder();
+        assertThat(sb2).isNotSameAs(sb1);
+        assertThat(sb2.capacity()).isLessThanOrEqualTo(EcsJsonSerializer.MAX_BUFFER_CAPACITY);
+        assertThat(sb2.length()).isZero();
+    }
+
+    @Test
+    void getMessageStringBuilderReuseNormallySizedBuffer()  {
+        // First call: initializes the thread-local StringBuilder
+        StringBuilder sb1 = EcsJsonSerializer.getMessageStringBuilder();
+
+        // Append something that stays within the threshold
+        sb1.append("small message");
+        assertThat(sb1.capacity()).isLessThanOrEqualTo(EcsJsonSerializer.MAX_BUFFER_CAPACITY);
+
+        // Next call should reuse the same instance (just cleared)
+        StringBuilder sb2 = EcsJsonSerializer.getMessageStringBuilder();
+        assertThat(sb2).isSameAs(sb1);
+        assertThat(sb2.length()).isZero();
+    }
+
     private void assertRemoveIfEndsWith(String builder, String ending, String expected) {
         StringBuilder sb = new StringBuilder(builder);
         EcsJsonSerializer.removeIfEndsWith(sb, ending);
