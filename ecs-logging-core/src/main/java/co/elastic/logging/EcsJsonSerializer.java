@@ -38,7 +38,7 @@ public class EcsJsonSerializer {
 
     private static final TimestampSerializer TIMESTAMP_SERIALIZER = new TimestampSerializer();
     private static final ThreadLocal<StringBuilder> messageStringBuilder = new ThreadLocal<StringBuilder>();
-    private static final String NEW_LINE = System.lineSeparator();
+    private static final String NEW_LINE = System.getProperty("line.separator");
     private static final Pattern NEW_LINE_PATTERN = Pattern.compile("\\r\\n|\\n|\\r");
 
     // Those keys are not expected to be used in MDC, thus we filter-out those keys to prevent major issues
