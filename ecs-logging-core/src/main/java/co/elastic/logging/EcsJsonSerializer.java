@@ -41,26 +41,15 @@ public class EcsJsonSerializer {
     private static final String NEW_LINE = System.lineSeparator();
     private static final Pattern NEW_LINE_PATTERN = Pattern.compile("\\r\\n|\\n|\\r");
 
+    // Those keys are not expected to be used in MDC, thus we filter-out those keys to prevent major issues
+    // when they are present as top-level MDC keys.
     private static final Set<String> RESERVED_KEYS =  new HashSet<String>(Arrays.asList(
-            // core
             "@timestamp",
             "message",
             "log.logger",
             "log.level",
             "event.dataset",
-            "ecs.version",
-            // process
-            "process.thread.name",
-            "process.thread.id",
-            // service
-            "service.name",
-            "service.version",
-            "service.environment",
-            "service.node.name",
-            // error
-            "error.type",
-            "error.message",
-            "error.stack_trace"));
+            "ecs.version"));
 
     public static CharSequence toNullSafeString(final CharSequence s) {
         return s == null ? "" : s;
