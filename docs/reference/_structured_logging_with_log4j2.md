@@ -1,6 +1,11 @@
 ---
+applies_to:
+  stack: ga
+  serverless: ga
 mapped_pages:
   - https://www.elastic.co/guide/en/ecs-logging/java/current/_structured_logging_with_log4j2.html
+products:
+  - id: ecs-logging
 ---
 
 # Structured logging with log4j2 [_structured_logging_with_log4j2]
