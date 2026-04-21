@@ -194,14 +194,19 @@ public class EcsJsonSerializer {
     public static void serializeMDC(StringBuilder builder, Map<String, ?> properties) {
         if (properties != null && !properties.isEmpty()) {
             for (Map.Entry<String, ?> entry : properties.entrySet()) {
-                builder.append('\"');
                 String key = entry.getKey();
-                JsonUtils.quoteAsString(key, builder);
-                builder.append("\":\"");
-                JsonUtils.quoteAsString(toNullSafeString(String.valueOf(entry.getValue())), builder);
-                builder.append("\",");
+                String value = String.valueOf(entry.getValue());
+                serializeMdcEntry(builder, key, value);
             }
         }
+    }
+
+    public static void serializeMdcEntry(StringBuilder builder, String key, String value) {
+        builder.append('\"');
+        JsonUtils.quoteAsString(key, builder);
+        builder.append("\":\"");
+        JsonUtils.quoteAsString(toNullSafeString(value), builder);
+        builder.append("\",");
     }
 
     public static void serializeException(StringBuilder builder, Throwable thrown, boolean stackTraceAsArray) {
