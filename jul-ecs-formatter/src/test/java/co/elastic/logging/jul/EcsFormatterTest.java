@@ -55,7 +55,7 @@ public class EcsFormatterTest {
     }
 
     @Test
-    public void testFormatWithIncludeOriginFlag() throws Exception {
+    public void testFormatWithIncludeOriginFlag() {
         formatter.setIncludeOrigin(true);
 
         final String result = formatter.format(record);
@@ -65,13 +65,13 @@ public class EcsFormatterTest {
     }
 
     @Test
-    public void testFormatWithoutIncludeOriginFlag() throws Exception {
+    public void testFormatWithoutIncludeOriginFlag() {
         final JsonNode result = parseJson(formatter.format(record));
         assertThat(result.get("log.origin")).isNull();
     }
 
     @Test
-    public void testFormatWithoutLoggerName() throws Exception {
+    public void testFormatWithoutLoggerName() {
         record.setLoggerName(null);
 
         final JsonNode result = parseJson(formatter.format(record));
@@ -80,7 +80,7 @@ public class EcsFormatterTest {
     }
 
     @Test
-    public void testFormatWithEmptyLoggerName() throws Exception {
+    public void testFormatWithEmptyLoggerName() {
         record.setLoggerName("");
 
         final JsonNode result = parseJson(formatter.format(record));
@@ -89,7 +89,7 @@ public class EcsFormatterTest {
     }
 
     @Test
-    public void testFormatWithInnerClassName() throws Exception {
+    public void testFormatWithInnerClassName() {
         formatter.setIncludeOrigin(true);
         record.setSourceClassName("test.ExampleClass$InnerClass");
 
@@ -99,7 +99,7 @@ public class EcsFormatterTest {
     }
 
     @Test
-    public void testFormatWithInvalidClassName() throws Exception {
+    public void testFormatWithInvalidClassName() {
         formatter.setIncludeOrigin(true);
         record.setSourceClassName("$test.ExampleClass");
 
@@ -110,7 +110,7 @@ public class EcsFormatterTest {
 
     @Test
     void testMdcSerialization_singleEntry() {
-        Map<String,String> mdc = new HashMap<>();
+        Map<String, String> mdc = new HashMap<String, String>();
         TestMdcEcsFormatter mdcFormatter = new TestMdcEcsFormatter(mdc);
         mdc.put("mdc.key", "value");
         JsonNode result = parseJson(mdcFormatter.format(record));
@@ -119,7 +119,7 @@ public class EcsFormatterTest {
 
     @Test
     void testMdcSerialization_filterEntries() {
-        Map<String,String> mdc = new HashMap<>();
+        Map<String, String> mdc = new HashMap<String, String>();
         TestMdcEcsFormatter mdcFormatter = new TestMdcEcsFormatter(mdc);
         mdc.put("message", "mdc message");
         mdc.put("@timestamp", "mdc timestamp");
