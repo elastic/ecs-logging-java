@@ -117,6 +117,16 @@ public class EcsFormatterTest {
         assertThat(result.get("mdc.key").textValue()).isEqualTo("value");
     }
 
+    @Test
+    void testMdcSerialization_filterEntries() {
+        Map<String,String> mdc = new HashMap<>();
+        TestMdcEcsFormatter mdcFormatter = new TestMdcEcsFormatter(mdc);
+        mdc.put("message", "mdc message");
+        mdc.put("@timestamp", "mdc timestamp");
+        JsonNode result = parseJson(mdcFormatter.format(record));
+        assertThat(result.get("message").textValue()).isEqualTo(record.getMessage());
+    }
+
     private static JsonNode parseJson(String formatter) {
         try {
             return objectMapper.readTree(formatter);

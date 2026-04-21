@@ -35,8 +35,29 @@ public class EcsJsonSerializer {
 
     private static final TimestampSerializer TIMESTAMP_SERIALIZER = new TimestampSerializer();
     private static final ThreadLocal<StringBuilder> messageStringBuilder = new ThreadLocal<StringBuilder>();
-    private static final String NEW_LINE = System.getProperty("line.separator");
+    private static final String NEW_LINE = System.lineSeparator();
     private static final Pattern NEW_LINE_PATTERN = Pattern.compile("\\r\\n|\\n|\\r");
+
+    private static final Set<String> RESERVED_KEYS =  new HashSet<String>(Arrays.asList(
+            // core
+            "@timestamp",
+            "message",
+            "log.logger",
+            "log.level",
+            "event.dataset",
+            "ecs.version",
+            // process
+            "process.thread.name",
+            "process.thread.id",
+            // service
+            "service.name",
+            "service.version",
+            "service.environment",
+            "service.node.name",
+            // error
+            "error.type",
+            "error.message",
+            "error.stack_trace"));
 
     public static CharSequence toNullSafeString(final CharSequence s) {
         return s == null ? "" : s;
@@ -202,6 +223,9 @@ public class EcsJsonSerializer {
     }
 
     public static void serializeMdcEntry(StringBuilder builder, String key, String value) {
+        if (RESERVED_KEYS.contains(key)) {
+            return;
+        }
         builder.append('\"');
         JsonUtils.quoteAsString(key, builder);
         builder.append("\":\"");
