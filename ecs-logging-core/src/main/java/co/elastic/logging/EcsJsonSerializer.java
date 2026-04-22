@@ -49,6 +49,8 @@ public class EcsJsonSerializer {
             "log.logger",
             "log.level",
             "event.dataset",
+            "process.thread.name",
+            "process.thread.id",
             "ecs.version"));
 
     public static CharSequence toNullSafeString(final CharSequence s) {
