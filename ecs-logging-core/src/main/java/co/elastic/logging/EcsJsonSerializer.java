@@ -26,8 +26,11 @@ package co.elastic.logging;
 
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,6 +42,18 @@ public class EcsJsonSerializer {
     private static final Pattern NEW_LINE_PATTERN = Pattern.compile("\\r\\n|\\n|\\r");
     private static final int INITIAL_BUFFER_CAPACITY = 1024;
     static final int MAX_BUFFER_CAPACITY = 8192;
+
+    // Those keys are not expected to be used in MDC, thus we filter-out those keys to prevent major issues
+    // when they are present as top-level MDC keys.
+    private static final Set<String> RESERVED_KEYS =  new HashSet<String>(Arrays.asList(
+            "@timestamp",
+            "message",
+            "log.logger",
+            "log.level",
+            "event.dataset",
+            "process.thread.name",
+            "process.thread.id",
+            "ecs.version"));
 
     public static CharSequence toNullSafeString(final CharSequence s) {
         return s == null ? "" : s;
@@ -196,14 +211,22 @@ public class EcsJsonSerializer {
     public static void serializeMDC(StringBuilder builder, Map<String, ?> properties) {
         if (properties != null && !properties.isEmpty()) {
             for (Map.Entry<String, ?> entry : properties.entrySet()) {
-                builder.append('\"');
                 String key = entry.getKey();
-                JsonUtils.quoteAsString(key, builder);
-                builder.append("\":\"");
-                JsonUtils.quoteAsString(toNullSafeString(String.valueOf(entry.getValue())), builder);
-                builder.append("\",");
+                String value = String.valueOf(entry.getValue());
+                serializeMdcEntry(builder, key, value);
             }
         }
+    }
+
+    public static void serializeMdcEntry(StringBuilder builder, String key, String value) {
+        if (RESERVED_KEYS.contains(key)) {
+            return;
+        }
+        builder.append('\"');
+        JsonUtils.quoteAsString(key, builder);
+        builder.append("\":\"");
+        JsonUtils.quoteAsString(toNullSafeString(value), builder);
+        builder.append("\",");
     }
 
     public static void serializeException(StringBuilder builder, Throwable thrown, boolean stackTraceAsArray) {

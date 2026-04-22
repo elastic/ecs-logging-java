@@ -42,11 +42,7 @@ public class CustomMdcSerializer implements MdcSerializer {
 
     // Default function for serializing MDC entries
     private static final TriConsumer<String, Object, StringBuilder> DEFAULT_WRITE_MDC_FUNCTION = (key, value, stringBuilder) -> {
-        stringBuilder.append('\"');
-        JsonUtils.quoteAsString(key, stringBuilder);
-        stringBuilder.append("\":\"");
-        JsonUtils.quoteAsString(EcsJsonSerializer.toNullSafeString(String.valueOf(value)), stringBuilder);
-        stringBuilder.append("\",");
+        EcsJsonSerializer.serializeMdcEntry(stringBuilder, key, String.valueOf(value));
     };
 
     // Custom function for handling a specific key

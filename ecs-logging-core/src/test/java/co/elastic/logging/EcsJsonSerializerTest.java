@@ -32,7 +32,9 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import java.util.stream.StreamSupport;
 
@@ -99,7 +101,7 @@ class EcsJsonSerializerTest {
     }
 
     @Test
-    void serializeNullDoesNotThrowAnException() throws JsonProcessingException {
+    void serializeNullDoesNotThrowAnException() {
         StringBuilder stringBuilder = new StringBuilder();
         EcsJsonSerializer.serializeFormattedMessage(stringBuilder, null);
         assertThat(stringBuilder.toString()).isEqualTo("\"message\":\"null\",");
@@ -228,5 +230,25 @@ class EcsJsonSerializerTest {
         StringBuilder sb = new StringBuilder(builder);
         EcsJsonSerializer.removeIfEndsWith(sb, ending);
         assertThat(sb.toString()).isEqualTo(expected);
+    }
+
+    @Test
+    void serializeMdc() throws JsonProcessingException {
+        StringBuilder jsonBuilder = new StringBuilder();
+        EcsJsonSerializer.serializeObjectStart(jsonBuilder, 0);
+        Map<String,String> mdc = new HashMap<String, String>();
+        mdc.put("message", "mdc message");
+        mdc.put("@timestamp", "mdc timestamp");
+        mdc.put("mdc.key1", "mdc value 1");
+        mdc.put("mdc_key2", "mdc value 2");
+        EcsJsonSerializer.serializeFormattedMessage(jsonBuilder, "formatted message");
+        EcsJsonSerializer.serializeMDC(jsonBuilder, mdc);
+        EcsJsonSerializer.serializeObjectEnd(jsonBuilder);
+
+        JsonNode jsonNode = objectMapper.readTree(jsonBuilder.toString());
+        assertThat(jsonNode.get("message").textValue()).isEqualTo("formatted message");
+        assertThat(jsonNode.get("@timestamp").textValue()).isEqualTo("1970-01-01T00:00:00.000Z");
+        assertThat(jsonNode.get("mdc.key1").textValue()).isEqualTo("mdc value 1");
+        assertThat(jsonNode.get("mdc_key2").textValue()).isEqualTo("mdc value 2");
     }
 }

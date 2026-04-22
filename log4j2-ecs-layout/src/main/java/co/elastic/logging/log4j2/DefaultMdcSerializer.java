@@ -43,11 +43,7 @@ interface DefaultMdcSerializer extends MdcSerializer {
         private static final TriConsumer<String, Object, StringBuilder> WRITE_MDC = new TriConsumer<String, Object, StringBuilder>() {
             @Override
             public void accept(final String key, final Object value, final StringBuilder stringBuilder) {
-                stringBuilder.append('\"');
-                JsonUtils.quoteAsString(key, stringBuilder);
-                stringBuilder.append("\":\"");
-                JsonUtils.quoteAsString(EcsJsonSerializer.toNullSafeString(String.valueOf(value)), stringBuilder);
-                stringBuilder.append("\",");
+                EcsJsonSerializer.serializeMdcEntry(stringBuilder, key, String.valueOf(value));
             }
         };
 
