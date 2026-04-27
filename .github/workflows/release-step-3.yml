@@ -130,10 +130,27 @@ jobs:
           artifact-id: 'ecs-logging-core'
           version: ${{ inputs.version }}
 
+  post-release:
+    name: "Bump versions and create PR"
+    needs:
+      - await-maven-central-artifact
+    uses: ./.github/workflows/pre-post-release.yml
+    permissions:
+      contents: write
+    if: inputs.dry_run == false
+    with:
+      ref: ${{ inputs.ref }}
+      version: ${{ inputs.version }}
+      phase: 'post'
+      pr_title: "[release] release-step-4 ${{ inputs.version }}"
+      pr_body: "Step 4 of the release process for version ${{ inputs.version }}: review & merge"
+    secrets: inherit
+
   create-github-release:
     name: "Create GitHub Release"
     needs:
-      - await-maven-central-artifact
+      # git tag is created by 'post-release', and we require it to exist to be able to create a github release.
+      - post-release
     runs-on: ubuntu-latest
     if: inputs.dry_run == false
     permissions:
@@ -150,19 +167,3 @@ jobs:
           gh release create ${{ env.RELEASE_VERSION_TAG }} \
             --title="Release ${{ env.RELEASE_VERSION }}" \
             --generate-notes
-
-  post-release:
-    name: "Bump versions and create PR"
-    needs:
-      - await-maven-central-artifact
-    uses: ./.github/workflows/pre-post-release.yml
-    permissions:
-      contents: write
-    if: inputs.dry_run == false
-    with:
-      ref: ${{ inputs.ref }}
-      version: ${{ inputs.version }}
-      phase: 'post'
-      pr_title: "[release] release-step-4 ${{ inputs.version }}"
-      pr_body: "Step 4 of the release process for version ${{ inputs.version }}: review & merge"
-    secrets: inherit
