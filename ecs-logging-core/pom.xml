@@ -8,6 +8,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>ecs-logging-core</artifactId>
+    <name>${project.groupId}:${project.artifactId}</name>
     <properties>
         <parent.base.dir>${project.basedir}/..</parent.base.dir>
     </properties>

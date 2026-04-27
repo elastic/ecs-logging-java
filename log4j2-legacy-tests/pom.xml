@@ -8,6 +8,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>log4j2-legacy-tests</artifactId>
+    <name>${project.groupId}:${project.artifactId}</name>
 
     <properties>
         <version.log4j.legacy>2.6</version.log4j.legacy>
