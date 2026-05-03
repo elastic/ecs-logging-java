@@ -55,6 +55,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         }
         GET_SEQUENCE_NUMBER = m;
     }
+    private boolean emitEventSequence;
     private boolean stackTraceAsArray = false;
     private String serviceName;
     private String serviceVersion;
@@ -82,6 +83,13 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
             throwableConverter.start();
         }
         eventDataset = EcsJsonSerializer.computeEventDataset(eventDataset, serviceName);
+        if (GET_SEQUENCE_NUMBER != null && getContext() != null) {
+            try {
+                Method getGenerator = getContext().getClass().getMethod("getSequenceNumberGenerator");
+                emitEventSequence = getGenerator.invoke(getContext()) != null;
+            } catch (Exception ignored) {
+            }
+        }
     }
 
     /**
@@ -125,13 +133,12 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         EcsJsonSerializer.serializeServiceEnvironment(builder, serviceEnvironment);
         EcsJsonSerializer.serializeServiceNodeName(builder, serviceNodeName);
         EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
-        if (GET_SEQUENCE_NUMBER != null) {
+        if (emitEventSequence) {
             try {
-                long seq = (Long) GET_SEQUENCE_NUMBER.invoke(event);
-                if (seq != 0) {
-                    EcsJsonSerializer.serializeEventSequence(builder, seq);
-                }
+                EcsJsonSerializer.serializeEventSequence(builder, (Long) GET_SEQUENCE_NUMBER.invoke(event));
             } catch (Exception ignored) {
+                // Reflection call failed at runtime; disable for subsequent events
+                emitEventSequence = false;
             }
         }
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());

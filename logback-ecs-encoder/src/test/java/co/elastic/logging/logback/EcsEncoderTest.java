@@ -69,8 +69,8 @@ public class EcsEncoderTest extends AbstractEcsEncoderTest {
     void testEventSequenceAbsentWithoutGenerator() throws Exception {
         logger.debug("test");
         JsonNode logLine = getLastLogLine();
-        // On logback 1.2.x, ILoggingEvent has no getSequenceNumber() method,
-        // so event.sequence must not appear in the output.
+        // No SequenceNumberGenerator on the context (and logback 1.2.x lacks
+        // the API entirely), so event.sequence must not appear.
         assertThat(logLine.has("event.sequence")).isFalse();
     }
 }
