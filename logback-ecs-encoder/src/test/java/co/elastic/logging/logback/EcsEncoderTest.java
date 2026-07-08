@@ -31,6 +31,9 @@ import org.junit.jupiter.api.BeforeEach;
 
 import java.io.IOException;
 
+import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class EcsEncoderTest extends AbstractEcsEncoderTest {
 
     private OutputStreamAppender appender;
@@ -60,5 +63,14 @@ public class EcsEncoderTest extends AbstractEcsEncoderTest {
     @Override
     public JsonNode getLastLogLine() throws IOException {
         return objectMapper.readTree(appender.getBytes());
+    }
+
+    @Test
+    void testEventSequenceAbsentWithoutGenerator() throws Exception {
+        logger.debug("test");
+        JsonNode logLine = getLastLogLine();
+        // No SequenceNumberGenerator on the context (and logback 1.2.x lacks
+        // the API entirely), so event.sequence must not appear.
+        assertThat(logLine.has("event.sequence")).isFalse();
     }
 }
