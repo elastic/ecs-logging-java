@@ -53,6 +53,7 @@ public class EcsJsonSerializer {
             "event.dataset",
             "process.thread.name",
             "process.thread.id",
+            "event.sequence",
             "ecs.version"));
 
     public static CharSequence toNullSafeString(final CharSequence s) {
@@ -142,6 +143,12 @@ public class EcsJsonSerializer {
             JsonUtils.quoteAsString(eventDataset, builder);
             builder.append("\",");
         }
+    }
+
+    public static void serializeEventSequence(StringBuilder builder, long sequenceNumber) {
+        builder.append("\"event.sequence\":");
+        builder.append(sequenceNumber);
+        builder.append(",");
     }
 
     public static void serializeLogLevel(StringBuilder builder, String level) {
