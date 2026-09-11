@@ -24,6 +24,8 @@ runs:
       with:
         java-version-file: .java-version
         distribution: ${{ inputs.distribution }}
+        # cache intentionally disabled (cache poisoning risk): shared by CI and release
+        # workflows with no per-caller toggle, so it's off everywhere. elastic/observability-robots#3261
     - run: "${COMMAND}"
       shell: ${{ inputs.shell }}
       env:
