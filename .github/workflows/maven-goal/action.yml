@@ -20,11 +20,12 @@ runs:
   using: "composite"
   steps:
     - name: Set up JDK
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v6
       with:
         java-version-file: .java-version
         distribution: ${{ inputs.distribution }}
-        cache: 'maven'
+        # cache intentionally disabled (cache poisoning risk): shared by CI and release
+        # workflows with no per-caller toggle, so it's off everywhere. elastic/observability-robots#3261
     - run: "${COMMAND}"
       shell: ${{ inputs.shell }}
       env:
