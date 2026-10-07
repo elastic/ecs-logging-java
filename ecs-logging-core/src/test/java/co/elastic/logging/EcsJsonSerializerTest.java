@@ -226,6 +226,26 @@ class EcsJsonSerializerTest {
         assertThat(sb2.length()).isZero();
     }
 
+    @Test
+    void serializeEventSequence() throws JsonProcessingException {
+        StringBuilder jsonBuilder = new StringBuilder();
+        jsonBuilder.append('{');
+        EcsJsonSerializer.serializeEventSequence(jsonBuilder, 42);
+        EcsJsonSerializer.serializeObjectEnd(jsonBuilder);
+        JsonNode jsonNode = objectMapper.readTree(jsonBuilder.toString());
+        assertThat(jsonNode.get("event.sequence").longValue()).isEqualTo(42);
+    }
+
+    @Test
+    void serializeEventSequenceZero() throws JsonProcessingException {
+        StringBuilder jsonBuilder = new StringBuilder();
+        jsonBuilder.append('{');
+        EcsJsonSerializer.serializeEventSequence(jsonBuilder, 0);
+        EcsJsonSerializer.serializeObjectEnd(jsonBuilder);
+        JsonNode jsonNode = objectMapper.readTree(jsonBuilder.toString());
+        assertThat(jsonNode.get("event.sequence").longValue()).isEqualTo(0);
+    }
+
     private void assertRemoveIfEndsWith(String builder, String ending, String expected) {
         StringBuilder sb = new StringBuilder(builder);
         EcsJsonSerializer.removeIfEndsWith(sb, ending);
