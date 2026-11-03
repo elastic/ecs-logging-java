@@ -69,6 +69,7 @@ public class EcsLayout extends AbstractStringLayout {
     private final KeyValuePair[] additionalFields;
     private final PatternFormatter[][] fieldValuePatternFormatter;
     private final boolean stackTraceAsArray;
+    private final String ecsVersion;
     private final String serviceName;
     private final String serviceVersion;
     private final String serviceEnvironment;
@@ -80,9 +81,10 @@ public class EcsLayout extends AbstractStringLayout {
     private final ConcurrentMap<Class<? extends MultiformatMessage>, Boolean> supportsJson = new ConcurrentHashMap<Class<? extends MultiformatMessage>, Boolean>();
     private final MdcSerializer mdcSerializer;
 
-    private EcsLayout(Configuration config, String serviceName, String serviceVersion, String serviceEnvironment, String serviceNodeName, String eventDataset, boolean includeMarkers,
+    private EcsLayout(Configuration config, String ecsVersion, String serviceName, String serviceVersion, String serviceEnvironment, String serviceNodeName, String eventDataset, boolean includeMarkers,
                       KeyValuePair[] additionalFields, boolean includeOrigin, String exceptionPattern, boolean stackTraceAsArray, String mdcSerializerFullClassName) {
         super(config, UTF_8, null, null);
+        this.ecsVersion = ecsVersion;
         this.serviceName = serviceName;
         this.serviceVersion = serviceVersion;
         this.serviceEnvironment = serviceEnvironment;
@@ -143,7 +145,7 @@ public class EcsLayout extends AbstractStringLayout {
         EcsJsonSerializer.serializeObjectStart(builder, event.getTimeMillis());
         EcsJsonSerializer.serializeLogLevel(builder, event.getLevel().toString());
         serializeMessage(builder, gcFree, event.getMessage(), event.getThrown());
-        EcsJsonSerializer.serializeEcsVersion(builder);
+        EcsJsonSerializer.serializeEcsVersion(builder, ecsVersion);
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
         EcsJsonSerializer.serializeServiceVersion(builder, serviceVersion);
         EcsJsonSerializer.serializeServiceEnvironment(builder, serviceEnvironment);
@@ -358,6 +360,8 @@ public class EcsLayout extends AbstractStringLayout {
 
         @PluginConfiguration
         private Configuration configuration;
+        @PluginBuilderAttribute("ecsVersion")
+        private String ecsVersion;
         @PluginBuilderAttribute("serviceName")
         private String serviceName;
         @PluginBuilderAttribute("serviceVersion")
@@ -395,6 +399,10 @@ public class EcsLayout extends AbstractStringLayout {
 
         public KeyValuePair[] getAdditionalFields() {
             return additionalFields.clone();
+        }
+
+        public String getEcsVersion() {
+            return ecsVersion;
         }
 
         public String getServiceName() {
@@ -442,6 +450,11 @@ public class EcsLayout extends AbstractStringLayout {
          */
         public EcsLayout.Builder setAdditionalFields(final KeyValuePair[] additionalFields) {
             this.additionalFields = additionalFields.clone();
+            return this;
+        }
+
+        public EcsLayout.Builder setEcsVersion(final String ecsVersion) {
+            this.ecsVersion = ecsVersion;
             return this;
         }
 
@@ -497,7 +510,7 @@ public class EcsLayout extends AbstractStringLayout {
 
         @Override
         public EcsLayout build() {
-            return new EcsLayout(getConfiguration(), serviceName, serviceVersion, serviceEnvironment, serviceNodeName,
+            return new EcsLayout(getConfiguration(), ecsVersion, serviceName, serviceVersion, serviceEnvironment, serviceNodeName,
                     EcsJsonSerializer.computeEventDataset(eventDataset, serviceName),
                     includeMarkers, additionalFields, includeOrigin, exceptionPattern, stackTraceAsArray, mdcSerializerFullClassName);
         }
