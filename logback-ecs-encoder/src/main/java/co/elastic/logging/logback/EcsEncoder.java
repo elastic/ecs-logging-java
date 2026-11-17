@@ -46,6 +46,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
 
     private static final Charset UTF_8 = Charset.forName("UTF-8");
     private boolean stackTraceAsArray = false;
+    private String ecsVersion;
     private String serviceName;
     private String serviceVersion;
     private String serviceEnvironment;
@@ -108,7 +109,7 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         EcsJsonSerializer.serializeObjectStart(builder, event.getTimeStamp());
         EcsJsonSerializer.serializeLogLevel(builder, event.getLevel().toString());
         serializeMessage(event, builder);
-        EcsJsonSerializer.serializeEcsVersion(builder);
+        EcsJsonSerializer.serializeEcsVersion(builder, ecsVersion);
         serializeMarkers(event, builder);
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
         EcsJsonSerializer.serializeServiceVersion(builder, serviceVersion);
@@ -180,6 +181,10 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
     @Override
     public byte[] footerBytes() {
         return null;
+    }
+
+    public void setEcsVersion(String ecsVersion) {
+        this.ecsVersion = ecsVersion;
     }
 
     public void setServiceName(String serviceName) {

@@ -67,7 +67,16 @@ public class EcsJsonSerializer {
     }
 
     public static void serializeEcsVersion(StringBuilder builder) {
-        builder.append("\"ecs.version\": \"1.2.0\",");
+        serializeEcsVersion(builder, null);
+    }
+
+    public static void serializeEcsVersion(StringBuilder builder, String version) {
+        if (version == null) {
+            version = "1.2.0";
+        }
+        builder.append("\"ecs.version\":\"");
+        JsonUtils.quoteAsString(version, builder);
+        builder.append("\",");
     }
 
     public static void serializeObjectEnd(StringBuilder builder) {

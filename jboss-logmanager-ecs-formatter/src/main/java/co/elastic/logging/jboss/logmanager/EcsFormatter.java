@@ -35,6 +35,7 @@ import java.util.List;
 
 public class EcsFormatter extends ExtFormatter {
 
+    private String ecsVersion;
     private String serviceName;
     private String serviceVersion;
     private String serviceEnvironment;
@@ -45,6 +46,7 @@ public class EcsFormatter extends ExtFormatter {
     private boolean stackTraceAsArray;
 
     public EcsFormatter() {
+        ecsVersion = getProperty("co.elastic.logging.jboss.logmanager.EcsFormatter.ecsVersion", null);
         serviceName = getProperty("co.elastic.logging.jboss.logmanager.EcsFormatter.serviceName", null);
         serviceVersion = getProperty("co.elastic.logging.jboss.logmanager.EcsFormatter.serviceVersion", null);
         serviceEnvironment = getProperty("co.elastic.logging.jboss.logmanager.EcsFormatter.serviceEnvironment", null);
@@ -61,7 +63,7 @@ public class EcsFormatter extends ExtFormatter {
         EcsJsonSerializer.serializeObjectStart(builder, record.getMillis());
         EcsJsonSerializer.serializeLogLevel(builder, record.getLevel().getName());
         EcsJsonSerializer.serializeFormattedMessage(builder, record.getFormattedMessage());
-        EcsJsonSerializer.serializeEcsVersion(builder);
+        EcsJsonSerializer.serializeEcsVersion(builder, ecsVersion);
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
         EcsJsonSerializer.serializeServiceVersion(builder, serviceVersion);
         EcsJsonSerializer.serializeServiceEnvironment(builder, serviceEnvironment);
@@ -92,6 +94,10 @@ public class EcsFormatter extends ExtFormatter {
 
     public void setIncludeOrigin(final boolean includeOrigin) {
         this.includeOrigin = includeOrigin;
+    }
+
+    public void setEcsVersion(String ecsVersion) {
+        this.ecsVersion = ecsVersion;
     }
 
     public void setServiceName(final String serviceName) {

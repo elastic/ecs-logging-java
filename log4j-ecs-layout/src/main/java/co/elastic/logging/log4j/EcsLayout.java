@@ -39,6 +39,7 @@ public class EcsLayout extends Layout {
     private static final MdcAccess MDC_ACCESS = MdcAccess.Resolver.resolve();
 
     private boolean stackTraceAsArray = false;
+    private String ecsVersion;
     private String serviceName;
     private String serviceVersion;
     private String serviceEnvironment;
@@ -53,7 +54,7 @@ public class EcsLayout extends Layout {
         EcsJsonSerializer.serializeObjectStart(builder, event.timeStamp);
         EcsJsonSerializer.serializeLogLevel(builder, event.level.toString());
         EcsJsonSerializer.serializeFormattedMessage(builder, event.getRenderedMessage());
-        EcsJsonSerializer.serializeEcsVersion(builder);
+        EcsJsonSerializer.serializeEcsVersion(builder, ecsVersion);
         EcsJsonSerializer.serializeServiceName(builder, serviceName);
         EcsJsonSerializer.serializeServiceVersion(builder, serviceVersion);
         EcsJsonSerializer.serializeServiceEnvironment(builder, serviceEnvironment);
@@ -99,6 +100,10 @@ public class EcsLayout extends Layout {
     @Override
     public void activateOptions() {
         eventDataset = EcsJsonSerializer.computeEventDataset(eventDataset, serviceName);
+    }
+
+    public void setEcsVersion(String ecsVersion) {
+        this.ecsVersion = ecsVersion;
     }
 
     public void setServiceName(String serviceName) {
