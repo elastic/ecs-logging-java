@@ -37,6 +37,7 @@ import org.slf4j.Marker;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -45,6 +46,16 @@ import java.util.List;
 public class EcsEncoder extends EncoderBase<ILoggingEvent> {
 
     private static final Charset UTF_8 = Charset.forName("UTF-8");
+    private static final Method GET_SEQUENCE_NUMBER;
+    static {
+        Method m = null;
+        try {
+            m = ILoggingEvent.class.getMethod("getSequenceNumber");
+        } catch (NoSuchMethodException ignored) {
+        }
+        GET_SEQUENCE_NUMBER = m;
+    }
+    private boolean emitEventSequence;
     private boolean stackTraceAsArray = false;
     private String serviceName;
     private String serviceVersion;
@@ -72,6 +83,13 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
             throwableConverter.start();
         }
         eventDataset = EcsJsonSerializer.computeEventDataset(eventDataset, serviceName);
+        if (GET_SEQUENCE_NUMBER != null && getContext() != null) {
+            try {
+                Method getGenerator = getContext().getClass().getMethod("getSequenceNumberGenerator");
+                emitEventSequence = getGenerator.invoke(getContext()) != null;
+            } catch (Exception ignored) {
+            }
+        }
     }
 
     /**
@@ -115,6 +133,14 @@ public class EcsEncoder extends EncoderBase<ILoggingEvent> {
         EcsJsonSerializer.serializeServiceEnvironment(builder, serviceEnvironment);
         EcsJsonSerializer.serializeServiceNodeName(builder, serviceNodeName);
         EcsJsonSerializer.serializeEventDataset(builder, eventDataset);
+        if (emitEventSequence) {
+            try {
+                EcsJsonSerializer.serializeEventSequence(builder, (Long) GET_SEQUENCE_NUMBER.invoke(event));
+            } catch (Exception ignored) {
+                // Reflection call failed at runtime; disable for subsequent events
+                emitEventSequence = false;
+            }
+        }
         EcsJsonSerializer.serializeThreadName(builder, event.getThreadName());
         EcsJsonSerializer.serializeLoggerName(builder, event.getLoggerName());
         EcsJsonSerializer.serializeAdditionalFields(builder, additionalFields);
